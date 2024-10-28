@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model OSF_PEDIDOS {
+  FECHA_REGISTRO      DateTime? @db.Date
+  SS_NUMERO_ORDEN     String?   @db.VarChar(150)
+  OSF_SERIE_DOCUMENTO String    @id @db.VarChar(15)
+  BS_URL_PDF          String?   @db.VarChar(4000)
+}
+
+model OSF_PROMOTORA {
+  CODIGO_DOCIDEN      String  @db.VarChar(5)
+  NRO_DOCIDEN_CLIENTE String  @id @db.VarChar(15)
+  APELLIDO            String? @db.VarChar(75)
+  NOMBRES             String? @db.VarChar(75)
+  CLIENTE             String  @db.VarChar(75)
+  CODIGO_UBIGEO       String? @db.VarChar(8)
+  DIRECCION           String? @db.VarChar(100)
+  PUNTOS_KAYSER       Int?
+}
+
+model ubigeo_peru_departments {
+  id   String @id @db.VarChar(2)
+  name String @db.VarChar(45)
+}
+
+model ubigeo_peru_districts {
+  id            String  @id @db.VarChar(6)
+  name          String? @db.VarChar(45)
+  province_id   String? @db.VarChar(4)
+  department_id String? @db.VarChar(2)
+}
+
+model ubigeo_peru_provinces {
+  id            String @id @db.VarChar(4)
+  name          String @db.VarChar(45)
+  department_id String @db.VarChar(2)
+}
+
+model OSF_Product {
+  codigoEan String  @id @db.VarChar(100)
+  codigoSap String? @db.VarChar(100)
+  url_foto  String? @db.VarChar(300)
+}
+
+model roles {
+  id       Int        @id @default(autoincrement())
+  name   String     @unique(map: "name") @db.VarChar(150)
+  usuarios usuarios[]
+}
+
+model usuarios {
+  dni        String @id @db.VarChar(10)
+  name    String @db.VarChar(150)
+  lastName  String @db.VarChar(150)
+  email     String @unique(map: "email") @db.VarChar(100)
+  emailVerified String @db.VarChar(100)
+  password String @db.VarChar(100)
+  image String @db.VarChar(150)
+  rolId      Int
+  roles      roles  @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+
+  @@index([rolId], map: "rolId")
+}

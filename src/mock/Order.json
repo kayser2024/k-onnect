@@ -1,0 +1,160 @@
+{
+    "bEstado": true,
+    "iCodigo": "okResponse",
+    "sRpta": "realizado correctamente",
+    "obj": {
+        "ordenes": [
+            {
+                "solicitado": false,
+                "cupon": "",
+                "delivery_settings_id": null,
+                "cabecera_pedido": [
+                    {
+                        "dominio": "kayser.pe",
+                        "estado_pedido": "activo",
+                        "email_pedido": "lauranov88@gmail.com",
+                        "numero_orden": "ss1712945959739jgqa",
+                        "fecha_pedido": "2024-04-12T13:19:19.739Z"
+                    }
+                ],
+                "datos_facturacion": [
+                    {
+                        "tipo_de_doc": "boleta",
+                        "tipo_doc_identidad": "DNI",
+                        "id_cliente": "45451408",
+                        "nombres_facturacion": "Laura Vanessa Mendoza Dulanto",
+                        "email_facturacion": "lauranov88@gmail.com",
+                        "telefono_facturacion": "980091658",
+                        "moneda": "PEN"
+                    }
+                ],
+                "resumen_pedido": [
+                    {
+                        "disccount_coupon": 0,
+                        "disccount_catalog": 99.95000000000002,
+                        "disccount": 99.95,
+                        "costo_envio": "0.00",
+                        "impuesto": 0,
+                        "quantity": 2,
+                        "subtotal": 179.8,
+                        "total": 79.85,
+                        "gran_total": 79.85
+                    }
+                ],
+                "detalle_pedido": [
+                    {
+                        "sku": "7800010375722",
+                        "quantity_sku": 1,
+                        "recurrente": "",
+                        "additional_details": [],
+                        "title": "PIJAMA DAMA 60.1470 ALGODÓN GRIS",
+                        "price": 99.9,
+                        "sku_padre": "PRD1677185139614",
+                        "atributo1_titulo": "talla",
+                        "atributo1_valor": "M",
+                        "atributo2_titulo": "color",
+                        "atributo2_valor": "GRIS",
+                        "peso": 1,
+                        "sale_price": 39.9,
+                        "tag": "KAYSER-DAYS-2024,PIJAMA DAMA 60.1470 ALGODÓN GRIS,PIJAMAS-MUJER,MUJER,PIJAMAS MUJER,LIQUIDACION-FINAL,PIJAMAS MUJER,MUJER,PIJAMA DAMA 60.1470 ALGODÓN GRIS ,Otoño-Invierno-2023,nuevo,sale, PROMO-TODA-LA-WEB,Kayser-oi23-20D,promomadre2023,KAYSER-MOM-2023,KAYSERSALE16-2023,KAYSERPROMO17052023,KAYSER-PIJAMAS-30,nocurno19,KAYSER-MEGA-45,KAYSER-SELECCIONADOS-20-08062023,KAYSER-SUPERDAD,KAYSER-SELECCIONADOS-20-19062023,sale,sale,sale,KAYSER-SELECCIONADOS-08072023,40SELECCIONADOS-07-08-2023,PROMO-COMPRA-30,PROMO-COMPRA-35,PIJAMANIA,DIA-DEL-SHOPPING,LUNES-PIJAMAS,KRISTMAS-SALE,NEWYEAR24,VENTA-FINAL-MARZO-24",
+                        "promo": "PIJAMA DAMA 60.1470 ALGODÓN GRIS,MUJER,PIJAMAS MUJER,PIJAMAS-MUJER,NEWYEAR24,LUNES-PIJAMAS,DIA-DEL-SHOPPING,PIJAMANIA,PROMO-COMPRA-35,PROMO-COMPRA-30,40SELECCIONADOS-07-08-2023,PROMO08072023,ALGLICPROMO19062023,SUPERDADPROMO15062023,ALGLICPROMO08062023,MEGA45PROMO31052023,KAYSER30PROMO18052023,KAYSERPROMO17052023,KAYSERSALE16052023,PIJAMAS MUJER,MUJER,PRD1677185139614,all,,,kaysermom2023,KRISTMAS-SALE,LIQUIDACION-FINAL,VENTA-FINAL-MARZO-24",
+                        "url_imagen_sku": "https://s3.us-east-2.amazonaws.com/sami4tiendas.sami-shop.com/kayser.pe/images/productos/60-1470-GRI-1-10740.jpg",
+                        "categoria": "MUJER",
+                        "sub_categoria": "PIJAMAS MUJER",
+                        "subtotal_sku": 39.9
+                    },
+                    {
+                        "sku": "7800010356837",
+                        "quantity_sku": 1,
+                        "recurrente": "",
+                        "additional_details": [],
+                        "title": "BABY DOLL 73.8098 MICROFIBRA GRIS",
+                        "price": 79.9,
+                        "sku_padre": "S0000559188",
+                        "atributo1_titulo": "talla",
+                        "atributo1_valor": "34b",
+                        "atributo2_titulo": "color",
+                        "atributo2_valor": "GRIS",
+                        "peso": 1,
+                        "sale_price": 39.95,
+                        "tag": "KAYSER-DAYS-2024,BABY DOLL 73.8098 MICROFIBRA GRIS,BABY DOLL 73.8098 MICROFIBRA GRIS,BABY-DOLL-MUJER,MUJER,BABY DOLL MUJER,VALENTIN-BABYDOLL,LIQUIDACION-FINAL,BABY DOLL MUJER,MUJER,BABY DOLL 73.8098 MICROFIBRA GRIS,BABY,DOLL,73.8098,MICROFIBRA,GRIS,Primavera-Verano-2023,PROMO-TODA-LA-WEB,sale,promomadre2023,KAYSER-MEGA-45,KAYSER-SUPERDAD,sale,sale,sale,PROMO-COMPRA-30,MITAD-PRECIO-2023,PIJAMANIA,DIA-DEL-SHOPPING,KRISTMAS-SALE,NEWYEAR24,VENTA-FINAL-MARZO-24",
+                        "promo": "BABY DOLL 73.8098 MICROFIBRA GRIS,MUJER,BABY DOLL MUJER,BABY-DOLL-MUJER,NEWYEAR24,DIA-DEL-SHOPPING,PIJAMANIA,MITAD-PRECIO-2023,PROMO-COMPRA-30,SUPERDADPROMO15062023,MEGA45PROMO31052023,BABY DOLL MUJER,MUJER,S0000559188,all,,,KRISTMAS-SALE,LIQUIDACION-FINAL,VALENTIN-BABYDOLL,VENTA-FINAL-MARZO-24",
+                        "url_imagen_sku": "https://storage.googleapis.com/sspe-appv20-resources/kayser.pe/images/productos/73-7800010356837T13551.8098-GRIB-32-1",
+                        "categoria": "MUJER",
+                        "sub_categoria": "BABY DOLL MUJER",
+                        "subtotal_sku": 39.95
+                    }
+                ],
+                "terminos_legales": [
+                    {
+                        "acepta_condiciones": "si",
+                        "acepta_datos": "si"
+                    }
+                ],
+                "situacion_envio": [
+                    {
+                        "estado_envio": "pendiente",
+                        "preparacion": "",
+                        "listo_envio": "",
+                        "enviado": "",
+                        "recibido": "",
+                        "operador_logistico": "",
+                        "tracking": "",
+                        "ticket_url": null,
+                        "metodo_despacho": "",
+                        "envio_solicitado": false,
+                        "fecha_envio_solicitado": null,
+                        "estado_impreso": false,
+                        "estado_sincronizado": false
+                    }
+                ],
+                "situacion_facturacion": [
+                    {
+                        "estado_facturacion": "pendiente",
+                        "fecha_envio_facturacion": "",
+                        "link_doc1": "",
+                        "link_doc2": ""
+                    }
+                ],
+                "situacion_erp": [
+                    {
+                        "estado_erp": "pendiente",
+                        "fecha_envio_erp": ""
+                    }
+                ],
+                "situacion_pagos": [
+                    {
+                        "estado_pago": "pagado",
+                        "fecha_pago": "2024-04-12T13:20:24.512Z",
+                        "metodo_pago": "mercadopago.com",
+                        "mo": "ss1712945959739jgqa",
+                        "payment_details": []
+                    }
+                ],
+                "datos_envio": [
+                    {
+                        "nombres_envio": "Laura Vanessa Mendoza Dulanto",
+                        "apellidos_envio": "Laura Vanessa Mendoza Dulanto",
+                        "direccion_envio": "Tienda Real Plaza Salaverry",
+                        "referencia_envio": "",
+                        "telefono_envio": "980091658",
+                        "pais": "Peru",
+                        "departamento": "Lima",
+                        "provincia": "Lima",
+                        "distrito": "Jesús María",
+                        "dni_envio": "45451408",
+                        "servicio_envio": "recojo en tienda",
+                        "ubigeo": "150141",
+                        "tipo_envio": "recojo en tienda"
+                    }
+                ],
+                "otros": [],
+                "promoter": [],
+                "cod_payme": "00421505"
+            }
+        ],
+        "paginas totales": 1,
+        "pagina actual": 1,
+        "total de registros": 1
+    }
+}

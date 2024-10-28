@@ -1,0 +1,28 @@
+export type EtiquetaDinet = {
+    nro_pedido: string;
+    nro_doc_referencia: string;
+    fecha_pedido: string;
+    fecha_entrega?: string;
+    cliente: string;
+    dni_cliente: string;
+    telef_cliente: string;
+    mail_cliente: string;
+    dir_entrega: string;
+    nom_contacto?: string;
+    dni_contacto?: string;
+    cant_bultos_totales: number;
+    departamento: string;
+    provincia: string;
+    distrito: string;
+    observaciones?: string;
+    etiqueta?: string;
+    cod_origen: string;
+    fecha_estimada_recojo?: string;
+    tipo_pago?: string;
+    valor_mercaderia?: string;
+    cod_clasificacion: string;
+    referencias?: string;
+    nombre_marca?: string;
+    peso?: string;
+    volumen?: string;
+};
