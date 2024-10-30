@@ -68,17 +68,24 @@ async function fetchingPaymentDocument(orden: string) {
     return data
 }
 
-async function CardFacturacion(comprobante: OSF_PEDIDOS) {
+async function CardFacturacion({ situacion_facturacion }: { situacion_facturacion: any }) {
+console.log(situacion_facturacion,'👀');
+    const fecha = situacion_facturacion?.fecha_envio_facturacion;
+    const estado_facturacion = situacion_facturacion?.estado_facturacion;
+    const link_doc1 = situacion_facturacion?.link_doc1;
+    const link_doc2 = situacion_facturacion?.link_doc2;
 
-    const fecha = comprobante.FECHA_REGISTRO!.toLocaleDateString()
+    // Validar que fecha tenga un valor antes de dividirla en partes
+    let fechaFormateada = "";
+    let fechaFormateada2 = "";
 
-    let [dia, mes, anio] = fecha.split('/')
-
-    dia = Number(dia) < 10 ? `0${dia}` : dia
-    mes = Number(mes) < 10 ? `0${mes}` : mes
-
-    const fechaFormateada = `${dia}/${mes}/${anio}`
-    const fechaFormateada2 = `${mes}/${dia}/${anio}`
+    if (fecha) {
+        const [anio, mes, dia] = fecha.split("T")[0].split("-");
+        fechaFormateada = `${dia}/${mes}/${anio}`; // Formato "dd/mm/yyyy"
+        fechaFormateada2 = `${mes}/${dia}/${anio}`; // Formato "mm/dd/yyyy"
+    } else {
+        console.log("La fecha no está definida.");
+    }
 
     return (
         <Card>
@@ -90,27 +97,38 @@ async function CardFacturacion(comprobante: OSF_PEDIDOS) {
                 <div className="flex gap-2">
                     <div >
                         <span className="text-xs text-gray-400">Comprobante</span>
-                        <AccionCopiar className="font-bold" texto={comprobante.OSF_SERIE_DOCUMENTO} />
+                        {/* <AccionCopiar className="font-bold" texto={comprobante.OSF_SERIE_DOCUMENTO} /> */}
+                        <AccionCopiar className="font-bold" texto={estado_facturacion} />
                     </div>
                 </div>
 
                 <div >
                     <span className="text-xs text-gray-400">Fecha</span>
-                    <AccionCopiar texto={fechaFormateada} />
+                    <AccionCopiar texto={fechaFormateada } />
                 </div>
 
                 <div >
                     <span className="text-xs text-gray-400">Fecha</span>
-                    <AccionCopiar texto={fechaFormateada2} />
+                    <AccionCopiar texto={fechaFormateada2 } />
                 </div>
                 <div >
 
-                    <a className="font-bold flex gap-2 items-center my-2" target="_blank" href={`https://tutati.com/pe/outputs?uid_outputs=&eid_outputs=${comprobante.OSF_SERIE_DOCUMENTO}`}>
+                    <a className="font-bold flex gap-2 items-center my-2" target="_blank" href={`https://tutati.com/pe/outputs?uid_outputs=&eid_outputs=${estado_facturacion}`}>
                         <Eye size={20} />
                         Ver en tutati
                     </a>
                 </div>
-                <a target="_blank" className="w-full bg-black text-white text-center p-2 rounded-lg" href={`${comprobante.BS_URL_PDF}`}>Ver Boleta</a>
+                {/* <a target="_blank" className={`w-full bg-black text-white text-center p-2 rounded-lg`}  href={`${link_doc1}`}>Ver Boleta</a> */}
+
+                <a
+  target="_blank"
+  className={`w-full text-center p-2 rounded-lg ${
+    link_doc1 ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"
+  }`}
+  href={link_doc1 || undefined} // Deja href como undefined si link_doc1 está vacío
+>
+  Ver Boleta
+</a>
 
             </CardContent>
         </Card>
@@ -118,7 +136,15 @@ async function CardFacturacion(comprobante: OSF_PEDIDOS) {
 }
 
 async function CardComentarios({ comentarios }: { comentarios: string }) {
-    const data = JSON.parse(comentarios)
+    let data;
+
+    try {
+        data = JSON.parse(comentarios);
+        if (!Array.isArray(data)) throw new Error('El JSON no es un array');
+    } catch (error) {
+        console.error('Formato JSON inválido:', error);
+        return null; 
+    }
 
     return (
         <Card>
@@ -203,14 +229,12 @@ async function HomeOrden({ params }: Props) {
 
 
     const data = await fetchingDataFromOrder(orden)
-    console.log(data);
 
     if (data.obj === null) {
         return <div>No se encontro la orden</div>
     }
 
     const ordenes = data.obj?.ordenes[0]
-
 
 
     const cupon = '';
@@ -223,7 +247,11 @@ async function HomeOrden({ params }: Props) {
     const situacion_envio = ordenes.situacion_envio[0]
     const situacion_facturacion = ordenes.situacion_facturacion[0]
 
+console.log(situacion_facturacion,'🟢')
+
+    // traer datos de la facturación de la api
     const comprobante: OSF_PEDIDOS | null = await fetchingPaymentDocument(orden)
+
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
     const productos = formatedDetallePedido(detalle_pedido)
 
@@ -241,6 +269,15 @@ async function HomeOrden({ params }: Props) {
     if (situacion_pagos.estado_pago === 'pagado') colorEstado = "bg-green-300"
     else if (situacion_pagos.estado_pago === 'cancelado') colorEstado = "bg-red-300"
     else if (situacion_pagos.estado_pago === 'pendiente') colorEstado = "bg-orange-300"
+
+    // "situacion_facturacion": [
+    //                 {
+    //                     "estado_facturacion": "BW17-28385",
+    //                     "fecha_envio_facturacion": "2024-10-28T21:48:41.000Z",
+    //                     "link_doc1": "",
+    //                     "link_doc2": ""
+    //                 }
+    //             ],
 
 
     return (
@@ -385,7 +422,7 @@ async function HomeOrden({ params }: Props) {
                 <div className="flex flex-col  gap-2">
 
                     <Suspense fallback={<div>Cargando </div>}>
-                        {comprobante ? <CardFacturacion {...comprobante} /> : <EmptyCardFacturacion />}
+                        {(situacion_facturacion.estado_facturacion!=='pendiente') ? <CardFacturacion  situacion_facturacion={situacion_facturacion}/> : <EmptyCardFacturacion />}
                     </Suspense>
 
                     <Card>
