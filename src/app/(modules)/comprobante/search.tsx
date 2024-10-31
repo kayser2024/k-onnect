@@ -22,17 +22,17 @@ export default function SearchComprobante() {
             params.delete('search');
         }
         replace(`${pathname}?${params.toString()}`)
-    }, 150)
+    }, 300)
 
 
     const handleInput = (type: string) => {
 
         const params = new URLSearchParams(searchParams)
         if (type) {
-            if (type === 'OSF_SERIE_DOCUMENTO')
-                params.set('type', 'OSF_SERIE_DOCUMENTO')
+            if (type === 'estado_facturacion')
+                params.set('type', 'estado_facturacion')
             else {
-                params.set('type', 'SS_NUMERO_ORDEN')
+                params.set('type', 'orderNumber')
             }
         } else {
             params.delete('type')
@@ -50,8 +50,8 @@ export default function SearchComprobante() {
                     <SelectValue placeholder="Selecciona" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="OSF_SERIE_DOCUMENTO">Boleta</SelectItem>
-                    <SelectItem value="SS_NUMERO_ORDEN">Orden</SelectItem>
+                    <SelectItem value="estado_facturacion">Boleta</SelectItem>
+                    <SelectItem value="orderNumber">Orden</SelectItem>
                 </SelectContent>
             </Select>
         </div>

@@ -22,8 +22,7 @@ async function fetchingData(currentPage: number, search: string, type: string) {
         cache: "no-cache"
     }).then(res => res.json())
 
-    console.log(process.env.SAMISHOP_API_TOKEN)
-    console.log(process.env.SAMISHOP_API_TOKEN?.length)
+
     console.log('Fetching terminado');
     console.log(data)
 

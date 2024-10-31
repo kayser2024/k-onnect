@@ -3,6 +3,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
+import { BoletaResponse, Orden, OrdenResponse } from '@/types/Orden'
 
 interface Params {
     search: string,
@@ -14,42 +15,45 @@ async function fetchingData(currentPage: number, search: string, type: string) {
 
     console.log('type', type, search)
 
-    if (type == 'OSF_SERIE_DOCUMENTO') {
-        console.log('Buscando boletas')
-        const dbData = await prisma.oSF_PEDIDOS.findMany({
-            take: 25,
-            orderBy: {
-                FECHA_REGISTRO: 'desc'
+    if (type == 'estado_facturacion') {
+        const data:OrdenResponse = await fetch(`${process.env.WIN_WIN_URL}?${type}=${search}&page=${currentPage}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': process.env.SAMISHOP_API_TOKEN as string
             },
-            where: search ? {
-                OSF_SERIE_DOCUMENTO: {
-                    contains: search
-                }
-            } : {}
-        })
-        return dbData
+            cache: "no-cache"
+        }).then(res => res.json())
+
+    return data
+
     } else {
 
         console.log('Buscando ordenes')
-        const dbData = await prisma.oSF_PEDIDOS.findMany({
 
-            take: 25,
-            orderBy: {
-                FECHA_REGISTRO: 'desc'
+        const data:OrdenResponse = await fetch(`${process.env.WIN_WIN_URL}?${type}=${search}&page=${currentPage}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': process.env.SAMISHOP_API_TOKEN as string
             },
-            where: search ? {
-                SS_NUMERO_ORDEN: {
-                    contains: search
-                }
-            } : {}
-        })
-        return dbData
+            cache: "no-cache"
+        }).then(res => res.json())
+
+    return data
     }
 }
 
 async function TableComprobantes({ currentPage, search, type }: Params) {
 
-    const boletas = await fetchingData(currentPage, search, type)
+    const data:OrdenResponse = await fetchingData(currentPage, search, type)
+    const ordenes=data.obj?.ordenes?.filter(
+        orden => orden.situacion_facturacion[0].estado_facturacion !== 'pendiente'
+    );
+    
+    if (!ordenes) {
+        return <div>Contenido no encontrado</div>
+    }
 
     return (
 
@@ -67,28 +71,42 @@ async function TableComprobantes({ currentPage, search, type }: Params) {
 
                 <TableBody>
                     {
-                        boletas.map(boleta => {
+                        ordenes.map((orden:Orden ) => {
 
-                            const fecha = boleta.FECHA_REGISTRO!.toLocaleDateString()
-                            let [dia, mes, anio] = fecha.split('/')
 
-                            dia = Number(dia) < 10 ? `0${dia}` : dia
-                            mes = Number(mes) < 10 ? `0${mes}` : mes
+                            const fecha = orden.situacion_facturacion[0].fecha_envio_facturacion;
+                        
+                            // Validar que fecha tenga un valor antes de dividirla en partes
+                            let fechaFormateada = "";
+                        
+                            if (fecha) {
+                                const [anio, mes, dia] = fecha.split("T")[0].split("-");
+                                fechaFormateada = `${dia}/${mes}/${anio}`; // Formato "dd/mm/yyyy"
+                            } else {
+                                console.log("La fecha no está definida.");
+                            }
+                            
 
-                            const fechaFormateada = `${dia}/${mes}/${anio}`
                             return (
-                                <TableRow className=" text-xs" key={boleta.OSF_SERIE_DOCUMENTO}>
+                                <TableRow className=" text-xs" key={orden.cabecera_pedido[0].numero_orden}>
+                                     {/* <tr key={i}>{JSON.stringify(boleta,null,2)}</tr> */}
+
                                     <TableCell className="lowercase text-center">{fechaFormateada}</TableCell>
-                                    <TableCell className='text-center'>{boleta.OSF_SERIE_DOCUMENTO}</TableCell>
-                                    <TableCell className="text-blue-700 font-bold text-center">
-                                        <Link href={`/pedido/${boleta.SS_NUMERO_ORDEN}`}>{boleta.SS_NUMERO_ORDEN}</Link>
-                                    </TableCell>
-                                    <TableCell className='flex justify-center'>
-                                        <a target='_blank' className='flex items-center gap-2 bg-black p-2 text-white rounded-lg' href={boleta.BS_URL_PDF as string}>
-                                            <FileText />
-                                            Ver Boleta
-                                        </a>
-                                    </TableCell>
+                                     <TableCell className='text-center'>{orden.situacion_facturacion[0].estado_facturacion}</TableCell>
+                                     <TableCell className="text-blue-700 font-bold text-center">
+                                         <Link href={`/pedido/${orden.cabecera_pedido[0].numero_orden}`}>{orden.cabecera_pedido[0].numero_orden}</Link>
+                                     </TableCell>
+                                     <TableCell className='flex justify-center'>
+                                         <a target='_blank' 
+                                         className={`w-full  flex flex-col  items-center  justify-center text-center p-2 rounded-lg ${
+                                            orden.situacion_facturacion[0].link_doc1 as string ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"
+                                          }`}
+                                        //  className='flex items-center gap-2 bg-black p-2 text-white rounded-lg' 
+                                         href={orden.situacion_facturacion[0].link_doc1 as string || undefined}>
+                                             <FileText />
+                                             Ver Boleta
+                                         </a>
+                                     </TableCell>
                                 </TableRow>
                             )
                         }

@@ -23,7 +23,7 @@ export default function ComprobantePage({
     console.log(searchParams);
     const search = searchParams?.search || ''
     const currentPage = Number(searchParams?.page) || 1
-    const type = searchParams?.type || 'OSF_SERIE_DOCUMENTO'
+    const type = searchParams?.type || 'estado_facturacion'
 
 
     return (

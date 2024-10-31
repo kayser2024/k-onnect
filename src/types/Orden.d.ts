@@ -4,6 +4,13 @@ export interface OrdenResponse {
     sRpta: string;
     obj: Objeto;
 }
+export interface BoletaResponse {
+    bEstado: boolean;
+    iCodigo: string;
+    sRpta: string;
+    obj: Objeto;
+}
+
 
 export interface Objeto {
     ordenes: Orden[];
