@@ -31,9 +31,8 @@ export default function ComprobantePage({
             <SearchComprobante />
 
             <Suspense key={search + currentPage + type} fallback={<TableComprobanteSkeleton />}>
-                <TableComprobantes currentPage={currentPage} search={search} type={type} />
+                <TableComprobantes  />
             </Suspense>
-            {/* <p>xd</p> */}
         </div>
 
     )
