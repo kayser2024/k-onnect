@@ -14,7 +14,7 @@ function TableComprobanteSkeleton() {
             </TableHeader>
             <TableBody>
                 {
-                    Array(25).fill(1).map((_, index) => (
+                    Array(10).fill(1).map((_, index) => (
                         <TableRow key={index}>
                             <TableHead><Skeleton className="h-[25px] w-[350px] rounded-xl" /></TableHead>
                             <TableHead><Skeleton className="h-[25px] w-[350px] rounded-xl" /></TableHead>

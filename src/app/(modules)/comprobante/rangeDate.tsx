@@ -1,28 +1,58 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { addDays, addMonths, format } from "date-fns"
-import { es } from "date-fns/locale" // Importa el idioma español
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import * as React from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 export function DatePickerWithRange({
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-  // Establece el rango de fechas por defecto con la fecha actual
+}: {
+  startDate: Date;
+  endDate: Date;
+  setStartDate: (date: Date) => void;
+  setEndDate: (date: Date) => void;
+  className?: string;
+}) {
+  // Initialize the date range based on the provided startDate and endDate
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: addMonths(new Date(),-3),
-    to: new Date(),
-  })
+    from: startDate,
+    to: endDate,
+  });
+
+  // Update external startDate and endDate when the date range changes
+  const handleDateChange = (range: DateRange | undefined) => {
+    if (range?.from && range.to) {
+      const start = new Date(range.from);
+      const end = new Date(range.to);
+      const oneMonthLater = new Date(start);
+      oneMonthLater.setMonth(start.getMonth() + 1);
+
+      // Check if the end date exceeds one month from the start date
+      if (end > oneMonthLater) {
+        // Set the end date to one month after the start date
+        range.to = oneMonthLater;
+      }
+    }
+
+    setDate(range);
+    if (range?.from) setStartDate(format(range.from, "yyyy-MM-dd"));
+    if (range?.to) setEndDate(format(range.to, "yyyy-MM-dd"));
+  };
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -32,7 +62,7 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-[250px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
@@ -56,13 +86,13 @@ export function DatePickerWithRange({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleDateChange}
             numberOfMonths={2}
             locale={es}
-            disabled={{after:new Date()}}
+            disabled={{ after: new Date() }}
           />
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
