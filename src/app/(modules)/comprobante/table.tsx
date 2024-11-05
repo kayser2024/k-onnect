@@ -15,9 +15,11 @@ import { fetchingAllData } from "./fetchingData";
 import { format } from "date-fns";
 import SearchComprobante from "./search";
 import { Button } from "@/components/ui/button";
+import TableSkeleton from "../pedido/tableSkeleton";
+import { toast } from "sonner";
 
 export function TableComprobantes() {
-    const hoy = format(new Date(), "yyyy-MM-dd");
+    const hoy = new Date();
 
     const [loading, setLoading] = useState(false);
     const [comprobantes, setComprobantes] = useState(null);
@@ -32,18 +34,19 @@ export function TableComprobantes() {
         setLoading(true);
         try {
             console.log({ startDate, endDate }, "🚩🚩");
-            const data = await fetchingAllData(startDate, endDate);
+            const data = await fetchingAllData(format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd'));
             setComprobantes(data.ordenes);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error al obtener datos:", error);
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadData(); // Cargar datos al montar el componente
-    }, []); // Dependencias para cargar datos cuando cambian las fechas
+        loadData();
+    }, []);
 
     useEffect(() => {
         const filters = [];
@@ -70,14 +73,14 @@ export function TableComprobantes() {
         },
         initialState: {
             pagination: {
-                pageSize: 20, // Set the default page size to 20
+                pageSize: 20,
             },
         },
     });
 
-    if (loading) {
-        return <div>Cargando...</div>; // Mostrar un mensaje de carga
-    }
+    // if (loading) {
+    //     return <TableSkeleton />;
+    // }
 
 
     console.log({ searchBoleta, searchPedido });
@@ -97,32 +100,38 @@ export function TableComprobantes() {
                 searchBoleta={searchBoleta}
             />
 
-            <table className="min-w-full border-collapse">
-                <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th key={header.id} className="border p-2 text-center">
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className="border-b">
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id} className="border p-2 text-center">
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {loading
+                ? <TableSkeleton />
+                :
+                (<table className="min-w-full border-collapse">
+                    <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th key={header.id} className="border p-2 text-center">
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr key={row.id} className="border-b">
+                                {row.getVisibleCells().map((cell) => (
+                                    <td key={cell.id} className="border p-2 text-center">
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>)
+            }
+
+
 
 
             <div className="flex items-center justify-end space-x-2 py-4">

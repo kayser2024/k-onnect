@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -34,24 +34,21 @@ export function DatePickerWithRange({
     to: endDate,
   });
 
-  // Update external startDate and endDate when the date range changes
   const handleDateChange = (range: DateRange | undefined) => {
     if (range?.from && range.to) {
       const start = new Date(range.from);
       const end = new Date(range.to);
-      const oneMonthLater = new Date(start);
-      oneMonthLater.setMonth(start.getMonth() + 1);
+      const oneWeekLater = addDays(start, 7);
 
-      // Check if the end date exceeds one month from the start date
-      if (end > oneMonthLater) {
-        // Set the end date to one month after the start date
-        range.to = oneMonthLater;
+      // Restrict the end date to one week from the start date
+      if (end > oneWeekLater) {
+        range.to = oneWeekLater;
       }
     }
 
     setDate(range);
-    if (range?.from) setStartDate(format(range.from, "yyyy-MM-dd"));
-    if (range?.to) setEndDate(format(range.to, "yyyy-MM-dd"));
+    if (range?.from) setStartDate(range.from);
+    if (range?.to) setEndDate(range.to);
   };
 
   return (

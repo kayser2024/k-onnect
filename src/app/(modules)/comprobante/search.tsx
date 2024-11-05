@@ -5,8 +5,19 @@ import { DatePickerWithRange } from "./rangeDate"
 import { Button } from "@/components/ui/button"
 
 
-
-export default function SearchComprobante({ startDate, setStartDate, endDate, setEndDate, onLoadData, loading, searchPedido, setSearchPedido, searchBoleta, setSearchBoleta }) {
+interface SearchComprobanteProps {
+    startDate: Date;
+    setStartDate: (date: Date) => void;
+    endDate: Date;
+    setEndDate: (date: Date) => void;
+    onLoadData: () => void;
+    loading: boolean;
+    searchPedido: string;
+    setSearchPedido: (pedido: string) => void;
+    searchBoleta: string;
+    setSearchBoleta: (boleta: string) => void;
+}
+export default function SearchComprobante({ startDate, setStartDate, endDate, setEndDate, onLoadData, loading, searchPedido, setSearchPedido, searchBoleta, setSearchBoleta }: SearchComprobanteProps) {
 
 
     return (
