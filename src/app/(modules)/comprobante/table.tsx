@@ -78,13 +78,6 @@ export function TableComprobantes() {
         },
     });
 
-    // if (loading) {
-    //     return <TableSkeleton />;
-    // }
-
-
-    console.log({ searchBoleta, searchPedido });
-
     return (
         <div className="flex flex-col gap-4">
             <SearchComprobante

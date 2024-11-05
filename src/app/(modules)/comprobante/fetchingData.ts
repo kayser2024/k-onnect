@@ -26,7 +26,6 @@ async function fetchWithRetry(url: string, options: object, retries = 3, delay =
 }
 
 export async function fetchingAllData(start: string, end: string) {
-
     const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}`,
         {
             method: 'GET',
@@ -34,14 +33,17 @@ export async function fetchingAllData(start: string, end: string) {
                 'Content-Type': 'application/json',
                 'Authorization': process.env.SAMISHOP_API_TOKEN as string
             },
-            cache: "no-cache"
+            cache: "default"
         }
     );
     const firstData = await firstResponse;
 
-    // Calculamos el número total de páginas
     const totalPages = firstData.obj["paginas totales"];
     let allOrders = firstData.obj["ordenes"];
+
+    if (totalPages > 50) {
+        throw new Error("Por favor, selecciona un rango de fechas más corto para reducir la cantidad de páginas.");
+    }
 
     if (totalPages > 1) {
         const requests = [];
@@ -54,7 +56,7 @@ export async function fetchingAllData(start: string, end: string) {
                         'Content-Type': 'application/json',
                         'Authorization': process.env.SAMISHOP_API_TOKEN as string
                     },
-                    cache: "no-cache"
+                    cache: "default"
                 }).then(res => res.json().then(data => data.obj["ordenes"]))
                     .catch(error => {
                         console.error(`Failed to fetch page ${page}`, error);
@@ -63,10 +65,9 @@ export async function fetchingAllData(start: string, end: string) {
             );
         }
 
-        // Esperamos a que todas las solicitudes se completen
+        console.log(requests.length, '🚩')
         const results = await Promise.all(requests);
 
-        // Extraemos y combinamos todas las ordenes de cada página
         results.forEach(orders => {
             allOrders = allOrders.concat(orders);
         });
