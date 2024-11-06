@@ -8,11 +8,26 @@ import { Badge } from '@/components/ui/badge';
 // Define las columnas como una constante
 export const columns: ColumnDef<Orden>[] = [
     {
+        header: "Nombre Cliente",
+        cell: ({ row }) => {
+            const nombre = row.original.datos_facturacion[0].nombres_facturacion
+            return <p className='text-sm text-left'>{nombre.toUpperCase()}</p>
+        }
+    },
+    {
+        header: "Nro Doc",
+        cell: ({ row }) => {
+            const nro_doc = row.original.datos_facturacion[0].id_cliente
+            return <p className='text-sm text-left'>{nro_doc}</p>
+        }
+    },
+
+    {
         accessorKey: 'fechaPedido',
         header: 'Fecha Pedido',
         cell: ({ row }) => {
-            let fecha = format(row.original.cabecera_pedido[0].fecha_pedido,'dd / MM / yy')
- 
+            let fecha = format(row.original.cabecera_pedido[0].fecha_pedido, 'dd / MM / yy')
+
             // fecha = format(fecha, 'dd / MM / yy');
 
             return (

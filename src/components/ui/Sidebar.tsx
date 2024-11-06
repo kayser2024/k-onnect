@@ -20,15 +20,17 @@ export const Sidebar = () => {
     const closeMenu = useUIStore(state => state.closeSideMenu);
 
     const rutasATC = [
+        // {
+        //     nombre: 'ordenes',
+        //     icon: <Search />,
+        //     ruta: '/pedido'
+        // },
+        // {
+        //     nombre: 'Boletas',
+        //     icon: <FileText />,
+        //     ruta: '/comprobante'
+        // },
         {
-            nombre: 'ordenes',
-            icon: <Search />,
-            ruta: '/pedido'
-        }, {
-            nombre: 'Boletas',
-            icon: <FileText />,
-            ruta: '/comprobante'
-        }, {
             nombre: 'Transferencias',
             icon: <FileText />,
             ruta: '/transferencias'

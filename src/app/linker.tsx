@@ -17,7 +17,7 @@ function Linker({ links }: { links: NavLinks[] }) {
 
     const pathname = usePathname()
 
-    console.log(pathname)
+    // console.log(pathname)
     return (
         <>
             {links.map(link => (
