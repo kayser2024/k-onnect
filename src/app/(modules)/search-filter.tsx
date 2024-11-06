@@ -13,9 +13,9 @@ interface SearchFilterProps {
 const SearchFilter = ({ searchBoleta, searchPedido, setSearchBoleta, setSearchPedido, searchDNI, setSearchDNI }: SearchFilterProps) => {
     return (
         <div className='flex gap-4 mb-4 mt-4 mx-2'>
-            <Input className="" value={searchBoleta} onChange={(e) => setSearchBoleta(e.target.value.trim())} placeholder="Filtrar por Boleta..." />
-            <Input className="" value={searchPedido} onChange={(e) => setSearchPedido(e.target.value.trim())} placeholder="Filtrar por Orden..." />
-            <Input className="" value={searchDNI} onChange={(e) => setSearchDNI(e.target.value.trim())} placeholder="Filtrar por DNI..." />
+            <Input className="bg-gray-50" value={searchBoleta} onChange={(e) => setSearchBoleta(e.target.value.trim())} placeholder="Filtrar por Boleta..." />
+            <Input className="bg-gray-50" value={searchPedido} onChange={(e) => setSearchPedido(e.target.value.trim())} placeholder="Filtrar por Orden..." />
+            <Input className="bg-gray-50" value={searchDNI} onChange={(e) => setSearchDNI(e.target.value.trim())} placeholder="Filtrar por DNI..." />
         </div>
     )
 }

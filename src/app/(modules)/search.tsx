@@ -9,6 +9,7 @@ import { DatePickerWithRange } from "./rangeDate"
 import { toast } from "sonner"
 import { fetchMain } from "@/actions/fetch"
 import { Loader2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface SearchMainProps {
     startDate: Date;
@@ -73,9 +74,17 @@ export default function SearchMain({ startDate, setStartDate, endDate, setEndDat
         <div className="flex flex-col  justify-center gap-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="flex gap-4">
-
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="terms" />
+                        <label
+                            htmlFor="terms"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Pagado
+                        </label>
+                    </div>
                     <DatePickerWithRange startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} isExact={isExact} />
-                    <Button variant='default' onClick={onLoadData} disabled={loading || isExact}>{loading ? <> <Loader2 className="animate-spin"/> Cargando ... </> : "Cargar Datos"}</Button>
+                    <Button variant='default' onClick={onLoadData} disabled={loading || isExact}>{loading ? <> <Loader2 className="animate-spin" /> Cargando ... </> : "Cargar Datos"}</Button>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Switch id="airplane-mode" checked={isExact} onCheckedChange={() => setIsExact(!isExact)} />
