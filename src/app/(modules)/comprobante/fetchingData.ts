@@ -1,6 +1,5 @@
 'use server'
 
-
 async function fetchWithRetry(url: string, options: object, retries = 3, delay = 1000) {
     for (let attempt = 0; attempt < retries; attempt++) {
         const controller = new AbortController();
@@ -41,36 +40,51 @@ export async function fetchingAllData(start: string, end: string) {
     const totalPages = firstData.obj["paginas totales"];
     let allOrders = firstData.obj["ordenes"];
 
-    if (totalPages > 50) {
+    // Verificar si el total de páginas es demasiado alto
+    if (totalPages > 150) {
         throw new Error("Por favor, selecciona un rango de fechas más corto para reducir la cantidad de páginas.");
     }
 
+    // Procesar en lotes si hay más de una página
     if (totalPages > 1) {
-        const requests = [];
+        const batchSize = 20; // Tamaño del lote (ej., 20 páginas por lote)
+        const totalBatches = Math.ceil((totalPages - 1) / batchSize); // Número de lotes necesarios
 
-        for (let page = 2; page <= totalPages; page++) {
-            requests.push(
-                fetch(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&page=${page}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': process.env.SAMISHOP_API_TOKEN as string
-                    },
-                    cache: "default"
-                }).then(res => res.json().then(data => data.obj["ordenes"]))
-                    .catch(error => {
-                        console.error(`Failed to fetch page ${page}`, error);
-                        return []; // Return an empty array if this page request fails
-                    })
-            );
+        for (let batch = 0; batch < totalBatches; batch++) {
+            const startPage = batch * batchSize + 2;
+            const endPage = Math.min((batch + 1) * batchSize + 1, totalPages);
+
+            const batchRequests = [];
+
+            for (let page = startPage; page <= endPage; page++) {
+                batchRequests.push(
+                    fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&page=${page}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': process.env.SAMISHOP_API_TOKEN as string
+                        },
+                        cache: "default"
+                    }).then(res => res.obj["ordenes"])
+                      .catch(error => {
+                          console.error(`Failed to fetch page ${page}`, error);
+                          return []; // Retorna un array vacío si falla
+                      })
+                );
+            }
+
+            // Ejecutar todas las solicitudes en el lote actual
+            const results = await Promise.allSettled(batchRequests);
+
+            // Concatenar resultados de órdenes exitosas
+            results.forEach(result => {
+                if (result.status === "fulfilled") {
+                    allOrders = allOrders.concat(result.value);
+                } else {
+                    console.warn(`Request failed: ${result.reason}`);
+                }
+            });
         }
-
-        console.log(requests.length, '🚩')
-        const results = await Promise.all(requests);
-
-        results.forEach(orders => {
-            allOrders = allOrders.concat(orders);
-        });
     }
 
     return {
