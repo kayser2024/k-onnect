@@ -11,12 +11,17 @@ import {
 import { columns } from "./columns";
 import { fetchingAllData } from "./fetchingData";
 import { format } from "date-fns";
-import SearchComprobante from "./search";
+// import SearchComprobante from "./search";
 import { Button } from "@/components/ui/button";
-import TableSkeleton from "../pedido/tableSkeleton";
+// import TableSkeleton from "../pedido/tableSkeleton";
 import { toast } from "sonner";
+import SearchComprobante from "./comprobante/search";
+import TableSkeleton from "./pedido/tableSkeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import SearchFilter from "./search-filter";
+import SearchMain from "./search";
 
-export function TableComprobantes() {
+export function TableMain() {
   const hoy = new Date();
 
   const [loading, setLoading] = useState(false);
@@ -27,15 +32,14 @@ export function TableComprobantes() {
   const [searchPedido, setSearchPedido] = useState("");
   const [searchBoleta, setSearchBoleta] = useState("");
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const [data, setData] = useState([]);
 
   // Cargar datos al montar el componente
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await fetchingAllData(
-        format(startDate, "yyyy-MM-dd"),
-        format(endDate, "yyyy-MM-dd")
-      );
+      const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"));
+      setData(data.ordenes);
       setComprobantes(data.ordenes);
       setTotalRegistros(data.totalRegistros);
     } catch (error: any) {
@@ -62,7 +66,7 @@ export function TableComprobantes() {
   }, [searchBoleta, searchPedido]);
 
   const table = useReactTable({
-    data: comprobantes || [],
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -80,58 +84,62 @@ export function TableComprobantes() {
 
   return (
     <div className="flex flex-col gap-4">
-      <SearchComprobante
+      <SearchMain
         startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
         setEndDate={setEndDate}
         onLoadData={loadData}
         loading={loading}
-        setSearchBoleta={setSearchBoleta}
-        setSearchPedido={setSearchPedido}
-        searchPedido={searchPedido}
-        searchBoleta={searchBoleta}
+        setData={setData}
+        setTotalRegistros={setTotalRegistros}
       />
 
-      {loading ? (
-        <TableSkeleton />
-      ) : (
-        <table className="min-w-full border-collapse">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="border p-2 text-center">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+      <ScrollArea className="h-[600px] w-full rounded-md border p-4">
+        <SearchFilter
+          setSearchBoleta={setSearchBoleta}
+          setSearchPedido={setSearchPedido}
+          searchPedido={searchPedido}
+          searchBoleta={searchBoleta} />
+        {loading ? (
+          <TableSkeleton />
+        ) : (
+          <table className="min-w-full border-collapse">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id} className="border p-2 text-center">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="border p-2 text-center">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <div className="flex items-center justify-end space-x-2 py-4">
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="border-b">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="border p-2 text-center">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </ScrollArea>
+      <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">
           Total de registros: {totalRegistros}
-          {/* Muestra el total de registros */}
         </div>
+
         <div className="text-sm text-muted-foreground">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
@@ -143,7 +151,7 @@ export function TableComprobantes() {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Anterior
           </Button>
           <Button
             variant="outline"
@@ -151,7 +159,7 @@ export function TableComprobantes() {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Siguiente
           </Button>
         </div>
       </div>
