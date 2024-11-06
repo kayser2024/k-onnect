@@ -31,6 +31,7 @@ export function TableMain() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchPedido, setSearchPedido] = useState("");
   const [searchBoleta, setSearchBoleta] = useState("");
+  const [searchDNI, setSearchDNI] = useState("");
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [data, setData] = useState([]);
 
@@ -62,8 +63,11 @@ export function TableMain() {
     if (searchPedido) {
       filters.push({ id: "numeroOrden", value: searchPedido });
     }
+    if (searchDNI) {
+      filters.push({ id: "nro_doc", value: searchDNI });
+    }
     setColumnFilters(filters);
-  }, [searchBoleta, searchPedido]);
+  }, [searchBoleta, searchPedido, searchDNI]);
 
   const table = useReactTable({
     data: data || [],
@@ -100,7 +104,10 @@ export function TableMain() {
           setSearchBoleta={setSearchBoleta}
           setSearchPedido={setSearchPedido}
           searchPedido={searchPedido}
-          searchBoleta={searchBoleta} />
+          searchBoleta={searchBoleta}
+          searchDNI={searchDNI}
+          setSearchDNI={setSearchDNI}
+        />
         {loading ? (
           <TableSkeleton />
         ) : (

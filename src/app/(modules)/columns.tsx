@@ -15,29 +15,27 @@ export const columns: ColumnDef<Orden>[] = [
         }
     },
     {
+        accessorKey: 'nro_doc',
         header: "Nro Doc",
         cell: ({ row }) => {
             const nro_doc = row.original.datos_facturacion[0].id_cliente
             return <p className='text-sm text-left'>{nro_doc}</p>
-        }
+        },
+        filterFn: (row, id, value) => {
+            const estado = row.original.datos_facturacion[0].id_cliente; // Obtiene el valor de estado_facturacion
+            return estado ? estado.toLowerCase().includes(value.toLowerCase()) : false; // Filtra el valor basado en el texto de búsqueda
+        },
     },
-
     {
         accessorKey: 'fechaPedido',
         header: 'Fecha Pedido',
         cell: ({ row }) => {
             let fecha = format(row.original.cabecera_pedido[0].fecha_pedido, 'dd / MM / yy')
-
-            // fecha = format(fecha, 'dd / MM / yy');
-
             return (
                 <p className='text-sm'>
                     {fecha}
                 </p>
             )
-            // return <>
-            //     {format(row.original.cabecera_pedido[0].fecha_pedido, 'dd / MM / yy')}
-            // </>
         },
     },
     {
@@ -124,8 +122,6 @@ export const columns: ColumnDef<Orden>[] = [
             return estado ? estado.toLowerCase().includes(value.toLowerCase()) : false; // Filtra el valor basado en el texto de búsqueda
         },
     },
-
-
     {
         accessorKey: '',
         header: 'Estado de Pedido',
@@ -195,18 +191,17 @@ export const columns: ColumnDef<Orden>[] = [
             )
         }
     },
-
     {
         accessorKey: 'link_doc1',
         header: 'PDF',
         cell: ({ row }) => {
             const link = row.original.situacion_facturacion[0].link_doc1;
             return link ? (
-                <a href={link} target='_blank' className="bg-black text-white p-2 rounded-lg flex justify-center">
+                <a href={link} target='_blank' className="bg-black text-white p-2 rounded-lg flex justify-center text-sm">
                     Ver Boleta
                 </a>
             ) : (
-                <span className="bg-gray-300 text-gray-500 p-2 rounded-lg pointer-events-none">
+                <span className="flex bg-gray-300 text-gray-500 p-2 rounded-lg pointer-events-none text-sm">
                     No Disponible
                 </span>
             );

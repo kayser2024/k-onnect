@@ -75,7 +75,7 @@ export default function SearchMain({ startDate, setStartDate, endDate, setEndDat
                 <div className="flex gap-4">
 
                     <DatePickerWithRange startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} isExact={isExact} />
-                    <Button variant='default' onClick={onLoadData} disabled={loading || isExact}>{loading ? "Cargando ..." : "Cargar Datos"}</Button>
+                    <Button variant='default' onClick={onLoadData} disabled={loading || isExact}>{loading ? <> <Loader2 className="animate-spin"/> Cargando ... </> : "Cargar Datos"}</Button>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Switch id="airplane-mode" checked={isExact} onCheckedChange={() => setIsExact(!isExact)} />
