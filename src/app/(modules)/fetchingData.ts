@@ -24,7 +24,7 @@ async function fetchWithRetry(url: string, options: object, retries = 3, delay =
     }
 }
 
-export async function fetchingAllData(start: string, end: string, paymentStatus: string = '') {
+export async function fetchingAllData(start: string, end: string, paymentStatus: string ) {
     const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&paymentStatus=${paymentStatus}`,
         {
             method: 'GET',
@@ -58,7 +58,7 @@ export async function fetchingAllData(start: string, end: string, paymentStatus:
 
             for (let page = startPage; page <= endPage; page++) {
                 batchRequests.push(
-                    fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&page=${page}`, {
+                    fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&paymentStatus=${paymentStatus}&page=${page}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',

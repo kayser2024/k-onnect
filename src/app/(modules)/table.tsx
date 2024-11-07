@@ -44,6 +44,7 @@ export function TableMain() {
       setData(data.ordenes);
       setComprobantes(data.ordenes);
       setTotalRegistros(data.totalRegistros);
+      // setStatusPayment("");
     } catch (error: any) {
       console.error("Error al obtener datos:", error);
       toast.error(error.message);
