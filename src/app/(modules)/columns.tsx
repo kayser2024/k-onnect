@@ -128,8 +128,8 @@ export const columns: ColumnDef<Orden>[] = [
     header: "Destino",
     cell: ({ row }) => {
       const direccion_envio = row.original.datos_envio[0].direccion_envio;
-      const distrito = row.original.datos_envio[0].distrito.toUpperCase();
-      const provincia = row.original.datos_envio[0].provincia.toUpperCase();
+      const distrito = row.original.datos_envio[0].distrito;
+      const provincia = row.original.datos_envio[0].provincia;
       return <p className="text-sm ">{direccion_envio} - {distrito}, {provincia}</p>;
     },
   },
