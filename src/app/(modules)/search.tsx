@@ -62,8 +62,8 @@ export default function SearchMain({
             return;
         }
 
-        if (orden.trim().length > 0 && orden.trim().length < 15) {
-            toast.error("El número de orden debe tener al menos 15 dígitos");
+        if (orden.trim().length > 0 && orden.trim().length < 4) {
+            toast.error("El número de orden debe tener al menos 4 dígitos");
             return;
         }
 

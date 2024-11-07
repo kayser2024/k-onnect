@@ -4,6 +4,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+
 // import { Badge } from 'lucide-react';
 
 // Define las columnas como una constante
@@ -33,35 +34,10 @@ export const columns: ColumnDef<Orden>[] = [
     accessorKey: "fechaPedido",
     header: "Fecha Pedido",
     cell: ({ row }) => {
-      let fecha = format(
-        row.original.cabecera_pedido[0].fecha_pedido,
-        "dd / MM / yy"
-      );
+      let fecha = format(row.original.cabecera_pedido[0].fecha_pedido, "dd / MM / yy hh:mm:ss a");
       return <p className="text-sm">{fecha}</p>;
     },
   },
-  //   {
-  //     accessorKey: "",
-  //     header: "Estado Pago",
-  //     cell: ({ row }) => {
-  //       let estado_pago = row.original.situacion_pagos[0].estado_pago;
-  //       let varianteColor:
-  //         | "default"
-  //         | "destructive"
-  //         | "outline"
-  //         | "secondary"
-  //         | "success"
-  //         | "warning"
-  //         | "info";
-
-  //       if (estado_pago === "pendiente") varianteColor = "outline";
-  //       else if (estado_pago === "cancelado") varianteColor = "destructive";
-  //       else if (estado_pago === "pagado") varianteColor = "success";
-  //       else varianteColor = "default";
-
-  //       return <Badge variant={varianteColor}>{estado_pago}</Badge>;
-  //     },
-  //   },
   {
     accessorKey: "fechaFacturacion",
     header: "Fecha Facturación",
@@ -111,7 +87,6 @@ export const columns: ColumnDef<Orden>[] = [
     accessorKey: "numeroOrden",
     header: "Orden",
     cell: ({ row }) => {
-      console.log(row.original);
       const nro_orden = row.original.cabecera_pedido[0].numero_orden;
       return (
         <Link
@@ -140,13 +115,25 @@ export const columns: ColumnDef<Orden>[] = [
     }
   },
   {
-    accessorKey: "",
+    accessorKey: "tipo_envio",
     header: "Tipo Envio",
     cell: ({ row }) => {
-      const servicio_envio = row.original.datos_envio[0].tipo_envio;
-      return <p className="text-sm">{servicio_envio}</p>;
+      const tipo_envio = row.original.datos_envio[0].tipo_envio;
+
+      return <p className="text-sm">{tipo_envio}</p>;
     },
   },
+  {
+    accessorKey: "direccion_envio",
+    header: "Destino",
+    cell: ({ row }) => {
+      const direccion_envio = row.original.datos_envio[0].direccion_envio;
+      const distrito = row.original.datos_envio[0].distrito.toUpperCase();
+      const provincia = row.original.datos_envio[0].provincia.toUpperCase();
+      return <p className="text-sm ">{direccion_envio} - {distrito}, {provincia}</p>;
+    },
+  },
+
   {
     accessorKey: "",
     header: "Estado de Pedido",
@@ -170,7 +157,7 @@ export const columns: ColumnDef<Orden>[] = [
     },
   },
   {
-    accessorKey: "",
+    accessorKey: "estado_pago",
     header: "Estado de Pago",
     cell: ({ row }) => {
       let estado = row.original.situacion_pagos[0].estado_pago;
@@ -193,7 +180,7 @@ export const columns: ColumnDef<Orden>[] = [
     },
   },
   {
-    accessorKey: "",
+    accessorKey: "estado_envio",
     header: "Estado de Envío",
     cell: ({ row }) => {
       let estado = row.original.situacion_envio[0].estado_envio;
