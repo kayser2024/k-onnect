@@ -20,6 +20,7 @@ import TableSkeleton from "./pedido/tableSkeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import SearchFilter from "./search-filter";
 import SearchMain from "./search";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function TableMain() {
   const hoy = new Date();
@@ -37,25 +38,38 @@ export function TableMain() {
   const [statusPayment, setStatusPayment] = useState('pagado');
 
   // Cargar datos al montar el componente
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment);
-      setData(data.ordenes);
-      setComprobantes(data.ordenes);
-      setTotalRegistros(data.totalRegistros);
-      // setStatusPayment("");
-    } catch (error: any) {
-      console.error("Error al obtener datos:", error);
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const loadData = async () => {
+  // setLoading(true);
+  // try {
+  //   const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment);
+  //   setData(data.ordenes);
+  //   setComprobantes(data.ordenes);
+  //   setTotalRegistros(data.totalRegistros);
+  //   // setStatusPayment("");
+  // } catch (error: any) {
+  //   console.error("Error al obtener datos:", error);
+  //   toast.error(error.message);
+  // } finally {
+  //   setLoading(false);
+  // }
+  // };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const queryClient = useQueryClient();
+
+  const { data: data_ordenes, isLoading, isError } = useQuery({
+    queryKey: ['data_ordenes'],
+    queryFn: async () => await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment),
+  })
+
+  const loadData = () => {
+    queryClient.invalidateQueries(['data_ordenes']);
+  }
+  // queryClient.invalidateQueries(['data_ordenes']);
+  // console.log({ data_ordenes, isLoading, isError })
+
+  // useEffect(() => {
+  //   loadData();
+  // }, []);
 
   useEffect(() => {
     const filters = [];
@@ -72,7 +86,7 @@ export function TableMain() {
   }, [searchBoleta, searchPedido, searchDNI]);
 
   const table = useReactTable({
-    data: data || [],
+    data: data_ordenes?.ordenes || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
