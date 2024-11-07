@@ -58,7 +58,7 @@ export const Sidebar = () => {
     }
 
 
-    console.log(usuarioInfo)
+    // console.log(usuarioInfo)
     const pathname = usePathname()
 
     return (
@@ -103,8 +103,8 @@ export const Sidebar = () => {
                     <div className='flex items-center '>
 
                         {
-                            usuarioInfo.nombre !== 'No Conectado' &&
-                            <img className='rounded-lg' src={usuarioInfo.image} width={50} height={50} alt="" />
+                            usuarioInfo.nombre !== 'No Conectado' &&<div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>JA</div>
+                            // <img className='rounded-lg' src={usuarioInfo.image} width={50} height={50} alt="" />
                         }
                         <div className='flex-grow text-center'>
                             <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>

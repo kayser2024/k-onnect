@@ -18,6 +18,7 @@ import Observacion from "./Observacion"
 
 import { redirect } from "next/navigation"
 import { auth } from "@/auth.config"
+import { SiMercadopago } from "react-icons/si";
 
 export const metadata: Metadata = {
     title: 'Orden de compra',
@@ -41,13 +42,13 @@ interface Props {
 
 async function fetchingDataFromOrder(orden: string) {
 
-    console.log('ORDEN : ', orden)
+    // console.log('ORDEN : ', orden)
 
     const data: OrdenResponse = await fetch(`${process.env.WIN_WIN_URL}?orderNumber=${orden}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization':process.env.SAMISHOP_API_TOKEN as string
+            'Authorization': process.env.SAMISHOP_API_TOKEN as string
         },
         cache: "no-store"
     }).then(res => res.json())
@@ -69,7 +70,6 @@ async function fetchingPaymentDocument(orden: string) {
 }
 
 async function CardFacturacion({ situacion_facturacion }: { situacion_facturacion: any }) {
-console.log(situacion_facturacion,'👀');
     const fecha = situacion_facturacion?.fecha_envio_facturacion;
     const estado_facturacion = situacion_facturacion?.estado_facturacion;
     const link_doc1 = situacion_facturacion?.link_doc1;
@@ -104,12 +104,12 @@ console.log(situacion_facturacion,'👀');
 
                 <div >
                     <span className="text-xs text-gray-400">Fecha</span>
-                    <AccionCopiar texto={fechaFormateada } />
+                    <AccionCopiar texto={fechaFormateada} />
                 </div>
 
                 <div >
                     <span className="text-xs text-gray-400">Fecha</span>
-                    <AccionCopiar texto={fechaFormateada2 } />
+                    <AccionCopiar texto={fechaFormateada2} />
                 </div>
                 <div >
 
@@ -121,14 +121,13 @@ console.log(situacion_facturacion,'👀');
                 {/* <a target="_blank" className={`w-full bg-black text-white text-center p-2 rounded-lg`}  href={`${link_doc1}`}>Ver Boleta</a> */}
 
                 <a
-  target="_blank"
-  className={`w-full text-center p-2 rounded-lg ${
-    link_doc1 ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"
-  }`}
-  href={link_doc1 || undefined} // Deja href como undefined si link_doc1 está vacío
->
-  Ver Boleta
-</a>
+                    target="_blank"
+                    className={`w-full text-center p-2 rounded-lg ${link_doc1 ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"
+                        }`}
+                    href={link_doc1 || undefined} // Deja href como undefined si link_doc1 está vacío
+                >
+                    Ver Boleta
+                </a>
 
             </CardContent>
         </Card>
@@ -143,7 +142,7 @@ async function CardComentarios({ comentarios }: { comentarios: string }) {
         if (!Array.isArray(data)) throw new Error('El JSON no es un array');
     } catch (error) {
         console.error('Formato JSON inválido:', error);
-        return null; 
+        return null;
     }
 
     return (
@@ -237,7 +236,7 @@ async function HomeOrden({ params }: Props) {
     const ordenes = data.obj?.ordenes[0]
 
 
-    const cupon = '';
+    const cupon = ordenes.cupon;
     const cabecera_pedido = ordenes?.cabecera_pedido[0]
     const { detalle_pedido } = ordenes
     const datos_facturacion = ordenes.datos_facturacion[0]
@@ -247,7 +246,6 @@ async function HomeOrden({ params }: Props) {
     const situacion_envio = ordenes.situacion_envio[0]
     const situacion_facturacion = ordenes.situacion_facturacion[0]
 
-console.log(situacion_facturacion,'🟢')
 
     // traer datos de la facturación de la api
     const comprobante: OSF_PEDIDOS | null = await fetchingPaymentDocument(orden)
@@ -269,15 +267,6 @@ console.log(situacion_facturacion,'🟢')
     if (situacion_pagos.estado_pago === 'pagado') colorEstado = "bg-green-300"
     else if (situacion_pagos.estado_pago === 'cancelado') colorEstado = "bg-red-300"
     else if (situacion_pagos.estado_pago === 'pendiente') colorEstado = "bg-orange-300"
-
-    // "situacion_facturacion": [
-    //                 {
-    //                     "estado_facturacion": "BW17-28385",
-    //                     "fecha_envio_facturacion": "2024-10-28T21:48:41.000Z",
-    //                     "link_doc1": "",
-    //                     "link_doc2": ""
-    //                 }
-    //             ],
 
 
     return (
@@ -409,7 +398,7 @@ console.log(situacion_facturacion,'🟢')
 
                         </CardContent>
                         <CardFooter>
-                            <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-2 rounded-lg text-white font-bold c" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`}>Ver en MP</a>
+                            <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-1 rounded-lg text-white font-bold flex justify-center gap-4 items-center" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">Ver en <SiMercadopago className="text-white font-bold" size={30}/></a>
                             <Observacion observaciones={situacion_facturacion.link_doc1} orden={cabecera_pedido?.numero_orden} />
                         </CardFooter>
                     </Card>
@@ -422,7 +411,7 @@ console.log(situacion_facturacion,'🟢')
                 <div className="flex flex-col  gap-2">
 
                     <Suspense fallback={<div>Cargando </div>}>
-                        {(situacion_facturacion.estado_facturacion!=='pendiente') ? <CardFacturacion  situacion_facturacion={situacion_facturacion}/> : <EmptyCardFacturacion />}
+                        {(situacion_facturacion.estado_facturacion !== 'pendiente') ? <CardFacturacion situacion_facturacion={situacion_facturacion} /> : <EmptyCardFacturacion />}
                     </Suspense>
 
                     <Card>

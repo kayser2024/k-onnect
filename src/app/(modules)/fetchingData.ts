@@ -24,8 +24,8 @@ async function fetchWithRetry(url: string, options: object, retries = 3, delay =
     }
 }
 
-export async function fetchingAllData(start: string, end: string) {
-    const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}`,
+export async function fetchingAllData(start: string, end: string, paymentStatus: string = '') {
+    const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&paymentStatus=${paymentStatus}`,
         {
             method: 'GET',
             headers: {
@@ -66,10 +66,10 @@ export async function fetchingAllData(start: string, end: string) {
                         },
                         cache: "default"
                     }).then(res => res.obj["ordenes"])
-                      .catch(error => {
-                          console.error(`Failed to fetch page ${page}`, error);
-                          return []; // Retorna un array vacío si falla
-                      })
+                        .catch(error => {
+                            console.error(`Failed to fetch page ${page}`, error);
+                            return []; // Retorna un array vacío si falla
+                        })
                 );
             }
 

@@ -22,6 +22,7 @@ export function DatePickerWithRange({
   setEndDate,
   className,
   isExact,
+  loading
 }: {
   startDate: Date;
   endDate: Date;
@@ -29,6 +30,7 @@ export function DatePickerWithRange({
   setEndDate: (date: Date) => void;
   className?: string;
   isExact?: boolean;
+  loading: boolean;
 }) {
   // Initialize the date range based on the provided startDate and endDate
   const [date, setDate] = React.useState<DateRange | undefined>({
@@ -64,7 +66,7 @@ export function DatePickerWithRange({
               "w-[250px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
-            disabled={isExact}
+            disabled={loading || isExact}
           >
             <CalendarIcon />
             {date?.from ? (

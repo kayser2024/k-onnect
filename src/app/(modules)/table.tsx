@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import SearchComprobante from "./comprobante/search";
 import TableSkeleton from "./pedido/tableSkeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import SearchFilter from "./search-filter";
 import SearchMain from "./search";
 
@@ -34,12 +34,13 @@ export function TableMain() {
   const [searchDNI, setSearchDNI] = useState("");
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [data, setData] = useState([]);
+  const [statusPayment, setStatusPayment] = useState('pagado');
 
   // Cargar datos al montar el componente
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"));
+      const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment);
       setData(data.ordenes);
       setComprobantes(data.ordenes);
       setTotalRegistros(data.totalRegistros);
@@ -96,6 +97,8 @@ export function TableMain() {
         onLoadData={loadData}
         loading={loading}
         setData={setData}
+        statusPayment={statusPayment}
+        setStatusPayment={setStatusPayment}
         setTotalRegistros={setTotalRegistros}
       />
 
@@ -141,6 +144,8 @@ export function TableMain() {
             </tbody>
           </table>
         )}
+
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">
