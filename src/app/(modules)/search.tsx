@@ -72,6 +72,11 @@ export default function SearchMain({
             return;
         }
 
+        if (orden.startsWith('ss17') && orden.length < 8) {
+            toast.error('Por favor intente ingresar otro tipo de boleta')
+            return;
+        }
+
         try {
             setIsFetching(true);
             const data = await fetchMain(boleta.toUpperCase(), orden, dni);

@@ -41,38 +41,32 @@ export function TableMain() {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // Cargar datos al montar el componente
-  // const loadData = async () => {
-  // setLoading(true);
-  // try {
-  //   const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment);
-  //   setData(data.ordenes);
-  //   setComprobantes(data.ordenes);
-  //   setTotalRegistros(data.totalRegistros);
-  //   // setStatusPayment("");
-  // } catch (error: any) {
-  //   console.error("Error al obtener datos:", error);
-  //   toast.error(error.message);
-  // } finally {
-  //   setLoading(false);
-  // }
-  // };
+  const loadData = async () => {
+
+    setLoading(true);
+    try {
+      const data = await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment);
+      setData(data.ordenes);
+      setComprobantes(data.ordenes);
+      setTotalRegistros(data.totalRegistros);
+      return data.ordenes;
+    } catch (error: any) {
+      console.error("Error al obtener datos:", error);
+      toast.error(error.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const queryClient = useQueryClient();
 
   const { data: data_ordenes, isLoading, isError } = useQuery({
     queryKey: ['data_ordenes'],
-    queryFn: async () => await fetchingAllData(format(startDate, "yyyy-MM-dd"), format(endDate, "yyyy-MM-dd"), statusPayment),
+    queryFn: loadData,
+    initialData: comprobantes,
   })
 
-  const loadData = () => {
-    queryClient.invalidateQueries({ queryKey: ['data_ordenes'] });
-  }
-  // queryClient.invalidateQueries(['data_ordenes']);
-  // console.log({ data_ordenes, isLoading, isError })
-
-  // useEffect(() => {
-  //   loadData();
-  // }, []);
 
   useEffect(() => {
     const filters = [];
@@ -89,7 +83,7 @@ export function TableMain() {
   }, [searchBoleta, searchPedido, searchDNI]);
 
   const table = useReactTable({
-    data: data_ordenes?.ordenes || [],
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -115,12 +109,12 @@ export function TableMain() {
         setStartDate={setStartDate}
         endDate={endDate}
         setEndDate={setEndDate}
-        onLoadData={loadData}
-        loading={loading}
         setData={setData}
         statusPayment={statusPayment}
-        setStatusPayment={setStatusPayment}
         setTotalRegistros={setTotalRegistros}
+        setStatusPayment={setStatusPayment}
+        onLoadData={loadData}
+        loading={loading}
       />
 
       <ScrollArea className="h-[600px] w-full rounded-md border p-4">
