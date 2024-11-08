@@ -4,24 +4,36 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ArrowDown, ArrowDown01, ArrowDown10, ArrowDownAZ, ArrowDownIcon, ArrowDownZA, ArrowUp, ArrowUpAZ, ArrowUpDown, ArrowUpIcon } from "lucide-react";
 
 // import { Badge } from 'lucide-react';
 
 // Define las columnas como una constante
 export const columns: ColumnDef<Orden>[] = [
   {
-    header: "Nombre Cliente",
+    accessorKey: 'nombre_cliente',
+    accessorFn: (row) => row.datos_facturacion[0].nombres_facturacion,
+    header: ({ column }) => {
+      // console.log(column.getIsSorted())
+      return <div onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="w-40 flex gap-2  cursor-pointer" title="ordenar">Nombre cliente  {column.getIsSorted() && <>{column.getIsSorted() === 'asc' ? <ArrowDownAZ /> : <ArrowDownZA />}</>}</div>
+    },
     cell: ({ row }) => {
       const nombre = row.original.datos_facturacion[0].nombres_facturacion;
-      return <p className="text-sm text-left">{nombre.toUpperCase()}</p>;
+
+      return (<p className="text-xs text-left">{nombre.toUpperCase()}</p>)
     },
   },
   {
     accessorKey: "nro_doc",
-    header: "Nro Doc",
+    accessorFn: (row) => row.datos_facturacion[0].id_cliente,
+    header: ({ column }) => {
+      return <div className="cursor-pointer flex gap-2" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>DNI {column.getIsSorted() && <>{column.getIsSorted() === 'asc' ? <ArrowDown01 /> : <ArrowDown10 />}</>}</div>
+
+    },
     cell: ({ row }) => {
       const nro_doc = row.original.datos_facturacion[0].id_cliente;
-      return <p className="text-sm text-left">{nro_doc}</p>;
+      return <p className="text-xs text-left">{nro_doc}</p>;
     },
     filterFn: (row, id, value) => {
       const estado = row.original.datos_facturacion[0].id_cliente; // Obtiene el valor de estado_facturacion
@@ -32,15 +44,21 @@ export const columns: ColumnDef<Orden>[] = [
   },
   {
     accessorKey: "fechaPedido",
-    header: "Fecha Pedido",
+    accessorFn: (row) => row.cabecera_pedido[0].fecha_pedido,
+    header: ({ column }) => {
+      return <div className="cursor-pointer w-28 flex gap-2 items-center justify-center" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Fec. Pedido {column.getIsSorted() && <>{column.getIsSorted() === 'asc' ? <ArrowDown01 /> : <ArrowDown10 />}</>}</div>
+    },
     cell: ({ row }) => {
       let fecha = format(row.original.cabecera_pedido[0].fecha_pedido, "dd / MM / yy hh:mm:ss a");
-      return <p className="text-sm">{fecha}</p>;
+      return <p className="text-xs">{fecha}</p>;
     },
   },
   {
     accessorKey: "fechaFacturacion",
-    header: "Fecha Facturación",
+    accessorFn: (row) => row.situacion_facturacion[0].fecha_envio_facturacion,
+    header: ({ column }) => {
+      return <div className="cursor-pointer flex gap-2 w-32 items-center justify-center" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Fec. Fact. {column.getIsSorted() && <>{column.getIsSorted() === 'asc' ? <ArrowDown01 /> : <ArrowDown10 />}</>}</div>
+    },
     cell: ({ row }) => {
       let fecha = row.original.situacion_facturacion[0].fecha_envio_facturacion;
       if (fecha === "") {
@@ -49,13 +67,13 @@ export const columns: ColumnDef<Orden>[] = [
       }
       fecha = format(fecha, "dd / MM / yy");
 
-      return <p className="text-sm">{fecha}</p>;
+      return <p className="text-xs">{fecha}</p>;
     },
   },
   {
     id: "estado_facturacion",
     accessorKey: "estado_facturacion",
-    header: "Boleta",
+    header: () => <div className="w-32">Boleta</div>,
     cell: ({ row }) => {
       let estado = row.original.situacion_facturacion[0].estado_facturacion;
       let varianteColor:
@@ -73,7 +91,7 @@ export const columns: ColumnDef<Orden>[] = [
       else if (estado === "pendiente") varianteColor = "outline";
       else varianteColor = "default";
 
-      return <Badge variant={varianteColor}>{estado}</Badge>;
+      return <Badge variant={varianteColor} className="text-xs">{estado}</Badge>;
       // return <>{row.original.situacion_facturacion[0].estado_facturacion}</>
     },
     filterFn: (row, id, value) => {
@@ -91,7 +109,7 @@ export const columns: ColumnDef<Orden>[] = [
       return (
         <Link
           href={`/pedido/${nro_orden}`}
-          className="text-blue-700 font-bold text-sm"
+          className="text-blue-700 font-bold text-xs"
         >
           {nro_orden}
         </Link>
@@ -106,12 +124,12 @@ export const columns: ColumnDef<Orden>[] = [
   },
   {
     accessorKey: 'cupon',
-    header: 'Cupón',
+    header: () => <div className="w-32">Cupón</div>,
     cell: ({ row }) => {
       let cupon = row.original.cupon
       if (cupon === '') return <Badge variant='outline'>SIN CUPÓN</Badge>;
 
-      return <Badge variant='warning'>{cupon}</Badge>
+      return <Badge variant='warning' className="text-xs">{cupon}</Badge>
     }
   },
   {
@@ -130,7 +148,7 @@ export const columns: ColumnDef<Orden>[] = [
       const direccion_envio = row.original.datos_envio[0].direccion_envio;
       const distrito = row.original.datos_envio[0].distrito;
       const provincia = row.original.datos_envio[0].provincia;
-      return <p className="text-sm ">{direccion_envio} - {distrito}, {provincia}</p>;
+      return <p className="text-xs ">{direccion_envio} - {distrito}, {provincia}</p>;
     },
   },
 
@@ -213,12 +231,12 @@ export const columns: ColumnDef<Orden>[] = [
         <a
           href={link}
           target="_blank"
-          className="bg-black text-white p-2 rounded-lg flex justify-center text-sm"
+          className="bg-black text-white p-2 rounded-lg flex justify-center text-xs"
         >
           Ver Boleta
         </a>
       ) : (
-        <span className="flex bg-gray-300 text-gray-500 p-2 rounded-lg pointer-events-none text-sm">
+        <span className="flex bg-gray-300 text-gray-500 p-2 rounded-lg pointer-events-none text-xs">
           No Disponible
         </span>
       );

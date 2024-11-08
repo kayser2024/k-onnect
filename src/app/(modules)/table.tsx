@@ -7,6 +7,8 @@ import {
   getFilteredRowModel,
   ColumnFiltersState,
   getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
 } from "@tanstack/react-table";
 import { columns } from "./columns";
 import { fetchingAllData } from "./fetchingData";
@@ -36,6 +38,7 @@ export function TableMain() {
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [data, setData] = useState([]);
   const [statusPayment, setStatusPayment] = useState('pagado');
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   // Cargar datos al montar el componente
   // const loadData = async () => {
@@ -62,7 +65,7 @@ export function TableMain() {
   })
 
   const loadData = () => {
-    queryClient.invalidateQueries(['data_ordenes']);
+    queryClient.invalidateQueries({ queryKey: ['data_ordenes'] });
   }
   // queryClient.invalidateQueries(['data_ordenes']);
   // console.log({ data_ordenes, isLoading, isError })
@@ -92,7 +95,10 @@ export function TableMain() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     state: {
+      sorting,
       columnFilters,
     },
     initialState: {
@@ -134,7 +140,7 @@ export function TableMain() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="border p-2 text-center">
+                    <th key={header.id} className="border p-2 sm:p-1 text-center text-sm">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -159,8 +165,8 @@ export function TableMain() {
             </tbody>
           </table>
         )}
-
         <ScrollBar orientation="horizontal" />
+
       </ScrollArea>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">
