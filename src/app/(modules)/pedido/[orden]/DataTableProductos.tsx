@@ -191,7 +191,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             })
         })
         const res = await notificacionDiscord.json()
-        toast.info(res)
+        // toast.info(res)
         toast.success('Notificacion Enviada a Discord')
 
 
