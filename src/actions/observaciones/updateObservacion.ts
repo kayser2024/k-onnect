@@ -14,6 +14,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
 
     console.log({ selectedValue, comentario })
     let resFinal = {}
+    console.log(observaciones, '👀🚩')
 
     if (observaciones) {
         console.log('OBSERVACIONES NO VACIAS');
@@ -39,7 +40,10 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
     const jsonUpdateObservaciones = {
         "actualizar": {
             "situacion_facturacion":
-                { "link_doc1": JSON.stringify(resFinal) }
+            {
+                "link_doc1": JSON.stringify(resFinal),
+                "comentario": JSON.stringify(resFinal)
+            }
         }
     }
 

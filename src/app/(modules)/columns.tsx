@@ -61,14 +61,15 @@ export const columns: ColumnDef<Orden>[] = [
       return <div className="cursor-pointer flex gap-2 w-32 items-center justify-center" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Fec. Fact. {column.getIsSorted() ? (<>{column.getIsSorted() === 'asc' ? <ArrowDown01 /> : <ArrowDown10 />}</>) : <PiCaretUpDownThin />}</div>
     },
     cell: ({ row }) => {
-      let fecha = row.original.situacion_facturacion[0].fecha_envio_facturacion;
-      if (fecha === "") {
-        fecha = "-- / -- / --";
-        return fecha;
-      }
-      fecha = format(fecha, "dd / MM / yy");
+      let fecha = row.original.situacion_facturacion[0].fecha_envio_facturacion || "";
 
-      return <p className="text-xs">{fecha}</p>;
+      if (fecha === "") {
+        return <p className="text-xs">-- / -- / --</p>;
+      }
+      // fecha = format(fecha, "dd / MM / yy");
+      const fechaFormateado = format(fecha, "dd / MM / yy");
+
+      return <p className="text-xs">{fechaFormateado}</p>;
     },
   },
   {

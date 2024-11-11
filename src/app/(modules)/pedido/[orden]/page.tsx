@@ -60,14 +60,18 @@ async function fetchingDataFromOrder(orden: string) {
 
 async function fetchingPaymentDocument(orden: string) {
 
-    const data = await prisma.oSF_PEDIDOS.findFirst({
-        where: {
-            SS_NUMERO_ORDEN: orden
-        }
-    })
+    // const data = await prisma.oSF_PEDIDOS.findFirst({
+    //     where: {
+    //         SS_NUMERO_ORDEN: orden
+    //     }
+    // })
+    const data = await fetchingDataFromOrder(orden)
 
-    return data
+    return data.obj.ordenes[0].situacion_facturacion[0]
 }
+
+
+
 
 async function CardFacturacion({ situacion_facturacion }: { situacion_facturacion: any }) {
     const fecha = situacion_facturacion?.fecha_envio_facturacion;
@@ -248,7 +252,7 @@ async function HomeOrden({ params }: Props) {
 
 
     // traer datos de la facturación de la api
-    const comprobante: OSF_PEDIDOS | null = await fetchingPaymentDocument(orden)
+    const comprobante = await fetchingPaymentDocument(orden)
 
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
     const productos = formatedDetallePedido(detalle_pedido)
@@ -290,7 +294,7 @@ async function HomeOrden({ params }: Props) {
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Detalle de Productos</CardTitle>
-                                <AccionesOrden orden={data} docActual={`${comprobante ? comprobante.OSF_SERIE_DOCUMENTO : cabecera_pedido?.numero_orden}`} />
+                                <AccionesOrden orden={data} docActual={`${comprobante ? comprobante.estado_facturacion : cabecera_pedido?.numero_orden}`} />
                             </div>
                             <span className={`rounded-2xl p-2 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-300'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                             <CardDescription>Detalles de la orden</CardDescription>
@@ -398,7 +402,7 @@ async function HomeOrden({ params }: Props) {
 
                         </CardContent>
                         <CardFooter>
-                            <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-1 rounded-lg text-white font-bold flex justify-center gap-4 items-center" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">Ver en <SiMercadopago className="text-white font-bold" size={30}/></a>
+                            <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-1 rounded-lg text-white font-bold flex justify-center gap-4 items-center" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">Ver en <SiMercadopago className="text-white font-bold" size={30} /></a>
                             <Observacion observaciones={situacion_facturacion.link_doc1} orden={cabecera_pedido?.numero_orden} />
                         </CardFooter>
                     </Card>

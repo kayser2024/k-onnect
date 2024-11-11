@@ -44,10 +44,9 @@ export async function POST(req: NextRequest) {
             `Observación: ${body.observacion}\n`,
 
     };
-
+    console.log(message,'🚩')
 
     const webhookURL: string = process.env.CANAl_CREADOR_DEVOLUCION!
-    console.log(webhookURL)
     const send = await fetch(webhookURL, {
         method: 'POST',
         headers: {
@@ -55,7 +54,6 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify(message)
     })
-
     // await onUpdateObservaciones(body.ordenCompra, body.observacion, 'devolucion', body.observacionTotal)
     return NextResponse.json('Devolucion realizada correctamente')
 

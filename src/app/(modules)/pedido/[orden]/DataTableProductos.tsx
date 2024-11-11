@@ -52,20 +52,21 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     orden: Orden,
-    comprobante: OSF_PEDIDOS | null
+    comprobante: any,
     persona?: string | null
 }
 
 export function DataTableProductos<TData, TValue>({ columns, data, orden, comprobante, persona }: DataTableProps<TData, TValue>) {
 
     const [rowSelection, setRowSelection] = useState({})
-    const [motivoCambio, setMotivoCambio] = useState<string>("")
-    const docActual = comprobante ? comprobante.OSF_SERIE_DOCUMENTO : orden.cabecera_pedido[0].numero_orden
+    const [motivoCambio, setMotivoCambio] = useState("")
+    const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
 
     let fechaCreacionBoleta = ''
 
     if (comprobante) {
-        fechaCreacionBoleta = comprobante.FECHA_REGISTRO!.toLocaleDateString()
+        // fechaCreacionBoleta = comprobante.FECHA_REGISTRO!.toLocaleDateString()
+        fechaCreacionBoleta = comprobante.fecha_envio_facturacion
         let [dia, mes, anio] = fechaCreacionBoleta.split('/')
 
         dia = Number(dia) < 10 ? `0${dia}` : dia
@@ -88,10 +89,13 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
+        // console.log(pagado,'👀👀👀')
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
         }
+
+
         const nroOrden = orden.cabecera_pedido[0].numero_orden
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
         const observacionTotal = orden.situacion_facturacion[0].link_doc1
@@ -121,7 +125,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         if (tipoExtorno !== "TOTAL") {
 
             const listaEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
-            console.log(listaEans)
+            console.log(listaEans, '🖐️')
 
             const res: string[] = await fetch('/api/producto', {
                 method: 'POST',
@@ -151,42 +155,44 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         } else {
             observacion = "Devolucion Total a pedido del cliente"
         }
+
         navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
-    
-        await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+
+        // await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
         // navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fechaSolicitud,
-                dni,
-                cliente,
-                formaDevolucion,
-                operacion,
-                tipoExtorno,
-                fechaVenta,
-                boleta,
-                montoPago,
-                nc,
-                montoExtorno,
-                plazoMaximo,
-                ordenCompra,
-                correoCliente,
-                encargado,
-                observacion,
-                notaAdicional,
-                observacionTotal,
-                numeroCelular,
-                fechaCreacionBoleta
-            })
-        })
-        const res = await notificacionDiscord.json()
-        toast.success('Notificacion Enviada a Discord')
+        // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         fechaSolicitud,
+        //         dni,
+        //         cliente,
+        //         formaDevolucion,
+        //         operacion,
+        //         tipoExtorno,
+        //         fechaVenta,
+        //         boleta,
+        //         montoPago,
+        //         nc,
+        //         montoExtorno,
+        //         plazoMaximo,
+        //         ordenCompra,
+        //         correoCliente,
+        //         encargado,
+        //         observacion,
+        //         notaAdicional,
+        //         observacionTotal,
+        //         numeroCelular,
+        //         fechaCreacionBoleta
+        //     })
+        // })
+        // const res = await notificacionDiscord.json()
+        // toast.info(res)
+        // toast.success('Notificacion Enviada a Discord')
 
 
     }
