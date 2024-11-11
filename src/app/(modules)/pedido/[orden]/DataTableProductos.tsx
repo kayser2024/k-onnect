@@ -46,7 +46,7 @@ import { Button } from "@/components/ui/button"
 import ComboboxDemo from "./Combobx"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion'
-import { OSF_PEDIDOS } from "@prisma/client"
+import { LiaExchangeAltSolid } from "react-icons/lia";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -65,20 +65,16 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     let fechaCreacionBoleta = ''
 
     if (comprobante) {
-        // fechaCreacionBoleta = comprobante.FECHA_REGISTRO!.toLocaleDateString()
-        fechaCreacionBoleta = comprobante.fecha_envio_facturacion
-        let [dia, mes, anio] = fechaCreacionBoleta.split('/')
-
-        dia = Number(dia) < 10 ? `0${dia}` : dia
-        mes = Number(mes) < 10 ? `0${mes}` : mes
-        fechaCreacionBoleta = `${mes}/${dia}/${anio}`
+        fechaCreacionBoleta = new Date(comprobante.fecha_envio_facturacion).toLocaleDateString();
     } else {
         fechaCreacionBoleta = 'AUN SIN CREACION DE BOLETA'
     }
 
 
     const table = useReactTable({
-        data, columns, getCoreRowModel: getCoreRowModel(),
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: setRowSelection,
         state: {
             rowSelection,
@@ -89,12 +85,14 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
-        // console.log(pagado,'👀👀👀')
+        console.log(pagado, '👀👀👀')
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
         }
 
+
+        // construyendo la data para enviar a discord
 
         const nroOrden = orden.cabecera_pedido[0].numero_orden
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
@@ -162,37 +160,37 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         // navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         fechaSolicitud,
-        //         dni,
-        //         cliente,
-        //         formaDevolucion,
-        //         operacion,
-        //         tipoExtorno,
-        //         fechaVenta,
-        //         boleta,
-        //         montoPago,
-        //         nc,
-        //         montoExtorno,
-        //         plazoMaximo,
-        //         ordenCompra,
-        //         correoCliente,
-        //         encargado,
-        //         observacion,
-        //         notaAdicional,
-        //         observacionTotal,
-        //         numeroCelular,
-        //         fechaCreacionBoleta
-        //     })
-        // })
-        // const res = await notificacionDiscord.json()
-        // toast.info(res)
-        // toast.success('Notificacion Enviada a Discord')
+        const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fechaSolicitud,
+                dni,
+                cliente,
+                formaDevolucion,
+                operacion,
+                tipoExtorno,
+                fechaVenta,
+                boleta,
+                montoPago,
+                nc,
+                montoExtorno,
+                plazoMaximo,
+                ordenCompra,
+                correoCliente,
+                encargado,
+                observacion,
+                notaAdicional,
+                observacionTotal,
+                numeroCelular,
+                fechaCreacionBoleta
+            })
+        })
+        const res = await notificacionDiscord.json()
+        toast.info(res)
+        toast.success('Notificacion Enviada a Discord')
 
 
     }
@@ -251,10 +249,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
     }
 
+    // Función para Realizar camnbios
     const handleCambio = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
-        const observacionTotal = orden.situacion_facturacion[0].link_doc1
+        // const observacionTotal = orden.situacion_facturacion[0].link_doc1
+        const observacionTotal = orden.situacion_facturacion[0].link_doc2
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
 
         console.log(pagado);
@@ -274,12 +274,16 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             },
             body: JSON.stringify({ data: eansOriginales })
         }).then(res => res.json())
-        console.log(prendasOriginalesSAP);
+
+
+        console.log(prendasOriginalesSAP, '🚩');
 
 
         const tabla = document.getElementById("tablaCambios")
+
         //obetenemos los button
         const buttons = tabla!.getElementsByTagName("button")
+
         // imprimimos el contenido de los botones
         const prendasCambiadasEAN: string[] = []
         for (let i = 0; i < buttons.length; i++) {
@@ -317,7 +321,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         console.table(cambioRealizado);
 
         //GESTIONANDO LINEA DE EXCEL
-
         const fechaSolicitud = new Date().toLocaleDateString()
         const encargada = persona ? persona : "Apoyo"
         const cliente = orden.datos_facturacion[0].nombres_facturacion
@@ -336,12 +339,18 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const motivo = motivoCambio
         const enviarA = '-'
         const situacionDelCambio = 'Ingresado'
+
+        
+        // Copiar al portapapeles
+        navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${enviarA}\t${situacionDelCambio}`)
         toast.success("Copiado al portapapeles")
 
-        navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${enviarA}\t${situacionDelCambio}`)
 
-        // onUpdateObservaciones(nroOrden, motivo, 'Cambio', observacionTotal)
+        // Actualizar Api
+        onUpdateObservaciones(nroOrden, motivo, 'Cambio', observacionTotal)
 
+
+        // Enviar data a DISCORD
         const notificacionDiscord = await fetch('/api/notificacion/cambio', {
             method: 'POST',
             headers: {
@@ -372,7 +381,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const res = await notificacionDiscord.json()
         toast.success('Notificacion Enviada a Discord')
 
-        await onUpdateObservaciones(nroOrden, antes, 'Cambio', observacionTotal)
+        // await onUpdateObservaciones(nroOrden, antes, 'Cambio', observacionTotal)
+
+
         //cerramos eldrawer
 
         console.log('\n\t============DESCARGANDO SALIDA===========\n\t');
@@ -409,7 +420,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             <TableCaption>Tabla de cambios</TableCaption>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Actual</TableHead>
+                    <TableHead >Actual</TableHead>
+                    <TableHead></TableHead>
                     <TableHead>Cambio</TableHead>
                 </TableRow>
             </TableHeader>
@@ -417,28 +429,31 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                 {reDatos.map((producto, index) => {
                     const [categoria, title, sku, atributo1_titulo, atributo1_valor, atributo2_titulo, atributo2_valor] = producto.descripcion.split(',')
 
-                    return (<TableRow key={`${producto.cantidad}_${index}`}>
-                        <TableCell >
-                            <div className="flex gap-2">
-                                <div>
-                                    <img height={"auto"} width={"auto"} className="rounded-lg max-h-28" src={producto.foto} alt="SIN FOTO" />
+                    return (
+                        <TableRow key={`${producto.cantidad}_${index}`}>
+                            <TableCell  >
+                                <div className="flex gap-2">
+                                    <div>
+                                        <img height={"auto"} width={"auto"} className="rounded-lg max-h-28" src={producto.foto} alt="SIN FOTO" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm  text-gray-400">{categoria}</h3>
+                                        <h2 className="text-lg">{title}</h2>
+                                        <p className="text-sm text-gray-400">{sku}</p>
+                                        <p className="text-sm text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
+                                        <p className="text-sm text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="text-sm  text-gray-400">{categoria}</h3>
-                                    <h2 className="text-lg">{title}</h2>
-                                    <p className="text-sm text-gray-400">{sku}</p>
-                                    <p className="text-sm text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
-                                    <p className="text-sm text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
-                                </div>
-                            </div>
-                        </TableCell>
-                        <TableCell>
+                            </TableCell>
+                            <TableCell ><LiaExchangeAltSolid /></TableCell>
+                            <TableCell>
 
-                            <div className="flex flex-col gap-2">
-                                <ComboboxDemo />
-                            </div>
-                        </TableCell>
-                    </TableRow>)
+                                <div className="flex flex-col gap-2">
+                                    <ComboboxDemo />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    )
                 }
                 )}
             </TableBody>
@@ -500,6 +515,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                 </Table>
             </div>
 
+
+            {/* Modal Cambio Producto */}
             <div className="my-2 flex flex-col gap-2">
                 <Drawer >
                     <DrawerTrigger disabled={table.getSelectedRowModel().rows.length === 0 ? true : false} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DrawerTrigger>
@@ -509,6 +526,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                             <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription>
                         </DrawerHeader>
 
+
+                        {/* Seleccionar Motivo de Cambio */}
                         <div className="my-2 flex justify-center w-full ">
                             <Select onValueChange={manejarCambioMotivo}>
                                 <SelectTrigger className="w-[50%]">
@@ -525,13 +544,14 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                             </Select>
                         </div>
 
+
+                        {/* Tabla de Productos a Cambiar */}
                         <TablaRealizarCambio />
+
                         <DrawerFooter>
                             <Button onClick={handleCambio}>Realizar Cambio</Button>
                             <Button onClick={handleDescargaCambio}>Descargar Salida de Cambio</Button>
-                            <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">
-                                Cancelar
-                            </DrawerClose>
+                            <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose>
                         </DrawerFooter>
                     </DrawerContent>
                 </Drawer>

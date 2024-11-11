@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     console.log('======= API PRODUCTO =======');
     const { data }: { data: string[] } = await req.json()
 
-    console.log(data);
+    console.log(data,'-👀');
     let sap_list: string[] = []
 
     for (let i = 0; i < data.length; i++) {

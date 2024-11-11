@@ -403,12 +403,12 @@ async function HomeOrden({ params }: Props) {
                         </CardContent>
                         <CardFooter>
                             <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-1 rounded-lg text-white font-bold flex justify-center gap-4 items-center" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">Ver en <SiMercadopago className="text-white font-bold" size={30} /></a>
-                            <Observacion observaciones={situacion_facturacion.link_doc1} orden={cabecera_pedido?.numero_orden} />
+                            <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
                         </CardFooter>
                     </Card>
 
                     <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando </div>}>
-                        {situacion_facturacion.link_doc1 && <CardComentarios comentarios={situacion_facturacion.link_doc1} />}
+                        {situacion_facturacion.link_doc2 && <CardComentarios comentarios={situacion_facturacion.link_doc2} />}
                     </Suspense>
                 </div>
                 {/* SECCION */}

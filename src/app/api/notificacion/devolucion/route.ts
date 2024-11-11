@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
             `Observación: ${body.observacion}\n`,
 
     };
-    console.log(message,'🚩')
 
     const webhookURL: string = process.env.CANAl_CREADOR_DEVOLUCION!
     const send = await fetch(webhookURL, {

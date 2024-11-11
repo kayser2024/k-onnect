@@ -26,10 +26,11 @@ interface Respuesta {
 export async function POST(req: NextRequest) {
 
     const body: Respuesta = await req.json()
-
+    console.log(body, '🟢🟢')
     const antes = body.antes.split(' / ')
     const despues = body.despues.split(' / ')
     const ean = body.ean.split(' / ')
+
 
     let cambioAefectuar = ""
     for (let i = 0; i < antes.length; i++) {
@@ -55,9 +56,7 @@ export async function POST(req: NextRequest) {
             `Motivo:** ${body.motivo}**\n` +
             `Situacion del cambio:** ${body.situacionDelCambio}**\n` +
             `Enviado:** ${body.enviado}**\n` +
-            `CAMBIO A EFECTUAR:**\n` +
-
-            cambioAefectuar
+            `CAMBIO A EFECTUAR:**\n` + cambioAefectuar
 
         /*
         PARA UNA PROXIMA ACTUALIZACION donde:
