@@ -158,41 +158,41 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
 
-        // await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+        await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
         // navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         fechaSolicitud,
-        //         dni,
-        //         cliente,
-        //         formaDevolucion,
-        //         operacion,
-        //         tipoExtorno,
-        //         fechaVenta,
-        //         boleta,
-        //         montoPago,
-        //         nc,
-        //         montoExtorno,
-        //         plazoMaximo,
-        //         ordenCompra,
-        //         correoCliente,
-        //         encargado,
-        //         observacion,
-        //         notaAdicional,
-        //         observacionTotal,
-        //         numeroCelular,
-        //         fechaCreacionBoleta
-        //     })
-        // })
-        // const res = await notificacionDiscord.json()
-        // toast.info(res)
-        // toast.success('Notificacion Enviada a Discord')
+        const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fechaSolicitud,
+                dni,
+                cliente,
+                formaDevolucion,
+                operacion,
+                tipoExtorno,
+                fechaVenta,
+                boleta,
+                montoPago,
+                nc,
+                montoExtorno,
+                plazoMaximo,
+                ordenCompra,
+                correoCliente,
+                encargado,
+                observacion,
+                notaAdicional,
+                observacionTotal,
+                numeroCelular,
+                fechaCreacionBoleta
+            })
+        })
+        const res = await notificacionDiscord.json()
+        toast.info(res)
+        toast.success('Notificacion Enviada a Discord')
 
 
     }
