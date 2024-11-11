@@ -80,8 +80,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             rowSelection,
         },
     })
-
-
+// x	09918122	Maria Elena  Llanos 	MP	-	TOTAL	5/11/2024	BW17-28782	102.62	-	102.62	-	11/11/2024	21/11/2024	ss1730825678065olge	melenalla@yahoo.com	Janet	-	-	Devolucion Total a pedido del cliente
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
@@ -96,7 +95,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         const nroOrden = orden.cabecera_pedido[0].numero_orden
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
-        const observacionTotal = orden.situacion_facturacion[0].link_doc1
+        const observacionTotal = orden.situacion_facturacion[0].link_doc2
         const cantidadComprado = orden.detalle_pedido.reduce((acc, item) => acc + item.quantity_sku, 0)
         const fechaSolicitud = new Date().toLocaleDateString()
         const dni = orden.datos_facturacion[0].id_cliente
@@ -154,12 +153,16 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             observacion = "Devolucion Total a pedido del cliente"
         }
 
-        navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
+        // navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
 
-        // await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
-        // navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
+        // ACTUALIZAR API
+        await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+
+        navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
+
+        // ENVIAR NOTIFICACION A DISCORD
         const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
             method: 'POST',
             headers: {
@@ -189,7 +192,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             })
         })
         const res = await notificacionDiscord.json()
-        toast.info(res)
         toast.success('Notificacion Enviada a Discord')
 
 
