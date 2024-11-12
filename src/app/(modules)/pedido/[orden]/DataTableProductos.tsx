@@ -84,12 +84,11 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
-        console.log(pagado, '👀👀👀')
+
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
         }
-
 
         // construyendo la data para enviar a discord
         const nroOrden = orden.cabecera_pedido[0].numero_orden
@@ -115,7 +114,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const encargado = persona ? persona : "Apoyo"
         const notaAdicional = "-"
 
-        console.log('Monto Extorno', montoExtorno)
+        // console.log('Monto Extorno', montoExtorno)
 
         let observacion = "A solicitud del cliente: "
         if (tipoExtorno !== "TOTAL") {
@@ -256,7 +255,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     const handleCambio = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
-        // const observacionTotal = orden.situacion_facturacion[0].link_doc1
         const observacionTotal = orden.situacion_facturacion[0].link_doc2
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
 
@@ -350,7 +348,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         onUpdateObservaciones(nroOrden, motivo, 'Cambio', observacionTotal)
 
 
-        // Enviar data a DISCORD
+        // Enviar Notificacion a DISCORD en el CANAL de de CAMBIO
         const notificacionDiscord = await fetch('/api/notificacion/cambio', {
             method: 'POST',
             headers: {
@@ -461,7 +459,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     }
 
     // Hacemos que recuerde el motivo de cambio
-
     const manejarCambioMotivo = (value: string) => {
         setMotivoCambio(value)
     }
