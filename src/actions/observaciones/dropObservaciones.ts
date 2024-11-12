@@ -8,7 +8,7 @@ export const onDropObservaciones = async (orden: string) => {
     const jsonUpdateObservaciones = {
         "actualizar": {
             "situacion_facturacion":
-                { "link_doc1": "" }
+                { "link_doc2": "" }
         }
     }
 

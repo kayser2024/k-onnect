@@ -10,7 +10,7 @@ import {
 import { onDropObservaciones } from "@/actions/observaciones/dropObservaciones"
 
 import { OrdenResponse } from "@/types/Orden"
-import { ArrowDown, BadgeCent, Dot, Download, Handshake, MessageCircleCode, PlusCircle, Trash } from "lucide-react"
+import { ArrowDown, BadgeCent, CircleDot, CircleEllipsis, Dot, Download, EllipsisVertical, Handshake, MessageCircleCode, PlusCircle, Trash } from "lucide-react"
 import { toast } from "sonner"
 
 interface Orden {
@@ -51,8 +51,9 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
 
     return (
         <DropdownMenu >
-            <DropdownMenuTrigger className="bg-black text-white p-2 rounded-md">
-                <ArrowDown className="h-4 w-4" />
+            <DropdownMenuTrigger className=" p-2 rounded-md">
+                {/* <ArrowDown className="h-4 w-4" /> */}
+                <EllipsisVertical/>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuLabel>Acerca..</DropdownMenuLabel>

@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache"
 
 export const onUpdateObservaciones = async (orden: string, comentario: string, selectedValue: string, observaciones: string) => {
 
+    console.log({ selectedValue, comentario })
+    console.log({ comentario, observaciones }, '👀🚩')
+
 
     if (!comentario) {
         return {
@@ -12,9 +15,8 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
         }
     }
 
-    console.log({ selectedValue, comentario })
     let resFinal = {}
-    console.log(observaciones, '👀🚩')
+
 
     if (observaciones) {
         console.log('OBSERVACIONES NO VACIAS');
@@ -41,8 +43,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
         "actualizar": {
             "situacion_facturacion":
             {
-                "link_doc1": JSON.stringify(resFinal),
-                "comentario": JSON.stringify(resFinal)
+                "link_doc2": JSON.stringify(resFinal)
             }
         }
     }
@@ -57,7 +58,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
         body: JSON.stringify(jsonUpdateObservaciones)
     }).then(res => res.json())
 
-    console.log(res);
+    console.log(res, '👀👀👀');
     revalidatePath('/pedido/[orden]', 'page')
 
     if (res.bEstado === false) {
