@@ -93,7 +93,7 @@ export default function SearchMain({
 
     return (
         <div className="flex flex-col  justify-center gap-2 border p-4 bg-blue-50 rounded-md">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="flex gap-2">
                 <div className="flex gap-4">
                     <div className="flex items-center space-x-2">
                         <Select

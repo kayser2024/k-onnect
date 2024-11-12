@@ -4,10 +4,6 @@ import { revalidatePath } from "next/cache"
 
 export const onUpdateObservaciones = async (orden: string, comentario: string, selectedValue: string, observaciones: string) => {
 
-    console.log({ selectedValue, comentario })
-    console.log({ comentario, observaciones }, '👀🚩')
-
-
     if (!comentario) {
         return {
             mensaje: 'El comentario no puede estar vacio',
@@ -17,9 +13,9 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
 
     let resFinal = {}
 
-
+    // CONDICION PARA AGREGAR OBSERVACIONES EN CASO DE QUE EXISTA
     if (observaciones) {
-        console.log('OBSERVACIONES NO VACIAS');
+        // console.log('OBSERVACIONES NO VACIAS');
         const observacionesArray = JSON.parse(observaciones)
 
         resFinal = [...observacionesArray, {
@@ -29,7 +25,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
             "usuario": "admin"
         }]
     } else {
-        console.log('OBSERVACIONES VACIAS');
+        // console.log('OBSERVACIONES VACIAS');
         resFinal = [{
             "comentario": comentario,
             "tipo": selectedValue,
@@ -39,6 +35,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
     }
 
 
+    //CONSTRUIR BODY PARA ENVIARLE A LA API
     const jsonUpdateObservaciones = {
         "actualizar": {
             "situacion_facturacion":
@@ -58,7 +55,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
         body: JSON.stringify(jsonUpdateObservaciones)
     }).then(res => res.json())
 
-    console.log(res, '👀👀👀');
+    // console.log(res, '👀👀👀');
     revalidatePath('/pedido/[orden]', 'page')
 
     if (res.bEstado === false) {
