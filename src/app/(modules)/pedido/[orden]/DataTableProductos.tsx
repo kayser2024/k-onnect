@@ -80,7 +80,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             rowSelection,
         },
     })
-// x	09918122	Maria Elena  Llanos 	MP	-	TOTAL	5/11/2024	BW17-28782	102.62	-	102.62	-	11/11/2024	21/11/2024	ss1730825678065olge	melenalla@yahoo.com	Janet	-	-	Devolucion Total a pedido del cliente
+    // x	09918122	Maria Elena  Llanos 	MP	-	TOTAL	5/11/2024	BW17-28782	102.62	-	102.62	-	11/11/2024	21/11/2024	ss1730825678065olge	melenalla@yahoo.com	Janet	-	-	Devolucion Total a pedido del cliente
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
@@ -157,41 +157,41 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         // ACTUALIZAR API
         await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
 
-        // await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
-        // navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
+        navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         fechaSolicitud,
-        //         dni,
-        //         cliente,
-        //         formaDevolucion,
-        //         operacion,
-        //         tipoExtorno,
-        //         fechaVenta,
-        //         boleta,
-        //         montoPago,
-        //         nc,
-        //         montoExtorno,
-        //         plazoMaximo,
-        //         ordenCompra,
-        //         correoCliente,
-        //         encargado,
-        //         observacion,
-        //         notaAdicional,
-        //         observacionTotal,
-        //         numeroCelular,
-        //         fechaCreacionBoleta
-        //     })
-        // })
-        // const res = await notificacionDiscord.json()
-        // toast.info(res)
-        // toast.success('Notificacion Enviada a Discord')
+
+        // ENVIAR NOTIFICACION A DISCORD CANAL DE DEVOLUCIONES
+        const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fechaSolicitud,
+                dni,
+                cliente,
+                formaDevolucion,
+                operacion,
+                tipoExtorno,
+                fechaVenta,
+                boleta,
+                montoPago,
+                nc,
+                montoExtorno,
+                plazoMaximo,
+                ordenCompra,
+                correoCliente,
+                encargado,
+                observacion,
+                notaAdicional,
+                observacionTotal,
+                numeroCelular,
+                fechaCreacionBoleta
+            })
+        })
+        const res = await notificacionDiscord.json()
+        toast.success('Notificacion Enviada a Discord')
 
 
     }
@@ -220,10 +220,10 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
         const tabla = document.getElementById("tablaCambios")
-        
+
         //obetenemos los button
         const buttons = tabla!.getElementsByTagName("button")
-        
+
         // imprimimos el contenido de los botones
         const prendasCambiadasEAN: string[] = []
         for (let i = 0; i < buttons.length; i++) {
@@ -279,9 +279,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         }).then(res => res.json())
 
 
-        console.log(prendasOriginalesSAP, '🚩');
-
-
         const tabla = document.getElementById("tablaCambios")
 
         //obetenemos los button
@@ -320,8 +317,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             })
         }
 
-        console.log('TRANSACCION REALIZADA');
-        console.table(cambioRealizado);
+        // console.log('TRANSACCION REALIZADA');
+        // console.table(cambioRealizado);
 
         //GESTIONANDO LINEA DE EXCEL
         const fechaSolicitud = new Date().toLocaleDateString()
@@ -343,7 +340,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const enviarA = '-'
         const situacionDelCambio = 'Ingresado'
 
-        
+
         // Copiar al portapapeles
         navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${enviarA}\t${situacionDelCambio}`)
         toast.success("Copiado al portapapeles")
