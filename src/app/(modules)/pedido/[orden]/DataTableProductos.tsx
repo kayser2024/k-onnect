@@ -92,7 +92,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
         // construyendo la data para enviar a discord
-
         const nroOrden = orden.cabecera_pedido[0].numero_orden
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
         const observacionTotal = orden.situacion_facturacion[0].link_doc2
@@ -217,12 +216,14 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             },
             body: JSON.stringify({ data: eansOriginales })
         }).then(res => res.json())
-        console.log(prendasOriginalesSAP);
+        // console.log(prendasOriginalesSAP);
 
 
         const tabla = document.getElementById("tablaCambios")
+        
         //obetenemos los button
         const buttons = tabla!.getElementsByTagName("button")
+        
         // imprimimos el contenido de los botones
         const prendasCambiadasEAN: string[] = []
         for (let i = 0; i < buttons.length; i++) {
