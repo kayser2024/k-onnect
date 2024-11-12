@@ -6,11 +6,13 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { Car, Clock12, FileText, Package, ScanEye, Search } from 'lucide-react';
+import { Car, Clock12, FileText, Package, Power, ScanEye, Search } from 'lucide-react';
 import { Button } from './button';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { ToggleTheme } from './toggleTheme';
+import { logout } from '@/actions/auth/logout';
+import { LiaUserCogSolid } from 'react-icons/lia';
 
 
 
@@ -18,6 +20,7 @@ export const Sidebar = () => {
 
     const isSideMenuOpen = useUIStore(state => state.isSideMenuOpen);
     const closeMenu = useUIStore(state => state.closeSideMenu);
+
 
     const rutasATC = [
         // {
@@ -47,6 +50,11 @@ export const Sidebar = () => {
             nombre: 'Envios',
             icon: <Car />,
             ruta: '/envio'
+        },
+        {
+            nombre: 'Mantenimiento',
+            icon: <LiaUserCogSolid />,
+            ruta: '/mantenimiento_user'
         }
     ]
 
@@ -103,20 +111,20 @@ export const Sidebar = () => {
                     <div className='flex items-center '>
 
                         {
-                            usuarioInfo.nombre !== 'No Conectado' &&<div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>JA</div>
+                            usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.slice(0, 2).toUpperCase()}</div>
                             // <img className='rounded-lg' src={usuarioInfo.image} width={50} height={50} alt="" />
                         }
                         <div className='flex-grow text-center'>
                             <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>
                             <span className='text-xs text-gray-300'>Registrado en sistema ATC</span>
                         </div>
-                        <Link onClick={() => closeMenu()} href={usuarioInfo.nombre !== 'No Conectado' ? '/' : '/api/auth/signin'} className='bg-blue-500 p-3 rounded-lg'>
+                        <div onClick={() => logout()} className='bg-red-500 p-3 rounded-lg cursor-pointer'>
                             {
-                                usuarioInfo.nombre !== 'No Conectado' ? <Clock12 className='w-auto h-[15px] text-white ' />
+                                usuarioInfo.nombre !== 'No Conectado'
+                                    ? <Power className='w-auto h-[15px] text-white ' />
                                     : <ScanEye href='/api/auth/signin' />
                             }
-
-                        </Link>
+                        </div>
                     </div>
 
                     <div className='m-4  bg-gray-100 h-[1px]' />

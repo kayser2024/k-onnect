@@ -1,0 +1,56 @@
+{
+    "bEstado": true,
+    "iCodigo": 0,
+    "sRpta": "consultado correctamente.",
+    "obj": [
+        {
+            "datos_variacion": [
+                {
+                    "_id": "67335425aa2664ac00bdb661",
+                    "sku_padre": "9201C",
+                    "cod_agrupador": "",
+                    "sku": "7800000164596",
+                    "dominio": "kayser.pe",
+                    "url1_imagen_sku": "https://storage.googleapis.com/sspe-blnc-rscs/00000C9D/image/700x1000/92.01-NEG_1.jpg",
+                    "url2_imagen_sku": "",
+                    "url3_imagen_sku": "",
+                    "url4_imagen_sku": "",
+                    "url5_imagen_sku": "",
+                    "url6_imagen_sku": "",
+                    "url_images": [],
+                    "price": 13.9,
+                    "sale_price": 13.9,
+                    "cantidad": 0,
+                    "peso": 1,
+                    "atributo1_titulo": "talla",
+                    "atributo1_valor": "M",
+                    "atributo1_cod_hex": "",
+                    "atributo1_url_imagen": "",
+                    "atributo1_detalle": "",
+                    "atributo2_titulo": "color",
+                    "atributo2_valor": "NEGRO",
+                    "atributo2_cod_hex": "",
+                    "atributo2_url_imagen": "",
+                    "atributo2_detalle": "",
+                    "atributo3_titulo": "",
+                    "atributo3_valor": "",
+                    "atributo3_cod_hex": "",
+                    "atributo3_detalle": "",
+                    "atributo3_url_imagen": "",
+                    "producto_bandera": "",
+                    "tags_widget": "",
+                    "fecha_creacion": "2022-09-28T18:19:36.000Z",
+                    "fecha_modificacion": "2023-03-23T15:19:35.000Z",
+                    "usuario_creacion": "",
+                    "usuario_modificacion": "felipe.caceres@kayser.pe",
+                    "erp_storages": [],
+                    "__v": 0
+                }
+                ... etc
+            ],
+            "paginas_totales": 190,
+            "pagina_actual": 1,
+            "total_de_registros": 18959
+        }
+    ]
+}

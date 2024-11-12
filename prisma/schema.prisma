@@ -51,20 +51,21 @@ model OSF_Product {
 
 model roles {
   id       Int        @id @default(autoincrement())
-  name   String     @unique(map: "name") @db.VarChar(150)
+  name     String     @unique(map: "name") @db.VarChar(150)
   usuarios usuarios[]
 }
 
 model usuarios {
-  dni        String @id @db.VarChar(10)
-  name    String @db.VarChar(150)
-  lastName  String @db.VarChar(150)
-  email     String @unique(map: "email") @db.VarChar(100)
-  emailVerified String @db.VarChar(100)
-  password String @db.VarChar(100)
-  image String @db.VarChar(150)
-  rolId      Int
-  roles      roles  @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+  dni           String  @id @db.VarChar(10)
+  name          String  @db.VarChar(150)
+  lastName      String  @db.VarChar(150)
+  email         String  @unique(map: "email") @db.VarChar(100)
+  emailVerified String  @db.VarChar(100)
+  password      String  @db.VarChar(100)
+  image         String  @db.VarChar(150)
+  rolId         Int
+  roles         roles   @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+  status        Boolean @default(true)
 
   @@index([rolId], map: "rolId")
 }
