@@ -162,6 +162,8 @@ export function TableMain() {
         <ScrollBar orientation="horizontal" />
 
       </ScrollArea>
+
+      {/* Pagination */}
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">
           Total de registros: {totalRegistros}

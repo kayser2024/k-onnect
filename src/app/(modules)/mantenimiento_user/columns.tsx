@@ -16,12 +16,19 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
     {
         id: "name",
         accessorKey: "user_name",
+        // accessorFn: (row) => row.name,
         header: "Nombre",
         cell: ({ row }) => {
             const nombre = row.original.name;
             const apellido = row.original.lastName;
             return <>{nombre}</>;
-        }
+        },
+        filterFn: (row, id, value) => {
+            const estado = row.original.name; 
+            return estado
+                ? estado.toLowerCase().includes(value.toLowerCase())
+                : false;
+        },
     },
     {
         id: "email",

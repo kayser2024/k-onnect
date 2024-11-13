@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
-import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -33,19 +33,19 @@ let initialDataUsuer = {
 export const DataTable = () => {
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [searchTerm, setSearchTerm] = useState('')
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [isOpenAlert, setIsOpenAlert] = useState(false)
     const [action, setAction] = useState("")
     const [dataUser, setDataUser] = useState(initialDataUsuer);
     const [isSaving, setIsSaving] = useState(false)
+    const [totalRegistros, setTotalRegistros] = useState(0);
+    const [searchUsuario, setSearchUsuario] = useState("");
 
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['allUsers'],
         queryFn: async () => await getAllUsers(),
     })
-
 
 
     const handleOpenModal = (action: string, id?: string, currentStatus?: boolean) => {
@@ -89,6 +89,7 @@ export const DataTable = () => {
             setIsOpenModal(true);
         } catch (error: any) {
             console.log(error.message)
+            toast.error(error.message)
         }
     }
 
@@ -159,19 +160,42 @@ export const DataTable = () => {
         data: data || [],
         columns: columns(handleOpenModal),
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnFiltersChange: setColumnFilters,
+
         state: {
             columnFilters,
         },
+        initialState: {
+            pagination: {
+                pageSize: 5,
+            },
+        },
     })
+
+
+    // Actualizar el total de registros solo cuando cambie `data`
+    useEffect(() => {
+        if (data) {
+            setTotalRegistros(data.length);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        const filters = []
+        if (searchUsuario) {
+            filters.push({ id: 'name', value: searchUsuario })
+        }
+        setColumnFilters(filters);
+    }, [searchUsuario])
 
     return (
         <div>
             {/* SEARCH */}
             <div className="flex gap-2 w-full my-4">
                 <label className="input  input-bordered flex items-center gap-2 w-full">
-                    <Input placeholder='Buscar usuario ...' value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                    <Input placeholder='Buscar nombre ...' value={searchUsuario} onChange={e => setSearchUsuario(e.target.value)} />
                 </label>
                 <Button
                     variant='default'
@@ -218,6 +242,36 @@ export const DataTable = () => {
                         )}
                     </TableBody>
                 </Table>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between space-x-2 py-4">
+                    <div className="text-sm text-muted-foreground">
+                        Total de registros: {totalRegistros}
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                        Página {table.getState().pagination.pageIndex + 1} de{" "}
+                        {table.getPageCount()}
+                    </div>
+                    <div className="space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Anterior
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Siguiente
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             {/* MODAL CREATE  - UPDATE */}
