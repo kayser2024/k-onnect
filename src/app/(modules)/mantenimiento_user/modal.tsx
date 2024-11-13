@@ -87,8 +87,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
 
         // enviar data 
-        alert('data enviada')
-        // handleSave(action, { name, lastName, email, rolId, dni })
+        handleSave(action, { name, lastName, email, rolId, dni })
     }
 
     return (
