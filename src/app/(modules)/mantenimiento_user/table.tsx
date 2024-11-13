@@ -4,7 +4,6 @@ import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, u
 import React, { useState } from 'react'
 import { columns } from './columns'
 
-import { IoIosSearch } from "react-icons/io";
 import { CiCirclePlus } from "react-icons/ci";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,14 +26,25 @@ export const DataTable = () => {
 
 
 
-    const handleOpenModal = (action: string, id: number, currentStatus: boolean) => {
-
-        // Implement your modal logic here
-        if (action === 'create') { handleCreate() }
-        else if (action === 'edit') { handleEdit(id) }
-        else if (action === 'delete') { handleDelete(id, currentStatus) }
-        else if (action === 'reset') { handleReset(id) }
+    const handleOpenModal = (action: string, id?: number, currentStatus?: boolean) => {
+        switch(action) {
+            case 'create': 
+                handleCreate()
+                break
+            case 'edit': 
+                if (id !== undefined) handleEdit(id)
+                break
+            case 'delete': 
+                if (id !== undefined && currentStatus !== undefined) handleDelete(id, currentStatus)
+                break
+            case 'reset': 
+                if (id !== undefined) handleReset(id)
+                break
+            default:
+                break
+        }
     }
+    
 
 
     // FUNCIÓN PARA CREAR UN NUEVO USUARIO
@@ -82,7 +92,6 @@ export const DataTable = () => {
                     {/* <input type="text" className="grow block" placeholder="Buscar usuario" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /> */}
                     <Input placeholder='Buscar usuario ...' value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
 
-                    {/* <IoIosSearch size={25} /> */}
                 </label>
                 <Button
                     variant='default'
