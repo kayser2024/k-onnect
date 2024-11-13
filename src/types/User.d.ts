@@ -4,9 +4,9 @@ export interface User {
     name: string
     lastName: string
     email: string
-    emailVerified: string
-    password: string
-    image: string
+    emailVerified?: string
+    password?: string
+    image?: string
     rolId: number
     status?: boolean
 }

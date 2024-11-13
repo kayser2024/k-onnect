@@ -44,7 +44,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
     const [name, setName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [rolId, setRolId] = useState("");
+    const [rolId, setRolId] = useState<number>(1);
 
 
     console.log(isOpenModal)
@@ -60,7 +60,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
             setName(data.name || "");
             setLastName(data.lastName || "");
             setEmail(data.email || "");
-            setRolId(`${data.rolId}` || "");
+            setRolId(data.rolId || 1);
         }
     }, [data]);
 
@@ -133,7 +133,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                         <Label htmlFor="email" className="text-right">
                             Rol:
                         </Label>
-                        <Select onValueChange={(value) => setRolId(value)} value={rolId} >
+                        <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Seleccionar un rol" />
                             </SelectTrigger>
