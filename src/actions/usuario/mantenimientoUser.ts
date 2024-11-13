@@ -60,9 +60,7 @@ export const createUser = async (data: User) => {
 
 }
 
-
 export const updateUser = async (data: User) => {
-    console.log(data, '👀 ENTRANDO UPDATE PRISMA')
     let result;
     try {
         result = await prisma.usuarios.update({
@@ -75,8 +73,6 @@ export const updateUser = async (data: User) => {
                 status: data.status,
             },
         })
-
-        console.log(result, '👀 RESULT DE UPDATE')
 
     } catch (error: any) {
         result = error.message

@@ -1,30 +1,21 @@
 'use client'
 
-import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useState } from 'react'
-import { columns } from './columns'
 
-import { CiCirclePlus } from "react-icons/ci";
+import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
+import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ModalUser } from './modal';
-import prisma from '@/lib/prisma';
-import { useQuery } from '@tanstack/react-query';
-import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
 import { Loader } from '@/components/loader';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import { columns } from './columns'
 import { AlertConfirm } from './alert-confirm';
-import { id } from 'date-fns/locale';
+import { ModalUser } from './modal';
 import { User } from '@/types/User';
-import { toast } from 'sonner';
 
 
 let initialDataUsuer = {
@@ -50,12 +41,10 @@ export const DataTable = () => {
     const [isSaving, setIsSaving] = useState(false)
 
 
-
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['allUsers'],
         queryFn: async () => await getAllUsers(),
     })
-
 
 
 
@@ -83,7 +72,6 @@ export const DataTable = () => {
                 break
         }
     }
-
 
 
     // FUNCIÓN PARA CREAR UN NUEVO USUARIO
@@ -128,7 +116,6 @@ export const DataTable = () => {
     // FUNCIÓN PARA GUARDAR LOS DATOS DEL USUARIO
     const handleSave = async (action: string, data: User) => {
 
-        console.log(action, data)
         setIsSaving(true)
         try {
             if (action === 'create') await createUser(data);
@@ -167,7 +154,6 @@ export const DataTable = () => {
 
     }
 
-
     // REACT-TABLE
     const table = useReactTable({
         data: data || [],
@@ -185,16 +171,13 @@ export const DataTable = () => {
             {/* SEARCH */}
             <div className="flex gap-2 w-full my-4">
                 <label className="input  input-bordered flex items-center gap-2 w-full">
-                    {/* <input type="text" className="grow block" placeholder="Buscar usuario" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /> */}
                     <Input placeholder='Buscar usuario ...' value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-
                 </label>
                 <Button
                     variant='default'
                     className='gap-2'
                     onClick={() => handleOpenModal('create')}
                 >
-                    {/* <CiCirclePlus size={35} /> */}
                     Nuevo
                 </Button>
             </div>

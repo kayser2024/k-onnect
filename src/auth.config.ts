@@ -56,13 +56,14 @@ export const authConfig: NextAuthConfig = {
 
         const { email, password } = parsedCredentials.data;
 
-        console.log(email,password)
+        console.log(email, password)
 
         // Buscar el correo
 
         const user = await prisma.usuarios.findUnique({
           where: {
             email: email,
+            status: true
           },
         }
         )

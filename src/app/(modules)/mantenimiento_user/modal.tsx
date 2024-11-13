@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DialogOverlay } from '@radix-ui/react-dialog'
 import { User } from '@/types/User'
 
 import {
@@ -36,23 +33,11 @@ interface ModalUserProps {
 }
 export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalUserProps) => {
 
-
-    console.log({ data, action }, '👀')
-
-
     const [dni, setDni] = useState("");
     const [name, setName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [rolId, setRolId] = useState<number>(1);
-
-
-    console.log(isOpenModal)
-
-    const onSubmit = () => {
-
-        handleSave(action, { name, lastName, email, rolId, dni });
-    }
 
     useEffect(() => {
         if (data) {
@@ -70,9 +55,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
             <DialogContent className="sm:max-w-[425px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle>{action === 'create' ? 'Crear' : 'Editar'} Usuario</DialogTitle>
-                    {/* <DialogDescription>
-                        Make changes to your profile here. Click save when you're done.
-                    </DialogDescription> */}
+
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
 
@@ -91,9 +74,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                     </div>
                     {/* nombre */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                            Nombre
-                        </Label>
+                        <Label htmlFor="name" className="text-right">Nombre</Label>
                         <Input
                             id="name"
                             className="col-span-3"
@@ -104,9 +85,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
                     {/* Apellido */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="lastName" className="text-right">
-                            Apellido
-                        </Label>
+                        <Label htmlFor="lastName" className="text-right">Apellido</Label>
                         <Input
                             id="lastName"
                             className="col-span-3"
@@ -117,22 +96,19 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
                     {/* email */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="email" className="text-right">
-                            Email
-                        </Label>
+                        <Label htmlFor="email" className="text-right">Email</Label>
                         <Input
                             id="email"
                             className="col-span-3"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
+                            type='email'
                         />
                     </div>
 
                     {/* Rol */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="email" className="text-right">
-                            Rol:
-                        </Label>
+                        <Label htmlFor="email" className="text-right">Rol</Label>
                         <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Seleccionar un rol" />
@@ -152,9 +128,9 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                 </div>
                 <DialogFooter>
                     <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>
-                    <Button onClick={onSubmit} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
+                    <Button onClick={() => handleSave(action, { name, lastName, email, rolId, dni })} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
                 </DialogFooter>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }

@@ -3,6 +3,7 @@ import { User } from '@/types/User';
 import { LiaUserEditSolid } from 'react-icons/lia';
 import { RiLockPasswordLine } from "react-icons/ri";
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 
 // Define las columnas como una constante, esperando directamente la función handleOpenModal como parámetro
@@ -36,7 +37,11 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         header: "Rol",
         cell: ({ row }: any) => {
             const rol = row.original.rolId;
-            return <>{rol}</>;
+            let result;
+            if (rol == 1) result = 'Admin';
+            if (rol == 2) result = 'ATC';
+            if (rol == 3) result = 'Tienda';
+            return <Badge variant='outline'>{result}</Badge>;
         }
     },
     {
