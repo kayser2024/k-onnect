@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -13,51 +13,146 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DialogOverlay } from '@radix-ui/react-dialog'
+import { User } from '@/types/User'
+
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 interface ModalUserProps {
-    isOpen: boolean,
-    handleSave: () => void,
-    onClose: () => void,
+    action: string,
+    isOpenModal: boolean,
+    handleSave: (action: string, data: User) => void,
+    setIsOpenModal: (value: boolean) => void,
+    data: User
+    isSaving: boolean
 }
-export const ModalUser = ({ isOpen, handleSave }: ModalUserProps) => {
+export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalUserProps) => {
 
-    console.log(isOpen)
+
+    console.log({ data, action }, '👀')
+
+
+    const [dni, setDni] = useState("");
+    const [name, setName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [rolId, setRolId] = useState("");
+
+
+    console.log(isOpenModal)
+
+    const onSubmit = () => {
+
+        handleSave(action, { name, lastName, email, rolId, dni });
+    }
+
+    useEffect(() => {
+        if (data) {
+            setDni(data.dni || "");
+            setName(data.name || "");
+            setLastName(data.lastName || "");
+            setEmail(data.email || "");
+            setRolId(`${data.rolId}` || "");
+        }
+    }, [data]);
 
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleSave}>
-            <DialogContent className="sm:max-w-[425px]">
+        <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}  >
+            <DialogContent className="sm:max-w-[425px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle>{action === 'create' ? 'Crear' : 'Editar'} Usuario</DialogTitle>
+                    {/* <DialogDescription>
                         Make changes to your profile here. Click save when you're done.
-                    </DialogDescription>
+                    </DialogDescription> */}
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+
+                    {/* Dni */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                            Name
+                        <Label htmlFor="dni" className="text-right">
+                            Nro Doc.
                         </Label>
                         <Input
                             id="name"
-                            defaultValue="Pedro Duarte"
                             className="col-span-3"
+                            value={dni}
+                            onChange={e => setDni(e.target.value)}
+                            disabled={action === 'edit'}
                         />
                     </div>
+                    {/* nombre */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="username" className="text-right">
-                            Username
+                        <Label htmlFor="name" className="text-right">
+                            Nombre
                         </Label>
                         <Input
-                            id="username"
-                            defaultValue="@peduarte"
+                            id="name"
                             className="col-span-3"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
                         />
                     </div>
+
+                    {/* Apellido */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastName" className="text-right">
+                            Apellido
+                        </Label>
+                        <Input
+                            id="lastName"
+                            className="col-span-3"
+                            value={lastName}
+                            onChange={e => setLastName(e.target.value)}
+                        />
+                    </div>
+
+                    {/* email */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">
+                            Email
+                        </Label>
+                        <Input
+                            id="email"
+                            className="col-span-3"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Rol */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">
+                            Rol:
+                        </Label>
+                        <Select onValueChange={(value) => setRolId(value)} value={rolId} >
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Seleccionar un rol" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Roles</SelectLabel>
+                                    <SelectItem value="1">ADMIN</SelectItem>
+                                    <SelectItem value="2">ATC</SelectItem>
+                                    <SelectItem value="3">TIENDA</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleSave}>Guardar</Button>
-                    {/* <Button onClick={onClose}>Cerrar</Button> */}
+                    <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>
+                    <Button onClick={onSubmit} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

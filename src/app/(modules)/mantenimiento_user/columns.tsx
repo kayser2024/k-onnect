@@ -1,13 +1,12 @@
 import { ColumnDef } from '@tanstack/react-table';
-import Link from 'next/link';
-import { format } from 'date-fns';
 import { User } from '@/types/User';
 import { LiaUserEditSolid } from 'react-icons/lia';
 import { RiLockPasswordLine } from "react-icons/ri";
 import { Switch } from '@/components/ui/switch';
 
+
 // Define las columnas como una constante, esperando directamente la función handleOpenModal como parámetro
-export const columns = (handleOpenModal: (action: string, id: number, currentStatus?: boolean) => void): ColumnDef<any>[] => [
+export const columns = (handleOpenModal: (action: string, id: string, currentStatus?: boolean) => void): ColumnDef<User>[] => [
     {
         accessorKey: "index",
         header: "#",
@@ -16,8 +15,8 @@ export const columns = (handleOpenModal: (action: string, id: number, currentSta
     {
         id: "name",
         accessorKey: "user_name",
-        header: "Usuario",
-        cell: ({ row }: any) => {
+        header: "Nombre",
+        cell: ({ row }) => {
             const nombre = row.original.name;
             const apellido = row.original.lastName;
             return <>{nombre}</>;
@@ -26,8 +25,8 @@ export const columns = (handleOpenModal: (action: string, id: number, currentSta
     {
         id: "email",
         accessorKey: "email_user",
-        header: "E-mail",
-        cell: ({ row }: any) => {
+        header: "Usuario",
+        cell: ({ row }) => {
             const email = row.original.email;
             return <>{email}</>;
         }
@@ -43,18 +42,14 @@ export const columns = (handleOpenModal: (action: string, id: number, currentSta
     {
         accessorKey: "status",
         header: "Estado",
-        cell: ({ row }: any) => {
+        cell: ({ row }) => {
             const id = row.original.dni;
-
-            const handleStatusToggle = () => {
-                const currentStatus = row.getValue("status");
-                handleOpenModal("delete", id, !currentStatus);
-            };
+            const currentStatus = row.original.status;
 
             return (
                 <div className="form-control">
                     <label className="label cursor-pointer">
-                        <Switch onChange={handleStatusToggle} checked={row.getValue("status")} />
+                        <Switch onCheckedChange={() => handleOpenModal('delete', id, !currentStatus)} checked={currentStatus} />
                     </label>
                 </div>
             );
@@ -63,20 +58,20 @@ export const columns = (handleOpenModal: (action: string, id: number, currentSta
     {
         id: "actions",
         header: "Acción",
-        cell: ({ row }: any) => {
+        cell: ({ row }) => {
             const id = row.original.dni;
 
             return (
                 <div className="flex gap-2 justify-center items-center">
                     <LiaUserEditSolid
                         size={20}
-                        className="text-warning cursor-pointer"
+                        className="text-blue-600 cursor-pointer"
                         title="Editar"
                         onClick={() => handleOpenModal("edit", id)}
                     />
                     <RiLockPasswordLine
                         size={20}
-                        className="text-blue-400 cursor-pointer"
+                        className="text-orange-300 cursor-pointer"
                         title="Resetear Contraseña"
                         onClick={() => handleOpenModal("reset", id)}
                     />

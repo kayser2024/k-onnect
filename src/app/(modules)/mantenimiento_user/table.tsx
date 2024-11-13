@@ -10,69 +10,165 @@ import { Input } from '@/components/ui/input';
 import { ModalUser } from './modal';
 import prisma from '@/lib/prisma';
 import { useQuery } from '@tanstack/react-query';
-import { getAllUsers } from '@/actions/usuario/mantenimientoUser';
+import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
+import { Loader } from '@/components/loader';
+
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { AlertConfirm } from './alert-confirm';
+import { id } from 'date-fns/locale';
+import { User } from '@/types/User';
+import { toast } from 'sonner';
+
+
+let initialDataUsuer = {
+    dni: '',
+    name: '',
+    lastName: '',
+    email: '',
+    emailVerified: '',
+    password: '',
+    image: '',
+    rolId: 1,
+    status: false,
+}
+
 export const DataTable = () => {
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [searchTerm, setSearchTerm] = useState('')
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpenModal, setIsOpenModal] = useState(false)
+    const [isOpenAlert, setIsOpenAlert] = useState(false)
+    const [action, setAction] = useState("")
+    const [dataUser, setDataUser] = useState(initialDataUsuer);
+    const [isSaving, setIsSaving] = useState(false)
 
-    const { data, isLoading, isError } = useQuery({
+
+
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['allUsers'],
         queryFn: async () => await getAllUsers(),
     })
 
-    console.log({ data, isLoading, isError }, '👀🟢')
 
 
 
-    const handleOpenModal = (action: string, id?: number, currentStatus?: boolean) => {
-        switch(action) {
-            case 'create': 
+    const handleOpenModal = (action: string, id?: string, currentStatus?: boolean) => {
+        setAction(action);
+
+        console.log(action, id, currentStatus)
+        switch (action) {
+
+            case 'create':
                 handleCreate()
                 break
-            case 'edit': 
-                if (id !== undefined) handleEdit(id)
+            case 'edit':
+                if (id) handleEdit(id)
                 break
-            case 'delete': 
-                if (id !== undefined && currentStatus !== undefined) handleDelete(id, currentStatus)
+            case 'delete':
+                if (id && typeof currentStatus === "boolean") {
+                    handleDelete(action, id, currentStatus);
+                }
                 break
-            case 'reset': 
-                if (id !== undefined) handleReset(id)
+            case 'reset':
+                if (id) handleReset(id)
                 break
             default:
                 break
         }
     }
-    
+
 
 
     // FUNCIÓN PARA CREAR UN NUEVO USUARIO
     const handleCreate = () => {
-        // setIsOpen(true);
-        console.log('create')
+        setDataUser(initialDataUsuer)
+        setIsOpenModal(true);
     }
 
     // FUNCIÓN PARA EDITAR DATOS DEL USUARIO
-    const handleEdit = (id: number) => {
-
+    const handleEdit = async (id: string) => {
+        if (!id) return;
+        try {
+            const user = await getUserByDni(id);
+            setDataUser(user)
+            setIsOpenModal(true);
+        } catch (error: any) {
+            console.log(error.message)
+        }
     }
 
     // FUNCION PARA CAMBIAR ESTADO DEL USUARIO
-    const handleDelete = (id: number, currentStatus: boolean) => {
+    const handleDelete = (action: string, id: string, currentStatus: boolean) => {
+        if (!id) return;
 
+        // abrir alert
+        setIsOpenAlert(true);
+        setDataUser(prevState => ({ ...prevState, dni: id, status: currentStatus }));
+        console.log(action, id)
 
     }
 
     //  FUNCION PARA RESETEAR LA CONTRASEÑA
-    const handleReset = (id: number) => {
+    const handleReset = (id: string) => {
+        if (!id) return;
+        // Abrir alert
+        setIsOpenAlert(true);
+        setDataUser(prevState => ({ ...prevState, dni: id }))
+        console.log("reset password", id)
+    }
+
+
+    // FUNCIÓN PARA GUARDAR LOS DATOS DEL USUARIO
+    const handleSave = async (action: string, data: User) => {
+
+        console.log(action, data)
+        setIsSaving(true)
+        try {
+            if (action === 'create') await createUser(data);
+            if (action === 'edit') await updateUser(data);
+            toast.success("Operación exitosa");
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setIsSaving(false)
+            setIsOpenModal(false)
+            setDataUser(initialDataUsuer)
+        }
+
+        refetch();
 
     }
 
-    const handleSave = () => {
-        setIsOpen(false)
+    // FUNCIÓN PARA ACEPTAR Y GUARDAR
+    const handleAlertAccept = async (action: string) => {
+
+        setIsSaving(true)
+        try {
+            if (action === 'reset') await resetPassword(dataUser.dni)
+            if (action === 'delete') await changeStatusUser(dataUser.dni, dataUser.status)
+            toast.success("Operación exitosa");
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsSaving(false)
+            setIsOpenAlert(false)
+            setDataUser(initialDataUsuer);
+        }
+
+
+        refetch()
+
     }
 
+
+    // REACT-TABLE
     const table = useReactTable({
         data: data || [],
         columns: columns(handleOpenModal),
@@ -98,47 +194,55 @@ export const DataTable = () => {
                     className='gap-2'
                     onClick={() => handleOpenModal('create')}
                 >
-                    <CiCirclePlus size={25} />
+                    {/* <CiCirclePlus size={35} /> */}
                     Nuevo
                 </Button>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="table table-zebra">
-                    <thead>
+
+                {isLoading && <Loader />}
+
+                <Table >
+                    <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <tr key={headerGroup.id}>
+                            <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <th key={header.id}>
+                                    <TableHead key={header.id}>
                                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                    </th>
+                                    </TableHead>
                                 ))}
-                            </tr>
+                            </TableRow>
                         ))}
-                    </thead>
-                    <tbody>
+                    </TableHeader>
+                    <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} data-state={row.getIsSelected() && "selected"}>
+                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                                     {row.getVisibleCells().map((cell) => (
-                                        <td key={cell.id}>
+                                        <TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </td>
+                                        </TableCell>
                                     ))}
-                                </tr>
+                                </TableRow>
                             ))
                         ) : (
-                            <tr>
-                                <td colSpan={columns.length} className="h-24 text-center">
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
                                     Sin Resultados
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             </div>
 
-            {/* <ModalUser isOpen={isOpen} onClose={() => setIsOpen(false)} handleSave={handleSave} /> */}
+            {/* MODAL CREATE  - UPDATE */}
+            <ModalUser isOpenModal={isOpenModal} handleSave={handleSave} setIsOpenModal={setIsOpenModal} action={action} data={dataUser} isSaving={isSaving} />
+
+
+            {/* CONFIRM RESET - DELETE */}
+            <AlertConfirm isOpenAlert={isOpenAlert} setIsOpenAlert={setIsOpenAlert} action={action} handleAccept={handleAlertAccept} isSaving={isSaving} />
         </div>
     )
 }

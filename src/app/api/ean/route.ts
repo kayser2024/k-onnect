@@ -66,53 +66,53 @@
 
 
 
-import { NextResponse } from "next/server";
-import mysql from 'mysql2/promise';
+// import { NextResponse } from "next/server";
+// import mysql from 'mysql2/promise';
 
-export async function GET() {
+// export async function GET() {
 
-    try {
-        // Realizamos la conexión a la base de datos MySQL
-        const connection = await mysql.createConnection({
-            host: '45.33.100.232',
-            user: 'promotora',
-            port: 3306,
-            password: 'T123456TCilesia/*',
-            database: 'ptspromotora',
-        });
+//     try {
+//         // Realizamos la conexión a la base de datos MySQL
+//         const connection = await mysql.createConnection({
+//             host: '45.33.100.232',
+//             user: 'promotora',
+//             port: 3306,
+//             password: 'T123456TCilesia/*',
+//             database: 'ptspromotora',
+//         });
 
-        // Obtenemos los datos de tbl_productos y tbl_articulos, cruzándolos por el itemCode
-        const query = `
-            SELECT a.codigoEan, a.codigoSap, e.link
-            FROM tbl_articulo a
-            INNER JOIN tbl_EAN e ON a.codigoEan = e.sku
-        `;
-        const [rows] = await connection.query(query);
+//         // Obtenemos los datos de tbl_productos y tbl_articulos, cruzándolos por el itemCode
+//         const query = `
+//             SELECT a.codigoEan, a.codigoSap, e.link
+//             FROM tbl_articulo a
+//             INNER JOIN tbl_EAN e ON a.codigoEan = e.sku
+//         `;
+//         const [rows] = await connection.query(query);
 
-        // Link por defecto cuando no se encuentre una imagen
-        const defaultImageLink = "https://media.istockphoto.com/id/1055079680/es/vector/c%C3%A1mara-lineal-negro-como-ninguna-imagen-disponible.jpg?s=612x612&w=0&k=20&c=mYv5-3x668712KVHFnzZX2Tvb_DEQ2Ka7dDwOkTp9Q8=";
+//         // Link por defecto cuando no se encuentre una imagen
+//         const defaultImageLink = "https://media.istockphoto.com/id/1055079680/es/vector/c%C3%A1mara-lineal-negro-como-ninguna-imagen-disponible.jpg?s=612x612&w=0&k=20&c=mYv5-3x668712KVHFnzZX2Tvb_DEQ2Ka7dDwOkTp9Q8=";
 
-        // Mapeamos los resultados para ajustarlos a la inserción
-        const dataToInsert = rows.map((row: any) => [
-            row.codigoEan || '',  // Si no hay código Ean, lo dejamos vacío
-            row.codigoSap,
-            row.link || defaultImageLink  // Si no hay link, usamos el link por defecto
-        ]);
+//         // Mapeamos los resultados para ajustarlos a la inserción
+//         const dataToInsert = rows.map((row: any) => [
+//             row.codigoEan || '',  // Si no hay código Ean, lo dejamos vacío
+//             row.codigoSap,
+//             row.link || defaultImageLink  // Si no hay link, usamos el link por defecto
+//         ]);
 
-        // Insertamos los datos en la tabla tbl_all
-        const insertQuery = `
-            INSERT INTO OSF_Product (codigoEan, codigoSap, url_foto) 
-            VALUES ?
-        `;
-        await connection.query(insertQuery, [dataToInsert]);
+//         // Insertamos los datos en la tabla tbl_all
+//         const insertQuery = `
+//             INSERT INTO OSF_Product (codigoEan, codigoSap, url_foto) 
+//             VALUES ?
+//         `;
+//         await connection.query(insertQuery, [dataToInsert]);
 
-        // Cerramos la conexión a la base de datos
-        await connection.end();
+//         // Cerramos la conexión a la base de datos
+//         await connection.end();
 
-        return NextResponse.json({ message: 'Data inserted successfully into OSF_Productos' }, { status: 200 });
+//         return NextResponse.json({ message: 'Data inserted successfully into OSF_Productos' }, { status: 200 });
 
-    } catch (error: any) {
-        console.error(error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-}
+//     } catch (error: any) {
+//         console.error(error);
+//         return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+// }
