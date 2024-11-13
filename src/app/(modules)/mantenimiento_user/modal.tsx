@@ -22,6 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { toast } from 'sonner'
 
 interface ModalUserProps {
     action: string,
@@ -50,6 +51,46 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
     }, [data]);
 
 
+    // Escucha para la tecla Escape
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setIsOpenModal(false); // Actualiza el estado en el padre
+            }
+        };
+
+        if (isOpenModal) {
+            document.addEventListener('keydown', handleEsc);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [isOpenModal, setIsOpenModal]);
+
+    // validar información antes de enviar
+
+    const handleSubmit = () => {
+        // validar data
+        if (name.trim() === '' || email.trim() === '' || lastName.trim() === '' || dni.trim() === '') {
+            return toast.error('Todos los campos son obligartorios')
+        }
+        if (name.trim().length < 4 || lastName.trim().length < 4) {
+            return toast.error('Los nombres y apellidos deben tener al menos 4 caracteres')
+        }
+        if (!email.trim().match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
+            return toast.error('El email no es válido')
+        }
+        if (dni.trim().length < 8) {
+            return toast.error('El número de DNI debe tener al menos 8 dígitos')
+        }
+
+
+        // enviar data 
+        alert('data enviada')
+        // handleSave(action, { name, lastName, email, rolId, dni })
+    }
+
     return (
         <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}  >
             <DialogContent className="sm:max-w-[425px]" onInteractOutside={e => e.preventDefault()}>
@@ -57,7 +98,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                     <DialogTitle>{action === 'create' ? 'Crear' : 'Editar'} Usuario</DialogTitle>
 
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
 
                     {/* Dni */}
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -70,6 +111,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                             value={dni}
                             onChange={e => setDni(e.target.value)}
                             disabled={action === 'edit'}
+                            required
                         />
                     </div>
                     {/* nombre */}
@@ -80,6 +122,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                             className="col-span-3"
                             value={name}
                             onChange={e => setName(e.target.value)}
+                            required
                         />
                     </div>
 
@@ -91,6 +134,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                             className="col-span-3"
                             value={lastName}
                             onChange={e => setLastName(e.target.value)}
+                            required
                         />
                     </div>
 
@@ -103,13 +147,14 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             type='email'
+                            required
                         />
                     </div>
 
                     {/* Rol */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="email" className="text-right">Rol</Label>
-                        <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} >
+                        <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} required>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Seleccionar un rol" />
                             </SelectTrigger>
@@ -125,10 +170,10 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                     </div>
 
 
-                </div>
+                </form>
                 <DialogFooter>
                     <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>
-                    <Button onClick={() => handleSave(action, { name, lastName, email, rolId, dni })} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
+                    <Button onClick={handleSubmit} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog >
