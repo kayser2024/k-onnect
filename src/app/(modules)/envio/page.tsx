@@ -29,7 +29,7 @@ function EnvioMasivo() {
         let listaOrdenes = (ordenes as string).split('\n').map(orden => orden.trim()).filter(orden => orden)
 
         for (let i = 0; i < listaOrdenes.length; i++) {
-            await onUpdateEnvio(listaOrdenes[i], estado as string, '/pedido')
+            // await onUpdateEnvio(listaOrdenes[i], estado as string, '/pedido')
             toast.success(`Orden ${listaOrdenes[i]}`, {
                 description: "Actualizada correctamente"
             })
