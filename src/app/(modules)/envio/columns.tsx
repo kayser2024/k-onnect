@@ -3,13 +3,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
-interface EstatusOrden {
-    order: string
-    status: string
-    fecha: string
-}
 
-export const columns: ColumnDef<EstatusOrden>[] = [
+
+export const columns: ColumnDef<string>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -36,8 +32,8 @@ export const columns: ColumnDef<EstatusOrden>[] = [
         accessorKey: "order",
         header: "Orden",
         cell: ({ row }) => {
-            return <>{row.original}
-            </>
+            console.log(row.original)
+            return <>{row.original}</>
         }
     },
     {
@@ -60,15 +56,4 @@ export const columns: ColumnDef<EstatusOrden>[] = [
 
     },
 
-    // {
-    //     id: "actions",
-    //     header: "Acción",
-    //     enableHiding: false,
-    //     cell: ({ row }) => {
-
-    //         return (
-    //             <>Eliminar</>
-    //         )
-    //     },
-    // },
 ]

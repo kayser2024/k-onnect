@@ -18,13 +18,14 @@ function EnvioMasivo() {
     const [order, setOrder] = useState("");
     const [orderList, setOrderList] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [failedOrders, setFailedOrders] = useState<{ order: string, error: string }[]>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
 
     // función para agregar a la tabla
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!order.trim() || order.length < 15 || !order.startsWith("ss")) {
+        if (!order.trim() || order.length < 10 || !order.startsWith("ss")) {
             toast.error("Ingresar una orden válida");
             return;
         }
@@ -52,14 +53,32 @@ function EnvioMasivo() {
             setIsLoading(true);
             console.log("cambiando estado del pedido");
 
-            // update
-            await onChangeStatusSend(orderList, 'enviado', '/envio')
+            // Obtén las órdenes fallidas
+            const failedOrdersResult = await onChangeStatusSend(orderList, 'enviado', '/envio');
 
-            toast.success(`Enviando órdenes`);
-            setOrderList([]);
+            // Actualizar el estado de las órdenes fallidas
+            setFailedOrders(failedOrdersResult);
+
+            if (failedOrdersResult.length === 0) {
+                toast.success("Todas las órdenes se enviaron correctamente");
+                setOrderList([]);
+
+            } else {
+                const orderFiled = failedOrdersResult.map(failedOrder => failedOrder.order)
+
+                // asignamos a nuestra lista de orden con las ordenes Fallidas para que se muestre en la tabla
+                setOrderList(orderFiled)
+
+                // mostrar errores con el nro de Orden
+                for (const orderError of failedOrdersResult) {
+                    toast.error(`${orderError.order}`, { description: `${orderError.error}`, dismissible: false, closeButton: true });
+
+                }
+            }
+
         } catch (error: any) {
             console.log(error.message);
-            toast.error(`Error al cambiar estado: ${error.message}`);
+            toast.error(`Error INTERNO: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -123,7 +142,7 @@ function EnvioMasivo() {
                     <Button onClick={handleChangeStatusOrders} disabled={isLoading}>
                         {isLoading ? "Procesando..." : "Pendiente -> ENVIADO"}
                     </Button>
-                </div>
+                </div>  
 
                 {/* TABLE */}
                 <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} />
