@@ -18,7 +18,7 @@ import { toast } from "sonner"
 interface Params {
     estado_envio: string
     classsname?: string
-    orden: string[]
+    orden: string
 }
 
 const ActualizarEnvio = ({ classsname, estado_envio, orden }: Params) => {
