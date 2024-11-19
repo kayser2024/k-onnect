@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 export const onUpdateEnvio = async (
-    ordenes: string[], // Recibimos una lista de órdenes
+    ordenes: string, // Recibimos una lista de órdenes
     estado: string,
     path: string
 ) => {
