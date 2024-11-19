@@ -6,13 +6,12 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { Car, Clock12, FileText, Package, Power, ScanEye, Search } from 'lucide-react';
-import { Button } from './button';
+import { BaggageClaim, Car, FileText, Package, Power, ScanEye, Search, Settings, UserCog } from 'lucide-react';
+
+
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { ToggleTheme } from './toggleTheme';
 import { logout } from '@/actions/auth/logout';
-import { LiaUserCogSolid } from 'react-icons/lia';
 
 
 
@@ -21,49 +20,68 @@ export const Sidebar = () => {
     const isSideMenuOpen = useUIStore(state => state.isSideMenuOpen);
     const closeMenu = useUIStore(state => state.closeSideMenu);
 
-
-    const rutasATC = [
-        // {
-        //     nombre: 'ordenes',
-        //     icon: <Search />,
-        //     ruta: '/pedido'
-        // },
-        // {
-        //     nombre: 'Boletas',
-        //     icon: <FileText />,
-        //     ruta: '/comprobante'
-        // },
+    const rutas = [
         {
-            nombre: 'Transferencias',
-            icon: <FileText />,
-            ruta: '/transferencias'
-        }
-    ]
-
-    const rutasServicios = [
-        {
-            nombre: 'Etiquetas',
-            icon: <Package />,
-            ruta: '/etiquetas'
+            nombre: 'Inicio',
+            icon: <Search />,
+            ruta: '/',
+            // roles: ['admin', 'atc', 'web_master', 'almacen', 'soporte']
+            roles: [1, 2, 3, 4, 5]
         },
+        // {
+        //     nombre: 'Transferencias',
+        //     icon: <FileText />,
+        //     ruta: '/transferencias',
+        //     roles: ['admin']
+        // },
+        // {
+        //     nombre: 'Etiquetas',
+        //     icon: <Package />,
+        //     ruta: '/etiquetas',
+        //     roles: ['admin']
+
+        // },
         {
-            nombre: 'Envios',
-            icon: <Car />,
-            ruta: '/envio'
+            nombre: 'Cargar Ordenes',
+            icon: <BaggageClaim />,
+            ruta: '/envio',
+            // roles: ['admin', 'web_master', 'almacen', 'soporte']
+            roles: [1, 3, 4, 5]
+
         },
         {
             nombre: 'Mantenimiento',
-            icon: <LiaUserCogSolid />,
-            ruta: '/mantenimiento_user'
-        }
+            icon: <UserCog />,
+            ruta: '/mantenimiento_user',
+            roles: [1, 6]
+
+        },
+        // {
+        //     nombre: 'Configuración',
+        //     icon: <Settings />,
+        //     ruta: '/configuration',
+        //     // roles: ['admin', 'soporte', 'atc', 'almacen', 'tienda', 'web_master']
+        //     roles: [1, 2, 3, 4, 5, 6]
+
+        // },
+
     ]
 
     const sesion = useSession()
+    const userRole = sesion.data?.user.rolId;
+    console.log(sesion.data?.user.rolId)
 
-    const usuarioInfo = {
-        nombre: sesion.data?.user?.name || 'No Conectado',
-        image: sesion.data?.user?.image || '/personIcon.png',
-    }
+    const usuarioInfo = { nombre: sesion.data?.user?.name || 'No Conectado', image: sesion.data?.user?.image || '/personIcon.png' }
+
+
+    // Filtrar rutas según el rol del usuario
+    // const rutasFiltradas = rutas.filter((ruta) => ruta.roles.includes(userRole));//-
+    const rutasFiltradas = rutas.filter((ruta) => {
+        if (typeof userRole === 'number') {
+            return ruta.roles.includes(userRole);
+        }
+        return false;
+    });
 
 
     // console.log(usuarioInfo)
@@ -73,47 +91,21 @@ export const Sidebar = () => {
         <div>
 
             {/* Background black */}
-            {
-                isSideMenuOpen && (
-                    <div
-                        className="fixed top-0 left-0 w-screen h-screen z-10 bg-black opacity-30"
-                    />
-
-                )
-            }
-
+            {isSideMenuOpen && (<div className="fixed top-0 left-0 w-screen h-screen z-10 bg-black opacity-30" />)}
 
             {/* Blur */}
-            {
-                isSideMenuOpen && (
-                    <div
-                        onClick={closeMenu}
-                        className="fade-in fixed top-0 left-0 w-screen h-screen z-10 backdrop-filter backdrop-blur-sm"
-                    />
-
-                )
-            }
+            {isSideMenuOpen && (<div onClick={closeMenu} className="fade-in fixed top-0 left-0 w-screen h-screen z-10 backdrop-filter backdrop-blur-sm" />)}
 
             {/* Sidemenu */}
             <nav
-                className={
-                    clsx(
-                        "fixed p-5 right-0 top-0 w-[400px] h-screen rounded-bl-3xl rounded-tl-3xl z-[25] bg-white dark:bg-black dark:text-white shadow-2xl transform transition-all duration-300",
-                        {
-                            "translate-x-full": !isSideMenuOpen
-                        }
-                    )
-                }>
+                className={clsx("fixed p-5 right-0 top-0 w-[400px] h-screen rounded-bl-3xl rounded-tl-3xl z-[25] bg-white dark:bg-black dark:text-white shadow-2xl transform transition-all duration-300", { "translate-x-full": !isSideMenuOpen })}>
 
                 {/* Menú */}
-
                 <div>
                     <div className='flex items-center '>
 
-                        {
-                            usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.slice(0, 2).toUpperCase()}</div>
-                            // <img className='rounded-lg' src={usuarioInfo.image} width={50} height={50} alt="" />
-                        }
+                        {usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.slice(0, 2).toUpperCase()}</div>}
+
                         <div className='flex-grow text-center'>
                             <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>
                             <span className='text-xs text-gray-300'>Registrado en sistema ATC</span>
@@ -132,45 +124,15 @@ export const Sidebar = () => {
 
                 <div className='flex flex-col gap-3'>
                     <div>
-                        <span className='text-xs text-gray-400 my-2'>Atencion al Cliente</span>
-                        <div className='flex flex-col gap-8 my-2'>
+                        <div className='flex flex-col gap-2 my-2'>
                             {
-                                rutasATC.map(ruta => (
+                                rutasFiltradas.map(ruta => (
                                     <Link
                                         onClick={() => closeMenu()}
                                         href={ruta.ruta}
                                         key={ruta.ruta}
-                                        className={clsx('hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl  transition-all',
-                                            {
-                                                'text-blue-500 border': pathname === ruta.ruta
-                                            }
-                                        )}>
-                                        <div className='flex flex-wrap gap-3'>
-                                            {ruta.icon}
-                                            {ruta.nombre}
-                                        </div>
-                                    </Link>
-                                ))
-                            }
-                        </div>
-                        <div className='m-4  bg-gray-100 h-[1px]' />
-                        <span className='text-xs text-gray-400 my-2'>Servicios Externos</span>
-                        <div className='flex flex-col gap-8 my-5'>
-                            {
-                                rutasServicios.map(ruta => (
-                                    <Link
-                                        onClick={() => closeMenu()}
-                                        href={ruta.ruta}
-                                        key={ruta.ruta}
-                                        className={clsx('hover:bg-gray-100 dark:hover:text-black  p-4 rounded-xl  transition-all',
-                                            {
-                                                'text-blue-500 border': pathname === ruta.ruta
-                                            }
-                                        )}>
-                                        <div className='flex flex-wrap gap-3'>
-                                            {ruta.icon}
-                                            {ruta.nombre}
-                                        </div>
+                                        className={clsx('hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl  transition-all', { 'text-blue-500 border': pathname === ruta.ruta })}>
+                                        <div className='flex flex-wrap gap-3'>{ruta.icon} {ruta.nombre}</div>
                                     </Link>
                                 ))
                             }
@@ -183,12 +145,7 @@ export const Sidebar = () => {
 
                 </div>
 
-
             </nav >
-
-
-
-
 
         </div >
     );

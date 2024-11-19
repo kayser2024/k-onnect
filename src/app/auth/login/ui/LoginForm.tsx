@@ -32,7 +32,7 @@ export const LoginForm = () => {
     <form action={dispatch} className="flex flex-col w-[450px] p-10  rounded-xl  mt-20 shadow-lg ">
       <div className='flex flex-col items-center justify-center gap-4 mb-10'>
         <LogIn className='bg-slate-100 w-14 h-14 p-3 rounded-lg shadow-xl' color='#0082ca'/>
-        <h2 className='text-2xl font-bold'>Iniciar Sessión</h2>
+        <h2 className='text-2xl font-bold'>Iniciar Sesión</h2>
       </div>
 
       <label htmlFor="email">Correo electrónico</label>

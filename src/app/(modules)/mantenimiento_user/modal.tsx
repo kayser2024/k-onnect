@@ -163,6 +163,9 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                                     <SelectItem value="1">ADMIN</SelectItem>
                                     <SelectItem value="2">ATC</SelectItem>
                                     <SelectItem value="3">TIENDA</SelectItem>
+                                    <SelectItem value="4">WEB MASTER</SelectItem>
+                                    <SelectItem value="5">ALMACEN</SelectItem>
+                                    <SelectItem value="6">SOPORTE</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
