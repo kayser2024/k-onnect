@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
-import { onUpdateEnvio } from "@/actions/envio/actualizarEnvio";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 
 function EnvioMasivo() {
@@ -76,16 +75,13 @@ function EnvioMasivo() {
                 }
             }
 
-        } catch (error: any) {
-            console.log(error.message);
-            toast.error(`Error INTERNO: ${error.message}`);
-        } finally {
-            setIsLoading(false);
         }
+        catch (error: any) { toast.error(`Error INTERNO: ${error.message}`); }
+        finally { setIsLoading(false); }
     };
 
     // Eliminar ordenes seleccionadas
-    const handleDelete = () => {
+    const handleDeleteRows = () => {
         // Obtén los IDs de las filas seleccionadas
         const selectedIds = Object.keys(rowSelection).filter((key) => rowSelection[parseInt(key)]);
 
@@ -108,41 +104,26 @@ function EnvioMasivo() {
         setRowSelection(updatedRowSelection);
     };
 
-    if (isSessionLoading) {
-        return <Loader />;
-    }
-    if (isUnauthenticated) {
-        return <p>Sin acceso</p>;
-    }
+    if (isSessionLoading) { return <Loader /> }
+    if (isUnauthenticated) { return <p>Sin acceso</p> }
 
     return (
         <>
             <main>
                 <form onSubmit={handleSubmit} className="bg-blue-50 p-1 rounded-md py-2">
                     <div>
-                        <label htmlFor="orden" className="text-sm font-bold">
-                            Orden pedido
-                        </label>
-                        <Input
-                            placeholder="ss1234567890asdc"
-                            id="orden"
-                            value={order}
-                            onChange={(e) => setOrder(e.target.value)} // Sin trim aquí
-                        />
+                        <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
+                        <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
                 </form>
 
                 <br />
 
                 <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="message" className="text-sm font-bold">
-                        Lista de ORDENES
-                    </label>
-                    <Button onClick={handleDelete} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>
-                        {isLoading ? "Procesando..." : "Pendiente -> ENVIADO"}
-                    </Button>
-                </div>  
+                    <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
+                    <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Pendiente --> ENVIADO"}</Button>
+                </div>
 
                 {/* TABLE */}
                 <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} />

@@ -7,6 +7,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { IoInformationOutline } from "react-icons/io5";
 import clsx from 'clsx';
 import { authenticate } from '@/actions/auth/login';
+import { Loader2 } from 'lucide-react';
 // import { useRouter } from 'next/navigation';
 
 export const LoginForm = () => {
@@ -14,31 +15,33 @@ export const LoginForm = () => {
 
   // const router = useRouter();
   const [state, dispatch] = useFormState(authenticate, undefined);
-  
+
 
   useEffect(() => {
-    if ( state === 'Success' ) {
+    if (state === 'Success') {
       // redireccionar
       // router.replace('/');
       window.location.replace('/');
     }
 
-  },[state]);
+  }, [state]);
 
 
 
   return (
-    <form action={dispatch} className="flex flex-col">
+    <form action={dispatch} className="flex flex-col w-[500px] p-10 border rounded-md  mt-20 ">
+
+
       <label htmlFor="email">Correo electrónico</label>
       <input
-        className="px-5 py-2 border bg-gray-200 rounded mb-5"
+        className="px-5 py-2 border bg-gray-50 rounded-md mb-5"
         type="email"
         name="email"
       />
 
       <label htmlFor="email">Contraseña</label>
       <input
-        className="px-5 py-2 border bg-gray-200 rounded mb-5"
+        className="px-5 py-2 border bg-gray-50 rounded-md mb-5"
         type="password"
         name="password"
       />
@@ -58,38 +61,24 @@ export const LoginForm = () => {
         )}
       </div>
 
-        <LoginButton />
-      {/* <button type="submit" className="btn-primary">
-        Ingresar
-      </button> */}
+      <LoginButton />
 
-      {/* divisor l ine */}
-      {/* <div className="flex items-center my-5">
-        <div className="flex-1 border-t border-gray-500"></div>
-        <div className="px-2 text-gray-800">O</div>
-        <div className="flex-1 border-t border-gray-500"></div>
-      </div> */}
-
-      {/* <Link href="/auth/new-account" className="btn-secondary text-center">
-        Crear una nueva cuenta
-      </Link> */}
     </form>
   );
 };
 
 function LoginButton() {
   const { pending } = useFormStatus();
-
   return (
-    <button 
-      type="submit" 
-      className={ clsx({
+    <button
+      type="submit"
+      className={clsx("flex items-center justify-center rounded-md", {
         "btn-primary": !pending,
         "btn-disabled": pending
       })}
-      disabled={ pending }
-      >
-      Ingresar
+      disabled={pending}
+    >
+      {pending ? <><Loader2 className="animate-spin" /> Ingresando...</> : <>Ingresar</>}
     </button>
   );
 }
