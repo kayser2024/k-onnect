@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 export const onUpdateEnvio = async (
-    ordenes: string, 
+    ordenes: string, // Recibimos una lista de órdenes
     estado: string,
     path: string
 ) => {
@@ -65,7 +65,7 @@ export const onUpdateEnvio = async (
             // Hacer la segunda solicitud para la fecha (si aplica)
             if (estado !== "pendiente") {
                 const responseFecha = await fetch(`${base_url}/${orden}`, getConfig(jsonUpdateFecha));
-                
+
                 if (!responseFecha.ok) {
                     throw new Error(
                         `Error al actualizar la fecha de la orden ${orden}: ${responseFecha.statusText}`

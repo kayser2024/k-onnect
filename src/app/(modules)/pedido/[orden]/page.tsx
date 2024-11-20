@@ -117,7 +117,7 @@ async function CardFacturacion({ situacion_facturacion }: { situacion_facturacio
 
                 <div >
                     <span className="text-xs text-gray-400">Fecha</span>
-                    <AccionCopiar texto={fechaFormateada2} />
+                    <AccionCopiar texto={fechaFormateada} />
                 </div>
                 <div >
 
