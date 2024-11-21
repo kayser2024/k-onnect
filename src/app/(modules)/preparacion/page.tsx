@@ -10,7 +10,7 @@ import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { SelectEstablec } from "./ui/select-establec";
 
-function EnvioMasivo() {
+function PreparacionOrden() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
@@ -32,10 +32,9 @@ function EnvioMasivo() {
             return;
         }
 
-        // Procesar bloques de órdenes si contienen saltos de línea
+        // Procesar bloques de órdenes
         if (order.trim().includes(" ")) {
 
-            console.log("ENTRANDO AL BLOCK", order.trim())
             const orderBlock = order.trim().split(" ") // Dividir por líneas
                 .map((orderItem) => orderItem.trim()) // Recortar espacios
                 .filter((orderItem) => orderItem.length > 0); // Eliminar líneas vacías
@@ -63,7 +62,6 @@ function EnvioMasivo() {
         // Limpiar el campo de entrada
         setOrder("");
     };
-
 
 
     // Cambiar estado de las ordenes
@@ -130,14 +128,8 @@ function EnvioMasivo() {
     };
 
 
-
-    console.log(optionSelection, "🟡")
-
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
-
-
-
 
     return (
         <>
@@ -148,7 +140,10 @@ function EnvioMasivo() {
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
                         <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
-
+                    <div>
+                        <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
+                        <SelectEstablec setOptionSelection={setOptionSelection} />
+                    </div>
                 </form>
 
                 <br />
@@ -156,7 +151,7 @@ function EnvioMasivo() {
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "preparación --> ENVIADO"}</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Pendiente --> PREPARACION"}</Button>
                 </div>
 
                 {/* TABLE */}
@@ -166,4 +161,4 @@ function EnvioMasivo() {
     );
 }
 
-export default EnvioMasivo;
+export default PreparacionOrden;

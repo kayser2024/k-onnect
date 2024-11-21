@@ -1,5 +1,6 @@
 "use server"
 
+import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache"
 
 
@@ -11,53 +12,63 @@ export const onChangeStatusSend = async (orderList: string[], estado: string, pa
     let fecha = new Date()
     fecha.setHours(fecha.getHours() - 5);
 
-    // Actualizar estado
-    const jsonUpdateEstado = {
-        "actualizar": {
-            "situacion_envio":
-                { "estado_envio": estado }
-        }
+
+    let estadoFechaActualizar = ''
+    switch (estado) {
+        case 'pendiente':
+            estadoFechaActualizar = 'pendiente'
+            break;
+        case 'en_preparacion':
+            estadoFechaActualizar = 'preparacion'
+            break;
+        case 'enviado':
+            estadoFechaActualizar = 'enviado'
+            break;
+        case 'recibido':
+            estadoFechaActualizar = 'recibido'
+            break;
+        default:
+            console.log('Ninguno');
+            break
     }
-    // Actualizar Fecha
-    const jsonUpdateFechaEstado = {
+
+
+    const jsonUpdate = {
         "actualizar": {
-            "situacion_envio":
-                { "enviado": fecha.toISOString() }
+            "situacion_envio": {
+                "estado_envio": estado,
+                [estadoFechaActualizar]: fecha.toISOString()
+            }
         }
     }
 
-    const configurationEstado = {
+
+    const configuration = {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `${process.env.SAMISHOP_API_TOKEN}`
         },
-        body: JSON.stringify(jsonUpdateEstado)
+        body: JSON.stringify(jsonUpdate)
     }
-
-    const configurationFecha = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${process.env.SAMISHOP_API_TOKEN}`
-        },
-        body: JSON.stringify(jsonUpdateFechaEstado)
-    }
-
-
 
     for (const order of orderList) {
         const base_url = `${process.env.WIN_WIN_PUT}/${order}`;
 
 
         try {
-            const dataEstadoEnvio = await fetch(base_url, configurationEstado)
-            const response = await dataEstadoEnvio.json();
-            const dataFechaEnvio = await fetch(base_url, configurationFecha)
-            if (response.sRpta !== "Actualizado correctamente en la base de datos") {
+            const response = await fetch(base_url, configuration)
+            const data = await response.json();
+            if (data.sRpta !== "Actualizado correctamente en la base de datos") {
                 // Si la respuesta no es exitosa, agregamos el pedido a la lista de fallidos
-                failedOrders.push({ order, error: response.sRpta });
+                failedOrders.push({ order, error: data.sRpta });
             }
+
+            // TODO: INSERTAR EN LA BD LOS REGISTROS 🚩
+
+            // await prisma.
+
+
 
         } catch (error: any) {
             console.log(error.message);

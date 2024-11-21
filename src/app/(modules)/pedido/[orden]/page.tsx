@@ -130,8 +130,7 @@ async function CardFacturacion({ situacion_facturacion }: { situacion_facturacio
 
                 <a
                     target="_blank"
-                    className={`w-full text-center p-2 rounded-lg ${link_doc1 ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"
-                        }`}
+                    className={`w-full text-center p-2 rounded-lg ${link_doc1 ? "bg-black text-white" : "bg-gray-300 text-gray-500 pointer-events-none"}`}
                     href={link_doc1 || undefined} // Deja href como undefined si link_doc1 está vacío
                 >
                     Ver Boleta

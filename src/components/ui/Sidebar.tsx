@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Car, FileText, Package, Power, ScanEye, Search, Settings, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, Car, ClipboardCheck, FileText, Package, Power, ScanEye, Search, Settings, Truck, UserCog } from 'lucide-react';
 
 
 import { useSession } from 'next-auth/react';
@@ -34,19 +34,35 @@ export const Sidebar = () => {
         //     ruta: '/transferencias',
         //     roles: ['admin']
         // },
-        // {
-        //     nombre: 'Etiquetas',
-        //     icon: <Package />,
-        //     ruta: '/etiquetas',
-        //     roles: ['admin']
-
-        // },
         {
-            nombre: 'Cargar Ordenes',
+            nombre: 'Preparacion',
             icon: <BaggageClaim />,
-            ruta: '/envio',
+            ruta: '/preparacion',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']
-            roles: [1, 3, 4, 5]
+            roles: [1, 6]
+
+        },
+        {
+            nombre: 'Enviar Orden',
+            icon: <Truck />,
+            ruta: '/envio',
+            roles: [1, 6]
+
+        },
+        {
+            nombre: 'Recepción Orden',
+            icon: <Box />,
+            ruta: '/recepcion',
+            // roles: ['admin', 'web_master', 'almacen', 'soporte']
+            roles: [1, 6]
+
+        },
+        {
+            nombre: 'Entrega Final',
+            icon: <ClipboardCheck />,
+            ruta: '/entrega',
+            // roles: ['admin', 'web_master', 'almacen', 'soporte']
+            roles: [1, 6]
 
         },
         {
