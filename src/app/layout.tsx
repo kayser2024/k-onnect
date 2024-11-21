@@ -9,7 +9,7 @@ import { QueryProvider } from "@/components/provider/QueryProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ATC Kayser",
+  title: "K-onnect",
   description: "Web-App Atencion al cliente Kayser",
 };
 
