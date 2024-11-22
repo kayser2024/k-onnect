@@ -35,7 +35,7 @@ export const Sidebar = () => {
         //     roles: ['admin']
         // },
         {
-            nombre: 'Preparacion',
+            nombre: 'Preparacion (Web Master)',
             icon: <BaggageClaim />,
             ruta: '/preparacion',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']
@@ -43,14 +43,14 @@ export const Sidebar = () => {
 
         },
         {
-            nombre: 'Enviar Orden',
+            nombre: 'Enviar Orden (Almacen)',
             icon: <Truck />,
             ruta: '/envio',
             roles: [1, 6]
 
         },
         {
-            nombre: 'Recepción Orden',
+            nombre: 'Recepción Orden (tienda)',
             icon: <Box />,
             ruta: '/recepcion',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']
@@ -58,7 +58,7 @@ export const Sidebar = () => {
 
         },
         {
-            nombre: 'Entrega Final',
+            nombre: 'Entrega Final (tienda)',
             icon: <ClipboardCheck />,
             ruta: '/entrega',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']

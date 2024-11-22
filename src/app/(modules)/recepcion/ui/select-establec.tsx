@@ -27,14 +27,10 @@ const PickUpPoints = [
 
 interface SelectEstabProps {
     setOptionSelection: (value: string) => void;
-    optionSelection: string;
 }
-
-export const SelectEstablec = ({ setOptionSelection, optionSelection }: SelectEstabProps) => {
-
-
+export const SelectEstablec = ({ setOptionSelection }: SelectEstabProps) => {
     return (
-        <Select onValueChange={setOptionSelection} value={optionSelection}>
+        <Select onValueChange={setOptionSelection}>
             <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Seleccionar Destino" />
             </SelectTrigger>

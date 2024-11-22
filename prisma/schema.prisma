@@ -43,10 +43,13 @@ model ubigeo_peru_provinces {
   department_id String @db.VarChar(2)
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model OSF_Product {
-  codigoEan String  @id @db.VarChar(100)
-  codigoSap String? @db.VarChar(100)
-  url_foto  String? @db.VarChar(300)
+  codigoEan String? @db.Text
+  codigoSap String? @db.Text
+  url_foto  String? @db.Text
+
+  @@ignore
 }
 
 model roles {
@@ -64,8 +67,102 @@ model usuarios {
   password      String  @db.VarChar(100)
   image         String  @db.VarChar(150)
   rolId         Int
-  roles         roles   @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
   status        Boolean @default(true)
+  roles         roles   @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
 
   @@index([rolId], map: "rolId")
+}
+
+model OSF_Product_bk {
+  codigoEan String  @id @db.VarChar(100)
+  codigoSap String? @db.VarChar(100)
+  url_foto  String? @db.VarChar(300)
+}
+
+model OrderLogs {
+  LogID       Int         @id @default(autoincrement())
+  OrderNumber String      @db.VarChar(50)
+  CommentText String      @db.Text
+  ImageURL    String?     @db.VarChar(255)
+  StatusID    Int
+  UserID      Int
+  CreatedAt   DateTime?   @default(now()) @db.Timestamp(0)
+  OrderStatus OrderStatus @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "OrderLogs_ibfk_1")
+  Users       Users       @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "OrderLogs_ibfk_2")
+
+  @@index([StatusID], map: "StatusID")
+  @@index([UserID], map: "UserID")
+}
+
+model OrderStatus {
+  StatusID    Int         @id @default(autoincrement())
+  Description String?     @db.VarChar(50)
+  OrderLogs   OrderLogs[]
+  Orders      Orders[]
+}
+
+model Orders {
+  OrderID       Int           @id @default(autoincrement())
+  OrderNumber   String        @unique(map: "OrderNumber") @db.VarChar(50)
+  StatusID      Int?
+  UserID        Int?
+  PickupPointID Int?
+  CreatedAt     DateTime?     @default(now()) @db.Timestamp(0)
+  UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
+  OrderStatus   OrderStatus?  @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
+  Users         Users?        @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+  PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
+
+  @@index([PickupPointID], map: "PickupPointID")
+  @@index([StatusID], map: "StatusID")
+  @@index([UserID], map: "UserID")
+}
+
+model PickupPoints {
+  PickupPointID Int      @id @default(autoincrement())
+  Description   String?  @db.VarChar(100)
+  Orders        Orders[]
+}
+
+model Roles {
+  RoleID      Int     @id @default(autoincrement())
+  Description String? @db.VarChar(50)
+  Users       Users[]
+}
+
+model TypesDoc {
+  TypeDocID   Int     @id @default(autoincrement())
+  Description String? @db.VarChar(50)
+  Users       Users[]
+}
+
+model Users {
+  UserID    Int         @id @default(autoincrement())
+  Password  String      @db.VarChar(255)
+  Email     String      @unique(map: "Email") @db.VarChar(255)
+  Status    Boolean
+  TypeDocID Int
+  NroDoc    String      @unique(map: "NroDoc") @db.VarChar(16)
+  RoleID    Int
+  CreatedAt DateTime?   @default(now()) @db.Timestamp(0)
+  UpdatedAt DateTime?   @default(now()) @db.Timestamp(0)
+  OrderLogs OrderLogs[]
+  Orders    Orders[]
+  TypesDoc  TypesDoc    @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
+  Roles     Roles       @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
+
+  @@index([RoleID], map: "RoleID")
+  @@index([TypeDocID], map: "TypeDocID")
+}
+
+model tbl_EAN {
+  id   BigInt  @unique(map: "id") @default(autoincrement()) @db.UnsignedBigInt
+  sku  String? @db.Text
+  link String? @db.Text
+}
+
+model tbl_articulo {
+  id        BigInt  @unique(map: "id") @default(autoincrement()) @db.UnsignedBigInt
+  codigoEan String? @db.Text
+  codigoSap String? @db.Text
 }

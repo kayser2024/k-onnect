@@ -1,13 +1,33 @@
 "use server"
 
+import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { useSession } from "next-auth/react";
 import { revalidatePath } from "next/cache"
 
 
-export const onChangeStatusSend = async (orderList: string[], estado: string, path: string) => {
+export const onChangeStatusSend = async (orderList: { order: string, destino: string }[], estado: string, path: string) => {
     console.log('manejando ', estado, 'desde el servidor', orderList, path)
 
-    let failedOrders: { order: string, error: string }[] = []; // Aquí almacenamos las órdenes fallidas
+    const session = await auth()
+
+    // const user_id = session?.user.dni
+    const user_id = 1
+
+    const result = await prisma.orders.create({
+        data: {
+            OrderNumber: orderList[0].order,
+            StatusID: 1,
+            UserID: user_id,
+            PickupPointID: 1,
+            CreatedAt: new Date(),
+        }
+    })
+
+    console.log(result, '🚩');
+
+    // TODO: Obtener solo las ordenes de OrderList 
+    let failedOrders: { order: { order: string, destino: string }, error: string }[] = []; // Aquí almacenamos las órdenes fallidas
 
     let fecha = new Date()
     fecha.setHours(fecha.getHours() - 5);
@@ -52,30 +72,46 @@ export const onChangeStatusSend = async (orderList: string[], estado: string, pa
         body: JSON.stringify(jsonUpdate)
     }
 
-    for (const order of orderList) {
-        const base_url = `${process.env.WIN_WIN_PUT}/${order}`;
 
 
-        try {
-            const response = await fetch(base_url, configuration)
-            const data = await response.json();
-            if (data.sRpta !== "Actualizado correctamente en la base de datos") {
-                // Si la respuesta no es exitosa, agregamos el pedido a la lista de fallidos
-                failedOrders.push({ order, error: data.sRpta });
-            }
-
-            // TODO: INSERTAR EN LA BD LOS REGISTROS 🚩
-
-            // await prisma.
+    // Actualizar en la api los
+    // for (const order of orderList) {
+    //     const base_url = `${process.env.WIN_WIN_PUT}/${order.order}`;
 
 
+    //     try {
+    //         const response = await fetch(base_url, configuration)
+    //         const data = await response.json();
+    //         if (data.sRpta !== "Actualizado correctamente en la base de datos") {
+    //             // Si la respuesta no es exitosa, agregamos el pedido a la lista de fallidos
+    //             failedOrders.push({ order, error: data.sRpta });
+    //         }
 
-        } catch (error: any) {
-            console.log(error.message);
-            failedOrders.push({ order, error: error.message });
+    //         // TODO: INSERTAR EN LA BD LOS REGISTROS 🚩
+    //         // userId
+    //         // Status
+    //         // Order
+    //         // Comments
+    //         // createdAt
+    //         // updatedAt
 
-        }
-    }
+    //         await prisma.orders.create({
+    //             data: {
+    //                 OrderNumber: order.order,
+    //                 StatusID: 1,
+    //                 UserID: 2,
+    //                 PickupPointID: 1,
+    //                 CreatedAt: new Date(),
+    //             }
+    //         })
+
+
+    //     } catch (error: any) {
+    //         console.log(error.message);
+    //         failedOrders.push({ order, error: error.message });
+
+    //     }
+    // }
 
     revalidatePath(path, 'page')
 

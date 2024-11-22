@@ -5,5 +5,9 @@ import prisma from "@/lib/prisma";
 
 export const getAllEstablecimientos = async () => {
 
-    // const allEstablec=await prisma.
+    const pickupPoints = await prisma.pickupPoints.findMany();
+
+    console.log(pickupPoints);
+
+    return pickupPoints;
 }

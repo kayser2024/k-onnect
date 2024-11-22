@@ -5,7 +5,7 @@ import { format } from "date-fns"
 
 
 
-export const columns: ColumnDef<{ order: string, destino: string }>[] = [
+export const columns: ColumnDef<string>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -32,29 +32,28 @@ export const columns: ColumnDef<{ order: string, destino: string }>[] = [
         accessorKey: "order",
         header: "Orden",
         cell: ({ row }) => {
-            return <>{row.original.order}</>
+            console.log(row.original)
+            return <>{row.original}</>
         }
     },
     {
-        accessorKey: "pickupPoint",
-        header: "Destino",
-        cell: ({ row }) => {
-
-            const destino = row.original.destino;
-            return < div className="capitalize" > {destino}</div >
-        }
+        accessorKey: "status",
+        header: "Estado",
+        cell: ({ row }) => (
+            <div className="capitalize">Pendiente</div>
+        ),
     },
-    // {
-    //     accessorKey: "fecha",
-    //     header: "Fecha",
-    //     cell: ({ row }) => {
-    //         const fecha = new Date();
-    //         return (
+    {
+        accessorKey: "fecha",
+        header: "Fecha",
+        cell: ({ row }) => {
+            const fecha = new Date();
+            return (
 
-    //             < div className="capitalize" > {format(fecha, 'dd / MM / yy')}</div >
-    //         )
-    //     }
+                < div className="capitalize" > {format(fecha, 'dd / MM / yy')}</div >
+            )
+        }
 
-    // },
+    },
 
 ]

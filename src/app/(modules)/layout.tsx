@@ -25,7 +25,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
             </div>
             
-            <Toaster richColors expand={true} />
+            {/* <Toaster richColors expand={true} /> */}
         </main>
     )
 }

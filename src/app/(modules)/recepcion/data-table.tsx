@@ -30,12 +30,14 @@ import { columns } from "./columns";
 
 
 interface OrderProps {
-    orderList: { order: string, destino: string }[];
+    orderList: string[];
     rowSelection: RowSelectionState;
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>
 }
 export const DataTable = ({ orderList, rowSelection, setRowSelection }: OrderProps) => {
     const [sorting, setSorting] = useState<SortingState>([])
+
+    console.log({ rowSelection }, '👀')
 
     const table = useReactTable({
         data: orderList,

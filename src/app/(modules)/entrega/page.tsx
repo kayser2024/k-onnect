@@ -10,27 +10,21 @@ import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { SelectEstablec } from "./ui/select-establec";
 
-function PreparacionOrden() {
+function EntregaOrden() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
     const [order, setOrder] = useState("");
-    const [orderList, setOrderList] = useState<{ order: string, destino: string }[]>([]);
+    const [orderList, setOrderList] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
+    const [failedOrders, setFailedOrders] = useState<{ order: string, error: string }[]>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [optionSelection, setOptionSelection] = useState("");
 
     // función para agregar a la tabla
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        // Validar si el destino fue seleccionado
-        if (!optionSelection) {
-            toast.warning("Por favor, selecciona un destino antes de agregar órdenes.");
-            return;
-        }
 
         // Validar si el input está vacío o no cumple con el formato
         if (!order.trim() || order.length < 10 || !order.startsWith("ss")) {
@@ -41,42 +35,32 @@ function PreparacionOrden() {
         // Procesar bloques de órdenes
         if (order.trim().includes(" ")) {
 
-            // Procesar bloques de órdenes
-            const orderBlock = order.trim().split(" ")
-                .map((orderItem) => orderItem.trim())
-                .filter((orderItem) => orderItem.length > 0);
+            const orderBlock = order.trim().split(" ") // Dividir por líneas
+                .map((orderItem) => orderItem.trim()) // Recortar espacios
+                .filter((orderItem) => orderItem.length > 0); // Eliminar líneas vacías
 
-            const newOrders = orderBlock.filter(
-                (orderItem) => !orderList.some((o) => o.order === orderItem)
-            );
+            // Filtrar órdenes duplicadas
+            const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
 
             if (newOrders.length > 0) {
-                const ordersWithDestino = newOrders.map((orderItem) => ({
-                    order: orderItem,
-                    destino: optionSelection,
-                }));
-                setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
+                setOrderList((prevList) => [...prevList, ...newOrders]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
             } else {
                 toast.warning("Todas las órdenes del bloque ya están en la lista.");
             }
         } else {
-            // Procesar una sola orden
-            if (orderList.some((o) => o.order === order.trim())) {
+            // Procesar una sola orden si no contiene saltos de línea
+            if (orderList.includes(order.trim())) {
                 toast.warning("La orden ya está en la lista.");
                 return;
             }
 
-            setOrderList((prevList) => [
-                ...prevList,
-                { order: order.trim(), destino: optionSelection },
-            ]);
+            setOrderList((prevList) => [...prevList, order.trim()]);
             toast.success("Orden agregada correctamente.");
         }
 
         // Limpiar el campo de entrada
         setOrder("");
-        setOptionSelection("");
     };
 
 
@@ -91,7 +75,8 @@ function PreparacionOrden() {
             setIsLoading(true);
             console.log("cambiando estado del pedido");
 
-            const failedOrdersResult = await onChangeStatusSend(orderList, "enviado", "/envio");
+            // Obtén las órdenes fallidas
+            const failedOrdersResult = await onChangeStatusSend(orderList, 'enviado', '/envio');
 
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
@@ -143,7 +128,6 @@ function PreparacionOrden() {
     };
 
 
-
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
@@ -151,15 +135,15 @@ function PreparacionOrden() {
         <>
             <main>
                 <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
-                    <div>
-                        <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
-                        <SelectEstablec setOptionSelection={setOptionSelection} optionSelection={optionSelection} />
-                    </div>
                     <div className="w-full">
 
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
                         <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
+                    {/* <div>
+                        <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
+                        <SelectEstablec setOptionSelection={setOptionSelection} />
+                    </div> */}
                 </form>
 
                 <br />
@@ -167,7 +151,7 @@ function PreparacionOrden() {
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Pendiente --> PREPARACION"}</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Entregar Pedido"}</Button>
                 </div>
 
                 {/* TABLE */}
@@ -177,4 +161,4 @@ function PreparacionOrden() {
     );
 }
 
-export default PreparacionOrden;
+export default EntregaOrden;
