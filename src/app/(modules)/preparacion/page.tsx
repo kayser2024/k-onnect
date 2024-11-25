@@ -10,24 +10,29 @@ import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { SelectEstablec } from "./ui/select-establec";
 
+interface Option {
+    value: string;
+    label: string;
+}
+
 function PreparacionOrden() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
     const [order, setOrder] = useState("");
-    const [orderList, setOrderList] = useState<{ order: string, destino: string }[]>([]);
+    const [orderList, setOrderList] = useState<{ order: string, destino: Option }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
-    const [optionSelection, setOptionSelection] = useState("");
+    const [optionSelection, setOptionSelection] = useState<Option>({ value: '', label: '' });
 
     // función para agregar a la tabla
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         // Validar si el destino fue seleccionado
-        if (!optionSelection) {
+        if (!optionSelection.label) {
             toast.warning("Por favor, selecciona un destino antes de agregar órdenes.");
             return;
         }
@@ -46,9 +51,7 @@ function PreparacionOrden() {
                 .map((orderItem) => orderItem.trim())
                 .filter((orderItem) => orderItem.length > 0);
 
-            const newOrders = orderBlock.filter(
-                (orderItem) => !orderList.some((o) => o.order === orderItem)
-            );
+            const newOrders = orderBlock.filter((orderItem) => !orderList.some((o) => o.order === orderItem));
 
             if (newOrders.length > 0) {
                 const ordersWithDestino = newOrders.map((orderItem) => ({
@@ -76,7 +79,7 @@ function PreparacionOrden() {
 
         // Limpiar el campo de entrada
         setOrder("");
-        setOptionSelection("");
+        setOptionSelection({ value: '', label: '' });
     };
 
 
@@ -91,7 +94,7 @@ function PreparacionOrden() {
             setIsLoading(true);
             console.log("cambiando estado del pedido");
 
-            const failedOrdersResult = await onChangeStatusSend(orderList, "enviado", "/envio");
+            const failedOrdersResult = await onChangeStatusSend(orderList, "en_preparacion", "/peparacion");
 
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
@@ -108,7 +111,8 @@ function PreparacionOrden() {
 
                 // mostrar errores con el nro de Orden
                 for (const orderError of failedOrdersResult) {
-                    toast.error(`${orderError.order}`, { description: `${orderError.error}`, dismissible: false, closeButton: true });
+
+                    toast.error(`${orderError.order.order}`, { description: `${orderError.error}`, dismissible: false, closeButton: true });
 
                 }
             }
@@ -116,6 +120,8 @@ function PreparacionOrden() {
         }
         catch (error: any) { toast.error(`Error INTERNO: ${error.message}`); }
         finally { setIsLoading(false); }
+
+
     };
 
     // Eliminar ordenes seleccionadas
@@ -144,21 +150,29 @@ function PreparacionOrden() {
 
 
 
+    console.log({ optionSelection })
+
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
     return (
         <>
             <main>
-                <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
+                <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2"
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
+                        }
+                    }}
+                >
                     <div>
                         <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
                         <SelectEstablec setOptionSelection={setOptionSelection} optionSelection={optionSelection} />
                     </div>
                     <div className="w-full">
-
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
-                        <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
+                        <Input placeholder="ss1234567890abcd" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
                 </form>
 

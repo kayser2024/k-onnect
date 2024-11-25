@@ -9,6 +9,7 @@ import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { SelectEstablec } from "./ui/select-establec";
+import { OptionOrder } from "@/types/Option";
 
 function EnvioMasivo() {
     const session = useSession();
@@ -16,11 +17,11 @@ function EnvioMasivo() {
     const isUnauthenticated = session.status === "unauthenticated";
 
     const [order, setOrder] = useState("");
-    const [orderList, setOrderList] = useState<string[]>([]);
+    const [orderList, setOrderList] = useState<{ order: string, destino: OptionOrder }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [failedOrders, setFailedOrders] = useState<{ order: string, error: string }[]>([]); // Estado para las órdenes fallidas
+    const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
-    const [optionSelection, setOptionSelection] = useState("");
+    const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
 
     // función para agregar a la tabla
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -35,29 +36,36 @@ function EnvioMasivo() {
         // Procesar bloques de órdenes si contienen saltos de línea
         if (order.trim().includes(" ")) {
 
-            console.log("ENTRANDO AL BLOCK", order.trim())
             const orderBlock = order.trim().split(" ") // Dividir por líneas
                 .map((orderItem) => orderItem.trim()) // Recortar espacios
                 .filter((orderItem) => orderItem.length > 0); // Eliminar líneas vacías
 
             // Filtrar órdenes duplicadas
-            const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
+            const newOrders = orderBlock.filter((orderItem) => !orderList.some((o) => o.order === orderItem));
+
+            // const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
 
             if (newOrders.length > 0) {
-                setOrderList((prevList) => [...prevList, ...newOrders]);
+                const ordersWithDestino = newOrders.map((orderItem) => ({
+                    order: orderItem,
+                    destino: optionSelection,
+                }));
+                setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
             } else {
                 toast.warning("Todas las órdenes del bloque ya están en la lista.");
             }
         } else {
             // Procesar una sola orden si no contiene saltos de línea
-            if (orderList.includes(order.trim())) {
+            if (orderList.some((o) => o.order === order.trim())) {
                 toast.warning("La orden ya está en la lista.");
                 return;
             }
 
-            setOrderList((prevList) => [...prevList, order.trim()]);
-            toast.success("Orden agregada correctamente.");
+            setOrderList((prevList) => [
+                ...prevList,
+                { order: order.trim(), destino: optionSelection },
+            ]);
         }
 
         // Limpiar el campo de entrada
@@ -130,8 +138,6 @@ function EnvioMasivo() {
     };
 
 
-
-    console.log(optionSelection, "🟡")
 
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }

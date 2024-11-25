@@ -4,8 +4,12 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
 
+interface Option {
+    value: string;
+    label: string;
+}
 
-export const columns: ColumnDef<{ order: string, destino: string }>[] = [
+export const columns: ColumnDef<{ order: string, destino: Option }>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -40,7 +44,7 @@ export const columns: ColumnDef<{ order: string, destino: string }>[] = [
         header: "Destino",
         cell: ({ row }) => {
 
-            const destino = row.original.destino;
+            const destino = row.original.destino.label;
             return < div className="capitalize" > {destino}</div >
         }
     },

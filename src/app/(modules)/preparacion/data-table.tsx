@@ -28,9 +28,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { columns } from "./columns";
 
-
+interface Option {
+    value: string;
+    label: string;
+}
 interface OrderProps {
-    orderList: { order: string, destino: string }[];
+    orderList: { order: string, destino: Option }[];
     rowSelection: RowSelectionState;
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>
 }
@@ -51,7 +54,6 @@ export const DataTable = ({ orderList, rowSelection, setRowSelection }: OrderPro
             rowSelection
         },
     })
-
 
 
     return (
