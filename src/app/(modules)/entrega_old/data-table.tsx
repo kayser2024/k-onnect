@@ -27,17 +27,17 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { columns } from "./columns";
-import { OptionOrder } from '@/types/Option'
 
 
 interface OrderProps {
-    orderList: { order: string, destino: OptionOrder }[];
+    orderList: string[];
     rowSelection: RowSelectionState;
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>
 }
 export const DataTable = ({ orderList, rowSelection, setRowSelection }: OrderProps) => {
     const [sorting, setSorting] = useState<SortingState>([])
 
+    console.log({ rowSelection }, '👀')
 
     const table = useReactTable({
         data: orderList,

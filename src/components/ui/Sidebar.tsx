@@ -1,12 +1,12 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Car, ClipboardCheck, FileText, Package, Power, ScanEye, Search, Settings, Truck, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, ClipboardCheck,  Power, ScanEye, Search, Truck, UserCog } from 'lucide-react';
 
 
 import { useSession } from 'next-auth/react';

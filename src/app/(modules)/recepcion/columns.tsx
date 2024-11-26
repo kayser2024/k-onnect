@@ -1,11 +1,10 @@
 import { Checkbox } from "@/components/ui/checkbox"
+import { OptionOrder } from "@/types/Option"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
 
 
-
-export const columns: ColumnDef<string>[] = [
+export const columns: ColumnDef<{order:string,destino:OptionOrder}>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -33,27 +32,7 @@ export const columns: ColumnDef<string>[] = [
         header: "Orden",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{row.original.order}</>
         }
     },
-    {
-        accessorKey: "status",
-        header: "Estado",
-        cell: ({ row }) => (
-            <div className="capitalize">Pendiente</div>
-        ),
-    },
-    {
-        accessorKey: "fecha",
-        header: "Fecha",
-        cell: ({ row }) => {
-            const fecha = new Date();
-            return (
-
-                < div className="capitalize" > {format(fecha, 'dd / MM / yy')}</div >
-            )
-        }
-
-    },
-
 ]

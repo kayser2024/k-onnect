@@ -7,20 +7,20 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
-import { onChangeStatusSend } from "@/actions/envio/changeStatus_bk";
-import { SelectEstablec } from "./ui/select-establec";
+import { onChangeStatusSend } from "@/actions/envio/changeStatus";
+import { OptionOrder } from "@/types/Option";
 
-function EntregaOrden() {
+function EnvioMasivo() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
     const [order, setOrder] = useState("");
-    const [orderList, setOrderList] = useState<string[]>([]);
+    const [orderList, setOrderList] = useState<{ order: string, destino: OptionOrder }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [failedOrders, setFailedOrders] = useState<{ order: string, error: string }[]>([]); // Estado para las órdenes fallidas
+    const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
-    const [optionSelection, setOptionSelection] = useState("");
+    const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
 
     // función para agregar a la tabla
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -32,7 +32,7 @@ function EntregaOrden() {
             return;
         }
 
-        // Procesar bloques de órdenes
+        // Procesar bloques de órdenes si contienen saltos de línea
         if (order.trim().includes(" ")) {
 
             const orderBlock = order.trim().split(" ") // Dividir por líneas
@@ -40,28 +40,37 @@ function EntregaOrden() {
                 .filter((orderItem) => orderItem.length > 0); // Eliminar líneas vacías
 
             // Filtrar órdenes duplicadas
-            const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
+            const newOrders = orderBlock.filter((orderItem) => !orderList.some((o) => o.order === orderItem));
+
+            // const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
 
             if (newOrders.length > 0) {
-                setOrderList((prevList) => [...prevList, ...newOrders]);
+                const ordersWithDestino = newOrders.map((orderItem) => ({
+                    order: orderItem,
+                    destino: optionSelection,
+                }));
+                setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
             } else {
                 toast.warning("Todas las órdenes del bloque ya están en la lista.");
             }
         } else {
             // Procesar una sola orden si no contiene saltos de línea
-            if (orderList.includes(order.trim())) {
+            if (orderList.some((o) => o.order === order.trim())) {
                 toast.warning("La orden ya está en la lista.");
                 return;
             }
 
-            setOrderList((prevList) => [...prevList, order.trim()]);
-            toast.success("Orden agregada correctamente.");
+            setOrderList((prevList) => [
+                ...prevList,
+                { order: order.trim(), destino: optionSelection },
+            ]);
         }
 
         // Limpiar el campo de entrada
         setOrder("");
     };
+
 
 
     // Cambiar estado de las ordenes
@@ -128,8 +137,12 @@ function EntregaOrden() {
     };
 
 
+
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
+
+
+
 
     return (
         <>
@@ -140,10 +153,7 @@ function EntregaOrden() {
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
                         <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
-                    {/* <div>
-                        <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
-                        <SelectEstablec setOptionSelection={setOptionSelection} />
-                    </div> */}
+
                 </form>
 
                 <br />
@@ -151,7 +161,7 @@ function EntregaOrden() {
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Entregar Pedido"}</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Enviar Destino"}</Button>
                 </div>
 
                 {/* TABLE */}
@@ -161,4 +171,4 @@ function EntregaOrden() {
     );
 }
 
-export default EntregaOrden;
+export default EnvioMasivo;

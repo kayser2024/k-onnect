@@ -7,20 +7,20 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
-import { onChangeStatusSend } from "@/actions/envio/changeStatus";
-import { OptionOrder } from "@/types/Option";
+import { onChangeStatusSend } from "@/actions/envio/changeStatus_bk";
+import { SelectEstablec } from "./ui/select-establec";
 
-function RecepcionMasivo() {
+function RecepcionOrden() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
     const [order, setOrder] = useState("");
-    const [orderList, setOrderList] = useState<{ order: string, destino: OptionOrder }[]>([]);
+    const [orderList, setOrderList] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
+    const [failedOrders, setFailedOrders] = useState<{ order: string, error: string }[]>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
-    const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
+    const [optionSelection, setOptionSelection] = useState("");
 
     // función para agregar a la tabla
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -32,7 +32,7 @@ function RecepcionMasivo() {
             return;
         }
 
-        // Procesar bloques de órdenes si contienen saltos de línea
+        // Procesar bloques de órdenes
         if (order.trim().includes(" ")) {
 
             const orderBlock = order.trim().split(" ") // Dividir por líneas
@@ -40,37 +40,28 @@ function RecepcionMasivo() {
                 .filter((orderItem) => orderItem.length > 0); // Eliminar líneas vacías
 
             // Filtrar órdenes duplicadas
-            const newOrders = orderBlock.filter((orderItem) => !orderList.some((o) => o.order === orderItem));
-
-            // const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
+            const newOrders = orderBlock.filter((orderItem) => !orderList.includes(orderItem));
 
             if (newOrders.length > 0) {
-                const ordersWithDestino = newOrders.map((orderItem) => ({
-                    order: orderItem,
-                    destino: optionSelection,
-                }));
-                setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
+                setOrderList((prevList) => [...prevList, ...newOrders]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
             } else {
                 toast.warning("Todas las órdenes del bloque ya están en la lista.");
             }
         } else {
             // Procesar una sola orden si no contiene saltos de línea
-            if (orderList.some((o) => o.order === order.trim())) {
+            if (orderList.includes(order.trim())) {
                 toast.warning("La orden ya está en la lista.");
                 return;
             }
 
-            setOrderList((prevList) => [
-                ...prevList,
-                { order: order.trim(), destino: optionSelection },
-            ]);
+            setOrderList((prevList) => [...prevList, order.trim()]);
+            toast.success("Orden agregada correctamente.");
         }
 
         // Limpiar el campo de entrada
         setOrder("");
     };
-
 
 
     // Cambiar estado de las ordenes
@@ -137,12 +128,8 @@ function RecepcionMasivo() {
     };
 
 
-
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
-
-
-
 
     return (
         <>
@@ -153,7 +140,10 @@ function RecepcionMasivo() {
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
                         <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
-
+                    {/* <div>
+                        <label htmlFor="destino" className="text-sm font-bold" >Destino:</label>
+                        <SelectEstablec setOptionSelection={setOptionSelection} />
+                    </div> */}
                 </form>
 
                 <br />
@@ -161,8 +151,12 @@ function RecepcionMasivo() {
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Enviar Destino"}</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Recepcionar"}</Button>
                 </div>
+
+
+                {/* TODO: Mostrar las ordenes que tienen el estado Recepción y filtrar por tienda 🚩 */}
+
 
                 {/* TABLE */}
                 <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} />
@@ -171,4 +165,4 @@ function RecepcionMasivo() {
     );
 }
 
-export default RecepcionMasivo;
+export default RecepcionOrden;
