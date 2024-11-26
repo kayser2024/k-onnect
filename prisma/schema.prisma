@@ -45,8 +45,8 @@ model ubigeo_peru_provinces {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model OSF_Product {
-  codigoEan String? @db.VarChar(30)
-  codigoSap String? @unique(map: "unique_codEan") @db.VarChar(30)
+  codigoEan String? @db.VarChar(20)
+  codigoSap String? @db.VarChar(30)
   url_foto  String? @db.VarChar(255)
   id        Int     @id @default(autoincrement())
 }
@@ -124,7 +124,7 @@ model PickupPoints {
 }
 
 model Roles {
-  RoleID      Int     @id
+  RoleID      Int     @id @default(autoincrement())
   Description String? @db.VarChar(50)
   Users       Users[]
 }
@@ -136,7 +136,7 @@ model TypesDoc {
 }
 
 model Users {
-  UserID    Int         @id
+  UserID    Int         @id @default(autoincrement())
   Password  String      @db.VarChar(255)
   Email     String      @unique(map: "Email") @db.VarChar(255)
   Status    Boolean

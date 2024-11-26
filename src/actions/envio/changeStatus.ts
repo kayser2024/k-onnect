@@ -51,50 +51,23 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
     const base_url = process.env.WIN_WIN_PUT;
 
-    // Función para manejar la inserción de órdenes
-    // const insertOrder = async (orderNumber: string, pickupPointId: number, statusId: number) => {
-    //     return await prisma.orders.create({
-    //         data: {
-    //             OrderNumber: orderNumber,
-    //             StatusID: statusId,
-    //             UserID: +userId,
-    //             PickupPointID: pickupPointId,
-    //             CreatedAt: fecha,
-    //         },
-    //     });
-    // };
-
-
     let CommentText = 'agregando comentarios'
-
-    // Función para manejar el update status de ordenes
-    const updateOrder = async (orderNumber: string, statusId: number) => {
-
-        try {
-            // Si el stored procedure acepta parámetros
-            const result = await prisma.$executeRaw`
-                CALL LogOrderStatusUpdate(${orderNumber}, ${statusId},${userId},${CommentText});
-            `;
-
-            return result; // Este valor será 0 o 1 dependiendo de si el SP se ejecutó correctamente
-        } catch (error) {
-            console.error("Error ejecutando el stored procedure:", error);
-            throw new Error("Error actualizando el estado de la orden");
-        }
-    }
 
 
     // Función para actualizar una orden en la API
-    const updateOrderInAPI = async (order: string) => {
-        try {
-            const response = await fetch(`${base_url}/${order}`, configuration);
-            const data = await response.json();
-            if (data.sRpta !== "Actualizado correctamente en la base de datos") {
-                throw new Error(data.sRpta);
+    const updateOrderInAPI = async (order: string, estado: string) => {
+        if (estado === 'preparacion' || estado === 'enviado' || estado === 'recibido') {
+
+            try {
+                const response = await fetch(`${base_url}/${order}`, configuration);
+                const data = await response.json();
+                if (data.sRpta !== "Actualizado correctamente en la base de datos") {
+                    throw new Error(data.sRpta);
+                }
+                return true;
+            } catch (error: any) {
+                throw new Error(error.message);
             }
-            return true;
-        } catch (error: any) {
-            throw new Error(error.message);
         }
     };
 
@@ -111,14 +84,35 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
     for (const { order, destino } of orderList) {
         try {
             // Verificar si la orden ya existe en la base de datos
-            const existOrder = await prisma.orders.findFirst({ where: { OrderNumber: order } });
-            if (existOrder) {
-                failedOrders.push({ order: { order, destino }, error: `La orden ${order} ya existe en la BD` });
-                continue;
-            }
+            // const existOrder = await prisma.orders.findFirst({ where: { OrderNumber: order } });
+            // if (existOrder) {
+            //     failedOrders.push({ order: { order, destino }, error: `La orden ${order} ya existe en la BD` });
+            //     continue;
+            // }
+
+            // OBTENER EL DESTINO
+            const response = await fetch(`https://sami3-external.winwinafi.com/orders/kayser.pe/filters?orderNumber=${order}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `${process.env.SAMISHOP_API_TOKEN}`,
+                },
+            });
+            const destinoFetch = await response.json()
+
+            console.log({ destino: destinoFetch.obj.ordenes[0].datos_envio[0].direccion_envio }, '🔴🔴')
+
+            // obtener el ID del establecimiento
+            const establecimientoId = await prisma.pickupPoints.findFirst({
+                where: {
+                    Description: destinoFetch.obj.ordenes[0].datos_envio[0].direccion_envio,
+                },
+            }).then((store) => store?.PickupPointID);
+
+            console.log(establecimientoId)
 
             // Actualizar orden en la API
-            await updateOrderInAPI(order);
+            await updateOrderInAPI(order, estado);
 
             // Insertar la orden en la base de datos
             // await insertOrder(order, parseInt(destino.value), estadoId);
@@ -126,10 +120,12 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
             // Ejecutar sp_updateOrders
             const result = await prisma.$executeRaw`
-                CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${estado}, ${CommentText});
+                CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, NULL, ${estado}, ${CommentText}, @result);
             `;
-
-            console.log(result, '🟡🟡')
+            const result2 = await prisma.$executeRaw`
+                SELECT @result AS message;
+            `;
+            console.log(result2, '🟡🟡')
         } catch (error: any) {
             console.error(`Error procesando la orden ${order}:`, error.message);
             failedOrders.push({ order: { order, destino }, error: error.message });
