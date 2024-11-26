@@ -16,13 +16,13 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { OSF_Product_bk } from "@prisma/client";
 import AccionCopiar from "@/components/Pedido/AccionCopiar";
 import useDebouncer from "@/hooks/useDebouncer";
+import { OSF_Product } from "@prisma/client";
 
 export default function ComboboxDemo() {
     const [open, setOpen] = React.useState(false)
-    const [frameworks, setFrameworks] = React.useState<OSF_Product_bk[]>();
+    const [frameworks, setFrameworks] = React.useState<OSF_Product[]>();
     const [value, setValue] = React.useState("")
 
     const debouncedValue = useDebouncer(value, 500);
@@ -52,7 +52,7 @@ export default function ComboboxDemo() {
                             const res = frameworks[0];
                             return <div className="flex gap-2">
                                 <div>
-                                    <img className="max-h-28 rounded-lg" src={`${res.url_foto}`} alt={res.codigoEan} />
+                                    <img className="max-h-28 rounded-lg" src={`${res.url_foto}`} alt={res.codigoEan || undefined} />
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-400">Codigo Sap</p>
@@ -60,7 +60,7 @@ export default function ComboboxDemo() {
                                     <p className="text-sm text-gray-400">Codigo Ean</p>
                                     <AccionCopiar className="text-sm " texto={`${res.codigoEan}`} />
                                     <a className="flex items-center my-2" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${res.codigoEan}&tab=detail&page=1`}>
-                                        <EyeIcon  size={20}/>
+                                        <EyeIcon size={20} />
                                         Ver stock en Tutati
                                     </a>
                                 </div>
