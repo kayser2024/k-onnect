@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
-import { SelectEstablec } from "./ui/select-establec";
 import { OptionOrder } from "@/types/Option";
 
 function EnvioMasivo() {
