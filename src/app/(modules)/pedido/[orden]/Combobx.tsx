@@ -16,13 +16,13 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { OSF_Product } from "@prisma/client";
+import { OSF_Product_bk } from "@prisma/client";
 import AccionCopiar from "@/components/Pedido/AccionCopiar";
 import useDebouncer from "@/hooks/useDebouncer";
 
 export default function ComboboxDemo() {
     const [open, setOpen] = React.useState(false)
-    const [frameworks, setFrameworks] = React.useState<OSF_Product[]>();
+    const [frameworks, setFrameworks] = React.useState<OSF_Product_bk[]>();
     const [value, setValue] = React.useState("")
 
     const debouncedValue = useDebouncer(value, 500);
