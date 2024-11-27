@@ -10,7 +10,7 @@ import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
 
-function EnvioMasivo() {
+function RecepcionOrder() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
@@ -85,8 +85,8 @@ function EnvioMasivo() {
             console.log("cambiando estado del pedido");
 
             // Obtén las órdenes fallidas
-            const failedOrdersResult = await onChangeStatusSend(orderList, 'enviado', '/envio');
-
+            const failedOrdersResult = await onChangeStatusSend(orderList, 'recibido_tienda', '/recepcion');
+            console.log(failedOrdersResult, '🔴🟡🟢');
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
 
@@ -101,8 +101,8 @@ function EnvioMasivo() {
                 setOrderList(orderFiled)
 
                 // mostrar errores con el nro de Orden
-                for (const orderError of failedOrdersResult) {
-                    toast.error(`${orderError.order}`, { description: `${orderError.error}`, dismissible: false, closeButton: true });
+                for (const { order, error } of failedOrdersResult) {
+                    toast.error(`${order.order}`, { description: `${error}`, dismissible: false, closeButton: true });
 
                 }
             }
@@ -161,7 +161,7 @@ function EnvioMasivo() {
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
-                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Enviar Destino"}</Button>
+                    <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Recepcionar"}</Button>
                 </div>
 
                 {/* TABLE */}
@@ -171,4 +171,4 @@ function EnvioMasivo() {
     );
 }
 
-export default EnvioMasivo;
+export default RecepcionOrder;
