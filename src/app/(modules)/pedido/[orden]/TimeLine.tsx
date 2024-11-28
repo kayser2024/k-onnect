@@ -73,11 +73,9 @@ export const TimeLine = ({ order }: OrderProps) => {
 
                             {data.map((log: OrderLogs) =>
                                 <div className="grid gap-1 text-sm relative">
-                                    <div className="aspect-square w-3 bg-gray-900 rounded-full absolute left-0 translate-x-[-29.5px] z-10 top-1 dark:bg-gray-50" />
-                                    <div className="text-lg font-bold">{formatDate(new Date(log.CreatedAt).toISOString())}- {log.OrderStatus.Description}</div>
-                                    <div className="text-gray-500 dark:text-gray-400">
-                                        {log.CommentText}
-                                    </div>
+                                    <div className="aspect-square w-3 bg-[#009EE3] rounded-full absolute left-0 translate-x-[-29.5px] z-10 top-1 dark:bg-gray-50" />
+                                    <div className="font-semibold uppercase"> <span className="text-sm">{formatDate(new Date(log.CreatedAt).toISOString())}</span> - {log.OrderStatus.Description}</div>
+                                    <div className="text-gray-500 dark:text-gray-400 tex-xs">{log.CommentText}</div>
                                 </div>
 
                             )}
