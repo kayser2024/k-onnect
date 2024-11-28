@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, ClipboardCheck,  Power, ScanEye, Search, Truck, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, ClipboardCheck, ListRestart, Power, ScanEye, Search, Truck, UserCog } from 'lucide-react';
 
 
 import { useSession } from 'next-auth/react';
@@ -62,6 +62,13 @@ export const Sidebar = () => {
             icon: <ClipboardCheck />,
             ruta: '/entrega',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']
+            roles: [1, 6]
+
+        },
+        {
+            nombre: 'Riniciar Orden',
+            icon: <ListRestart />,
+            ruta: '/reset',
             roles: [1, 6]
 
         },

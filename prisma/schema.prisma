@@ -86,6 +86,7 @@ model OrderLogs {
   StatusID    Int
   UserID      Int
   CreatedAt   DateTime?   @default(now()) @db.Timestamp(0)
+  StatusOld   Int?
   OrderStatus OrderStatus @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "OrderLogs_ibfk_1")
   Users       Users       @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "OrderLogs_ibfk_2")
 
@@ -108,6 +109,8 @@ model Orders {
   PickupPointID Int?
   CreatedAt     DateTime?     @default(now()) @db.Timestamp(0)
   UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
+  PickupPoint   String?       @db.VarChar(100)
+  UserUpdaterID Int?
   OrderStatus   OrderStatus?  @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
   Users         Users?        @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
   PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")

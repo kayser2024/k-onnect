@@ -21,6 +21,8 @@ import { auth } from "@/auth.config"
 import { SiMercadopago } from "react-icons/si";
 import { format, formatDate, setDefaultOptions } from "date-fns"
 import { es } from 'date-fns/locale'
+import { TimeLine } from "./TimeLine"
+import { ScrollArea } from "@radix-ui/react-scroll-area"
 setDefaultOptions({ locale: es })
 
 
@@ -409,6 +411,21 @@ async function HomeOrden({ params }: Props) {
                             <a className=" w-1/2 m-2 bg-[#009ee3] text-center p-1 rounded-lg text-white font-bold flex justify-center gap-4 items-center" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">Ver en <SiMercadopago className="text-white font-bold" size={30} /></a>
                             <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
                         </CardFooter>
+                    </Card>
+
+                    {/* HISTORIAL */}
+                    <Card>
+                        {/* <ScrollArea className="h-72"> */}
+                        <CardHeader>
+                            <CardTitle>Historial</CardTitle>
+                        </CardHeader>
+
+
+                        <CardContent className="flex-1">
+
+                            <TimeLine order={orden} />
+                        </CardContent>
+                        {/* </ScrollArea> */}
                     </Card>
 
                     {/* Observaciones */}
