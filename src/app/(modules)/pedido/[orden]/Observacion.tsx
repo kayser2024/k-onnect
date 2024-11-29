@@ -8,6 +8,7 @@ import { DialogDescription } from '@radix-ui/react-dialog'
 
 import React from 'react'
 import { toast } from 'sonner'
+import { MessageSquareQuote } from 'lucide-react'
 
 interface Params {
     observaciones: string,
@@ -35,7 +36,7 @@ const Observacion = ({ observaciones, orden }: Params) => {
 
     return (
         <Dialog>
-            <DialogTrigger aria-label='Crear Observacion' className='text-white bg-black w-1/2 p-2 rounded-lg'>Observacion</DialogTrigger>
+            <DialogTrigger aria-label='Crear Observacion' title='Agregar comentario'><MessageSquareQuote size={40} className='bg-slate-100 rounded-full hover:bg-slate-300 p-2' /></DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Creacion de comentario</DialogTitle>
@@ -63,7 +64,7 @@ const Observacion = ({ observaciones, orden }: Params) => {
                     </div>
 
                     <DialogClose asChild>
-                        <Button aria-label='Boton Agregar Comentario' type="submit" variant="secondary">
+                        <Button aria-label='Boton Agregar Comentario' type="submit" variant="default">
                             Agregar comentario
                         </Button>
                     </DialogClose>

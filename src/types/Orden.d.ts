@@ -37,6 +37,7 @@ export interface Orden {
     promoter: string[];
     __v: number;
     cod_payme: string;
+    created_at: string
 }
 
 export interface CabeceraPedido {
