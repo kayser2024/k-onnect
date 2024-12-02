@@ -10,3 +10,15 @@ export interface User {
     rolId: number
     status?: boolean
 }
+
+export interface Users {
+    UserID: number
+    Password: string
+    Email: string
+    Status: boolean
+    TypeDocID: number
+    NroDoc: string
+    RoleID: number
+    Name: string
+    LastName: string
+}

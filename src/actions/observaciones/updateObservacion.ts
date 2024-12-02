@@ -1,8 +1,10 @@
 "use server"
 import { revalidatePath } from "next/cache"
+import { insertComment } from "../order/insertComent"
 
 
 export const onUpdateObservaciones = async (orden: string, comentario: string, selectedValue: string, observaciones: string) => {
+
 
     if (!comentario) {
         return {
@@ -35,35 +37,16 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
     }
 
 
-    //CONSTRUIR BODY PARA ENVIARLE A LA API
-    const jsonUpdateObservaciones = {
-        "actualizar": {
-            "situacion_facturacion":
-            {
-                "link_doc2": JSON.stringify(resFinal)
-            }
-        }
+    try {
+
+        await insertComment(`${selectedValue}-${comentario}`, orden, 1)
+    } catch (error: any) {
+        console.log(error.message)
     }
 
 
-    const res = await fetch(`${process.env.WIN_WIN_PUT}/${orden}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${process.env.SAMISHOP_API_TOKEN}`
-        },
-        body: JSON.stringify(jsonUpdateObservaciones)
-    }).then(res => res.json())
-
-    // console.log(res, '👀👀👀');
     revalidatePath('/pedido/[orden]', 'page')
 
-    if (res.bEstado === false) {
-        return {
-            mensaje: res.sRpta,
-            error: true
-        }
-    }
 
     return {
         mensaje: 'Comentario agregado',

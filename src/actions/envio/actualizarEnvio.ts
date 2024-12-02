@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-export const onUpdateEnvio = async (
-    ordenes: string, // Recibimos una lista de órdenes
-    estado: string,
-    path: string
-) => {
+export const onUpdateEnvio = async (ordenes: string, estado: string, path: string) => {
     console.log("Manejando desde el servidor:", { estado, ordenes });
 
     // Validar el estado
@@ -18,7 +14,6 @@ export const onUpdateEnvio = async (
     }
 
     const fecha = new Date();
-    fecha.setHours(fecha.getHours() - 5); // Ajustar a zona horaria requerida
     // Configurar JSON para estado y fecha por separado
     const jsonUpdateEstado = {
         "actualizar": {
@@ -29,13 +24,6 @@ export const onUpdateEnvio = async (
         },
     };
 
-    // const fecha = new Date();
-    // fecha.setHours(fecha.getHours() - 5); // Ajustar a zona horaria requerida
-    // const jsonUpdateFecha = {
-    //     actualizar: {
-    //         situacion_envio: { [estado]: fecha.toISOString() },
-    //     },
-    // };
 
     // Configuración para fetch
     const getConfig = (body: object) => ({

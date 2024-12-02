@@ -10,6 +10,7 @@ interface Option {
 }
 
 export const onChangeStatusSend = async (orderList: { order: string; destino: Option }[], estado: string, path: string) => {
+
     const session = await auth();
     const userId = 1;
 
@@ -56,7 +57,9 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
     // Función para actualizar una orden en la API
     const updateOrderInAPI = async (order: string, estado: string) => {
-        if (estado === 'preparacion' || estado === 'enviado' || estado === 'recibido') {
+
+
+        if (estado === 'en_preparacion' || estado === 'en_ruta' || estado === 'entregado_cliente') {
 
             try {
                 const response = await fetch(`${base_url}/${order}`, configuration);
@@ -86,6 +89,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
     for (const { order, destino } of orderList) {
         try {
 
+            // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
                 try {
                     // OBTENER EL DESTINO
@@ -115,6 +119,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     continue;
                 }
             }
+
             // Actualizar orden en la API
             await updateOrderInAPI(order, estado);
 
@@ -138,7 +143,6 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             if (result.includes("ERROR:")) {
                 console.error(`Error en la base de datos: ${result} ${order}`);
                 throw new Error(`Error en la base de datos: ${result}`);
-                // failedOrders.push({ order: { order, destino }, error: result });
             }
 
         } catch (error: any) {

@@ -2,10 +2,15 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { orderUpdate } from "./api/PUT-order";
 
-export const resetOrder = async (order: string, userId: number, estado = "reset_status", CommentText: string = "RESETEADO", estadoId = null, destino = null) => {
+export const resetOrder = async (order: string, userId: number, estado: string = "reset_status", CommentText: string = "RESETEADO", estadoId = null, destino = null) => {
     const session = await auth();
 
+    if (CommentText.trim() === "") {
+        CommentText = "RESET";
+    }
+    // ACtualizar en La BD
     console.log(session, '🖐️🖐️')
     const [result] = await prisma.$transaction(async (tx) => {
         // Llama al procedimiento almacenado
@@ -20,6 +25,9 @@ export const resetOrder = async (order: string, userId: number, estado = "reset_
 
         return [message.message];
     });
+
+    // Actualizar en la API
+    await orderUpdate(order, estado)
 
     return result;
 }

@@ -148,6 +148,8 @@ model Users {
   RoleID    Int
   CreatedAt DateTime?   @default(now()) @db.Timestamp(0)
   UpdatedAt DateTime?   @default(now()) @db.Timestamp(0)
+  Name      String      @db.VarChar(100)
+  LastName  String?     @db.VarChar(255)
   OrderLogs OrderLogs[]
   Orders    Orders[]
   TypesDoc  TypesDoc    @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")

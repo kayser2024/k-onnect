@@ -252,7 +252,6 @@ async function HomeOrden({ params }: Props) {
                         <Badge >Estado: {cabecera_pedido?.estado_pedido}</Badge>
                     </div>
                 </div>
-                {/* <h2 className="font-light text-sm">Fecha: {new Date(cabecera_pedido?.fecha_pedido).toLocaleString()}</h2> */}
                 <span>{new Date(ordenes.created_at).toLocaleString()}</span>
             </section>
 
@@ -333,9 +332,8 @@ async function HomeOrden({ params }: Props) {
                                     </span>
                                 </div>
 
-                                <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
+                                <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden}  />
                             </CardTitle>
-                            {/* <CardDescription > </CardDescription> */}
 
                         </CardHeader>
                         <CardContent>
@@ -383,8 +381,7 @@ async function HomeOrden({ params }: Props) {
                             </div>
 
                         </CardContent>
-                        {/* <CardFooter> */}
-                        {/* </CardFooter> */}
+
                     </Card>
 
                     {/* HISTORIAL */}

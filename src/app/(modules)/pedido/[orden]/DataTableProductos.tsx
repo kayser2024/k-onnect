@@ -47,6 +47,7 @@ import ComboboxDemo from "./Combobx"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion'
 import { LiaExchangeAltSolid } from "react-icons/lia";
+import { insertComment } from "@/actions/order/insertComent"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -60,6 +61,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
     const [rowSelection, setRowSelection] = useState({})
     const [motivoCambio, setMotivoCambio] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [openDrawer, setOpenDrawer] = useState(false)
+
     const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
 
     let fechaCreacionBoleta = ''
@@ -80,7 +84,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             rowSelection,
         },
     })
-    // x	09918122	Maria Elena  Llanos 	MP	-	TOTAL	5/11/2024	BW17-28782	102.62	-	102.62	-	11/11/2024	21/11/2024	ss1730825678065olge	melenalla@yahoo.com	Janet	-	-	Devolucion Total a pedido del cliente
+
     const handleReembolso = async () => {
 
         const pagado = orden.situacion_pagos[0].estado_pago
@@ -156,40 +160,42 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         // ACTUALIZAR API
         await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
 
+        //TODO: GUARDAR COMENTARIO:🚩
+
         navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
 
         // ENVIAR NOTIFICACION A DISCORD CANAL DE DEVOLUCIONES
-        const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fechaSolicitud,
-                dni,
-                cliente,
-                formaDevolucion,
-                operacion,
-                tipoExtorno,
-                fechaVenta,
-                boleta,
-                montoPago,
-                nc,
-                montoExtorno,
-                plazoMaximo,
-                ordenCompra,
-                correoCliente,
-                encargado,
-                observacion,
-                notaAdicional,
-                observacionTotal,
-                numeroCelular,
-                fechaCreacionBoleta
-            })
-        })
-        const res = await notificacionDiscord.json()
+        // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         fechaSolicitud,
+        //         dni,
+        //         cliente,
+        //         formaDevolucion,
+        //         operacion,
+        //         tipoExtorno,
+        //         fechaVenta,
+        //         boleta,
+        //         montoPago,
+        //         nc,
+        //         montoExtorno,
+        //         plazoMaximo,
+        //         ordenCompra,
+        //         correoCliente,
+        //         encargado,
+        //         observacion,
+        //         notaAdicional,
+        //         observacionTotal,
+        //         numeroCelular,
+        //         fechaCreacionBoleta
+        //     })
+        // })
+        // const res = await notificacionDiscord.json()
         toast.success('Notificacion Enviada a Discord')
 
 
@@ -253,6 +259,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
     // Función para Realizar camnbios
     const handleCambio = async () => {
+
 
         const pagado = orden.situacion_pagos[0].estado_pago
         const observacionTotal = orden.situacion_facturacion[0].link_doc2
@@ -344,45 +351,56 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         toast.success("Copiado al portapapeles")
 
 
-        // Actualizar Api
-        onUpdateObservaciones(nroOrden, motivo, 'Cambio', observacionTotal)
+
+        console.log({ antes, despues }, '👀🟡')
 
 
-        // Enviar Notificacion a DISCORD en el CANAL de de CAMBIO
-        const notificacionDiscord = await fetch('/api/notificacion/cambio', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fechaSolicitud,
-                encargada,
-                cliente,
-                nroOrden,
-                dni,
-                enviado,
-                lugar,
-                boleta,
-                nc,
-                nuevaBoleta,
-                plazoMaximo,
-                antes,
-                despues,
-                ean,
-                motivo,
-                situacionDelCambio,
-                observacionTotal,
-                numeroCelular,
-                fechaCreacionBoleta
-            })
-        })
-        const res = await notificacionDiscord.json()
-        toast.success('Notificacion Enviada a Discord')
+        try {
+            setLoading(true)
+            // Actualizar Api
+            // await onUpdateObservaciones(nroOrden, antes + " >> " + despues, 'Cambio', observacionTotal)
+            await insertComment(`${antes}  >>  ${despues}`, nroOrden, 1)
+            // Enviar Notificacion a DISCORD en el CANAL de de CAMBIO
+            // const notificacionDiscord = await fetch('/api/notificacion/cambio', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         fechaSolicitud,
+            //         encargada,
+            //         cliente,
+            //         nroOrden,
+            //         dni,
+            //         enviado,
+            //         lugar,
+            //         boleta,
+            //         nc,
+            //         nuevaBoleta,
+            //         plazoMaximo,
+            //         antes,
+            //         despues,
+            //         ean,
+            //         motivo,
+            //         situacionDelCambio,
+            //         observacionTotal,
+            //         numeroCelular,
+            //         fechaCreacionBoleta
+            //     })
+            // })
 
-        // await onUpdateObservaciones(nroOrden, antes, 'Cambio', observacionTotal)
+            // const res = await notificacionDiscord.json()
+            toast.success('Notificacion Enviada a Discord')
+            setOpenDrawer(false)
 
+        } catch (error) {
 
-        //cerramos eldrawer
+            console.error('Error al actualizar observaciones', error);
+            toast.error('Error al actualizar observaciones')
+        } finally {
+            setLoading(false)
+        }
+
 
         console.log('\n\t============DESCARGANDO SALIDA===========\n\t');
         const blob = new Blob([titulos], { type: 'text/csv' })
@@ -515,7 +533,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
             {/* Modal Cambio Producto */}
             <div className="my-2 flex flex-col gap-2">
-                <Drawer >
+                <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
                     <DrawerTrigger disabled={table.getSelectedRowModel().rows.length === 0 ? true : false} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DrawerTrigger>
                     <DrawerContent className="max-h-[90%]">
                         <DrawerHeader>
@@ -546,9 +564,10 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                         <TablaRealizarCambio />
 
                         <DrawerFooter>
-                            <Button onClick={handleCambio}>Realizar Cambio</Button>
+                            <Button onClick={handleCambio} disabled={loading}>{loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
                             <Button onClick={handleDescargaCambio}>Descargar Salida de Cambio</Button>
-                            <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose>
+                            <Button className="bg-purple-400 p-2 rounded-lg  font-bold" onClick={() => setOpenDrawer(false)}>Cerrar</Button>
+                            {/* <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose> */}
                         </DrawerFooter>
                     </DrawerContent>
                 </Drawer>

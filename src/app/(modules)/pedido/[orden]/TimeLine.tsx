@@ -1,8 +1,9 @@
 'use client'
 
-import { getOneOrder } from "@/actions/order/getOneOrder"
+import { getOneOrderLogs } from "@/actions/order/getOneOrder"
 import { Collapsible } from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Users } from "@/types/User"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 
@@ -21,6 +22,7 @@ interface OrderLogs {
     StatusOld?: number
     UserID?: number
     OrderStatus: { OrderID?: number, Description: string }
+    Users: { Name: string, Roles: { Description: string } }
 }
 export const TimeLine = ({ order, created_at }: OrderProps) => {
 
@@ -34,14 +36,16 @@ export const TimeLine = ({ order, created_at }: OrderProps) => {
             UserID: undefined,
             StatusID: undefined,
             StatusOld: undefined,
-            OrderStatus: { OrderID: undefined, Description: 'PENDIENTE' }
+            OrderStatus: { OrderID: undefined, Description: 'PENDIENTE' },
+            Users: { Name: "", Roles: { Description: "" } }
+
         },
     ]
 
     const { data, isLoading } = useQuery({
         queryKey: ['orderLogs'],
         queryFn: async () => {
-            const orderLogs = await getOneOrder(order)
+            const orderLogs = await getOneOrderLogs(order)
 
             // Asegurarse de que las fechas de getOneOrder se mantengan como están
             return orderInit.concat(
@@ -53,12 +57,11 @@ export const TimeLine = ({ order, created_at }: OrderProps) => {
         },
     })
 
-
     return (
 
-        <ScrollArea className="h-72">
-            <div className="p-6 sm:p-10">
-                <div className="after:absolute after:inset-y-0 after:w-px after:bg-gray-500/20 relative pl-6 after:left-0 grid gap-10 dark:after:bg-gray-400/20">
+        <ScrollArea className="h-72 ">
+            <div className="p-6 sm:p-10 ">
+                <div className="after:absolute flex flex-col-reverse after:inset-y-0 after:w-px after:bg-gray-500/20 relative pl-6 after:left-0  gap-10 dark:after:bg-gray-400/20">
 
                     {isLoading
                         ? <>Cargando...</>
@@ -67,7 +70,7 @@ export const TimeLine = ({ order, created_at }: OrderProps) => {
                                 <div className="grid gap-1 text-sm relative" key={i}>
                                     <div className="aspect-square w-3 bg-[#009EE3] rounded-full absolute left-0 translate-x-[-29.5px] z-10 top-1 dark:bg-gray-50" />
                                     <div className="font-semibold uppercase"> <span className="text-sm">{log.CreatedAt}</span>  ─  {log.OrderStatus.Description}</div>
-                                    <div className="text-gray-500 dark:text-gray-400 tex-xs">{log.CommentText}</div>
+                                    <div className="text-gray-500 dark:text-gray-400 tex-xs"> <span className=" "> {log?.Users?.Name || "WIN-WIN"} ({log?.Users?.Roles.Description || <>API</>})</span>: <span className="font-light italic">"{log.CommentText}"</span></div>
                                 </div>
 
                             )}

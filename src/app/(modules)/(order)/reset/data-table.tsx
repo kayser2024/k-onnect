@@ -49,13 +49,16 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
 
 
 
-    const handleAccept = async () => {
+    const handleAccept = async (coment: string) => {
         console.log("RESETEAR A PREPARACION")
+
+        console.log(coment)
 
         setIsSaving(true)
         try {
-            // ENVIAR A LA ACCION PARA RESETEAR LA ORDEN 
-            await resetOrder(order, 1)
+            // ENVIAR A LA ACCION PARA RESETEAR LA ORDEN  "Preparacion"
+            await resetOrder(order, 1, "reset_status", coment)
+
             toast.success("Operación exitosa");
 
         } catch (error: any) {
