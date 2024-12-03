@@ -6,18 +6,15 @@ export async function POST(req: NextRequest) {
     console.log('======= API PRODUCTO =======');
     const { data }: { data: string[] } = await req.json()
 
-    console.log(data,'👀');
+    console.log(data, '👀');
     let sap_list: string[] = []
 
     for (let i = 0; i < data.length; i++) {
         const sap = await prisma.oSF_Product.findFirst({
-            where: {
-                codigoEan: data[i]
-            }
+            where: { codigoEan: data[i] }
         })
 
         if (sap) {
-            console.log(sap.codigoSap)
             sap_list.push(sap.codigoSap as string)
         }
     }

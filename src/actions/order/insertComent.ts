@@ -26,7 +26,5 @@ export const insertComment = async (comment: string, orden: string, userId: numb
 
     }
 
-
-    console.log({ result }, '🟡')
     return result;
 }

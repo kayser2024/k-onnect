@@ -48,6 +48,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion'
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import { insertComment } from "@/actions/order/insertComent"
+import { createIncidence } from "@/actions/order/Incidencia"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -118,22 +119,22 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const encargado = persona ? persona : "Apoyo"
         const notaAdicional = "-"
 
-        // console.log('Monto Extorno', montoExtorno)
-
         let observacion = "A solicitud del cliente: "
+        let listCodSap;
+        const listaEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
+        console.log(listaEans, '🖐️')
+
+        const res: string[] = await fetch('/api/producto', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ data: listaEans })
+
+        }).then(res => res.json())
+        listCodSap = res;
+
         if (tipoExtorno !== "TOTAL") {
-
-            const listaEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
-            console.log(listaEans, '🖐️')
-
-            const res: string[] = await fetch('/api/producto', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ data: listaEans })
-
-            }).then(res => res.json())
 
             //Creamos objeto que tendra como key el sap y como value la cantidad para evitar duplicados
             const obj = res.reduce((acc: any, sap: string) => {
@@ -164,6 +165,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
+
+        console.log({ listCodSap }, '👀👀🚩')
+
+        // TODO: Guardar insidencia🚩
+
+        // await createIncidence(orden.cabecera_pedido[0].numero_orden, "INVOICE-001", listCodSap, listCodSap, tipoExtorno === "PARCIAL" ? 1 : 2, `Devolución ${tipoExtorno}`)
 
 
         // ENVIAR NOTIFICACION A DISCORD CANAL DE DEVOLUCIONES
@@ -288,6 +295,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         //obetenemos los button
         const buttons = tabla!.getElementsByTagName("button")
+        console.log({ buttons }, '🟡')
 
         // imprimimos el contenido de los botones
         const prendasCambiadasEAN: string[] = []
@@ -352,14 +360,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
 
-        console.log({ antes, despues }, '👀🟡')
-
-
         try {
             setLoading(true)
             // Actualizar Api
             // await onUpdateObservaciones(nroOrden, antes + " >> " + despues, 'Cambio', observacionTotal)
             await insertComment(`${antes}  >>  ${despues}`, nroOrden, 1)
+
             // Enviar Notificacion a DISCORD en el CANAL de de CAMBIO
             // const notificacionDiscord = await fetch('/api/notificacion/cambio', {
             //     method: 'POST',
@@ -389,7 +395,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             //     })
             // })
 
+
             // const res = await notificacionDiscord.json()
+
             toast.success('Notificacion Enviada a Discord')
             setOpenDrawer(false)
 
@@ -410,6 +418,27 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         a.download = 'cambio.csv'
         a.click()
         URL.revokeObjectURL(url)
+// CAMBIAR
+
+        // const ordenFilter = orden.detalle_pedido.filter(p => {
+        //     cambioRealizado.some(cambio => cambio.prendaCambiadaEan === p.sku)
+        // });
+        // console.log({ ordenFilter }, '🟢')
+
+        // const productSelect = ordenFilter.map(p => ({
+        //     code_ean: p.sku,
+        //     code_sap: prendasCambiadasSAP,
+        //     quantity: p.quantity_sku,
+        //     subtotal: p.subtotal_sku
+        // }))
+
+
+        // console.log({ productSelect, cambioRealizado }, '💀💀💀')
+
+        //TODO: guardar en tabla incidencia para la orden 🚩
+        // await createIncidence(orden.cabecera_pedido[0].numero_orden, "INVOICE-001", prendasOriginalesSAP, prendasCambiadasSAP, 3, motivoCambio)
+
+
 
 
     }
@@ -481,6 +510,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         setMotivoCambio(value)
     }
 
+
+    const CreateIncidence = () => {
+
+    }
+
+
     return (
         <div >
 
@@ -530,11 +565,16 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                 </Table>
             </div>
 
-
-            {/* Modal Cambio Producto */}
+            {/* BUTTONS */}
             <div className="my-2 flex flex-col gap-2">
+
+                {/* <Button onClick={CreateIncidence}>Crear Incidencia</Button> */}
+
+
                 <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-                    <DrawerTrigger disabled={table.getSelectedRowModel().rows.length === 0 ? true : false} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DrawerTrigger>
+                    <DrawerTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DrawerTrigger>
+
+                    {/* Modal Cambio Producto */}
                     <DrawerContent className="max-h-[90%]">
                         <DrawerHeader>
                             <DrawerTitle>Cambio de Productos</DrawerTitle>
@@ -573,9 +613,11 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                 </Drawer>
 
                 <DropdownMenu >
-                    <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0 ? true : false} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
+                    <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
+
+                    {/* Drawer Menu Devolucion */}
                     <DropdownMenuContent>
-                        <DropdownMenuLabel>Realizar Devolucion?</DropdownMenuLabel>
+                        <DropdownMenuLabel>¿Realizar Devolución?</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleReembolso}>
                             <BadgeCent className="mr-2 h-4 w-4" />

@@ -111,6 +111,7 @@ model Orders {
   UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
   PickupPoint   String?       @db.VarChar(100)
   UserUpdaterID Int?
+  Incidence     Incidence[]
   OrderStatus   OrderStatus?  @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
   Users         Users?        @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
   PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
@@ -150,6 +151,7 @@ model Users {
   UpdatedAt DateTime?   @default(now()) @db.Timestamp(0)
   Name      String      @db.VarChar(100)
   LastName  String?     @db.VarChar(255)
+  Incidence Incidence[]
   OrderLogs OrderLogs[]
   Orders    Orders[]
   TypesDoc  TypesDoc    @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
@@ -169,4 +171,31 @@ model tbl_articulo {
   id        BigInt  @unique(map: "id") @default(autoincrement()) @db.UnsignedBigInt
   codigoEan String? @db.Text
   codigoSap String? @db.Text
+}
+
+model Incidence {
+  IncidenceID     Int             @id @default(autoincrement())
+  OrdenID         Int?
+  CodProd         String?         @db.VarChar(20)
+  CodProdChange   String?         @db.VarChar(20)
+  Invoice         String?         @db.VarChar(20)
+  Reason          String?         @db.Text
+  TypeIncidenceID Int?
+  UserId          Int?
+  CreatedAt       DateTime?       @default(now()) @db.Timestamp(0)
+  TotalRefund     Decimal?        @db.Decimal(10, 2)
+  Quantity        Int?
+  Orders          Orders?         @relation(fields: [OrdenID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_1")
+  TypesIncidence  TypesIncidence? @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
+  Users           Users?          @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
+
+  @@index([OrdenID], map: "OrdenID")
+  @@index([TypeIncidenceID], map: "TypeIncidenceID")
+  @@index([UserId], map: "UserId")
+}
+
+model TypesIncidence {
+  TypeIncidenceID Int         @id @default(autoincrement())
+  Description     String?     @db.VarChar(20)
+  Incidence       Incidence[]
 }

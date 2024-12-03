@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, ClipboardCheck, ListRestart, Power, ScanEye, Search, Truck, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, ClipboardCheck, ListRestart, Power, ScanEye, Search, TriangleAlert, Truck, UserCog } from 'lucide-react';
 
 
 import { useSession } from 'next-auth/react';
@@ -25,8 +25,8 @@ export const Sidebar = () => {
             nombre: 'Inicio',
             icon: <Search />,
             ruta: '/',
-            // roles: ['admin', 'atc', 'web_master', 'almacen', 'soporte']
-            roles: [1, 2, 3, 4, 5]
+            // roles: ['admin', 'Soporte', 'web_master', 'Atc','Almacen', 'Tienda']
+            roles: [1, 2, 3, 4, 5, 6]
         },
         // {
         //     nombre: 'Transferencias',
@@ -35,25 +35,30 @@ export const Sidebar = () => {
         //     roles: ['admin']
         // },
         {
+            nombre: 'Incidencias (ATC)',
+            icon: <TriangleAlert />,
+            ruta: '/incidencia',
+            roles: [1, 2, 4]
+
+        },
+        {
             nombre: 'Preparacion (Web Master)',
             icon: <BaggageClaim />,
             ruta: '/preparacion',
-            // roles: ['admin', 'web_master', 'almacen', 'soporte']
-            roles: [1, 6]
+            roles: [1, 2, 3]
 
         },
         {
             nombre: 'Enviar Orden (Almacen)',
             icon: <Truck />,
             ruta: '/envio',
-            roles: [1, 6]
+            roles: [1, 2, 5]
 
         },
         {
             nombre: 'Recepción Orden (tienda)',
             icon: <Box />,
             ruta: '/recepcion',
-            // roles: ['admin', 'web_master', 'almacen', 'soporte']
             roles: [1, 6]
 
         },
@@ -66,17 +71,17 @@ export const Sidebar = () => {
 
         },
         {
-            nombre: 'Riniciar Orden',
+            nombre: 'Reiniciar Orden (Soporte)',
             icon: <ListRestart />,
             ruta: '/reset',
-            roles: [1, 6]
+            roles: [1, 2]
 
         },
         {
-            nombre: 'Mantenimiento',
+            nombre: 'Mantenimiento (Soporte)',
             icon: <UserCog />,
             ruta: '/mantenimiento_user',
-            roles: [1, 6]
+            roles: [1, 2]
 
         },
         // {
