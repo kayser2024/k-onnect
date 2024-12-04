@@ -6,13 +6,13 @@ import prisma from "@/lib/prisma"
 interface IncidenceProps {
     orden: string,
     invoice: string,
-    ProdOld: { cod: string, quantity: number, subtotal: number }[],
-    ProdNew: { cod: string, quantity: number, subtotal: number }[],
+    product: { code_ean_origin: string, code_sap_origin: string, code_sap_change?: string | null, quantity: number, subtotal: number }[],
     typeIncidence: number,
-    description?: string
+    reason?: string
 }
 
-export const createIncidence = async ({ orden, invoice, ProdOld, ProdNew, typeIncidence, description = '' }: IncidenceProps) => {
+
+export const createIncidence = async ({ orden, invoice, product, typeIncidence, reason = '' }: IncidenceProps) => {
 
     const user = await auth()
     console.log(user)
@@ -34,19 +34,20 @@ export const createIncidence = async ({ orden, invoice, ProdOld, ProdNew, typeIn
 
     // si es cambio registrar todos los productos con su respectivo producto a cambiar
 
-    for (let i = 0; i < ProdOld.length; i++) {
+    for (let i = 0; i < product.length; i++) {
         // TODO:Insert a la tabla Insert
         await prisma.incidence.create({
             data: {
                 OrdenID: OrderId,
                 Invoice: invoice,
-                CodProd: ProdOld[i].cod,
-                CodProdChange: typeIncidence === 3 ? ProdNew[i].cod : null,
+                CodProdOriginEAN: product[i].code_ean_origin,
+                CodProd: product[i].code_sap_origin,
+                CodProdChange: typeIncidence === 3 ? product[i].code_sap_change : null,
                 TypeIncidenceID: typeIncidence,
-                Quantity: ProdOld[i].quantity,
-                TotalRefund: typeIncidence !== 3 ? ProdOld[i].subtotal : null,
+                Quantity: product[i].quantity,
+                TotalRefund: typeIncidence !== 3 ? product[i].subtotal : null,
                 UserId: 1,
-                Reason: description,
+                Reason: reason,
                 CreatedAt: now,
             }
         })
@@ -60,6 +61,36 @@ export const getAllIncidence = async () => {
 
 };
 
-export const GetOneIncidence = async () => {
+export const getIncidenceByInvoice = async (invoice: string) => {
 
+    let result;
+    try {
+        result = await prisma.incidence.findMany({ where: { Invoice: invoice } })
+    } catch (error: any) {
+        result = error.message
+    }
+
+    return result;
+}
+
+export const getProductListTotalRefund = async (invoice: string) => {
+    let result;
+    try {
+        result = await prisma.incidence.findMany({
+            where: { Invoice: invoice, TypeIncidenceID: { in: [1, 2] } },
+            select: {
+                // IncidenceID: true,
+                CodProdOriginEAN: true,
+                // CodProd: true,
+                // CodProdChange: true,
+                // TotalRefund: true,
+                // Quantity: true,
+                // Reason: true,
+            }
+        })
+    } catch (error: any) {
+        result = error.message
+    }
+
+    return result;
 }

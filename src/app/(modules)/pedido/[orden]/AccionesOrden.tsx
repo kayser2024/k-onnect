@@ -7,11 +7,29 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { onDropObservaciones } from "@/actions/observaciones/dropObservaciones"
 
 import { OrdenResponse } from "@/types/Orden"
-import { ArrowDown, BadgeCent, CircleDot, CircleEllipsis, Dot, Download, EllipsisVertical, Handshake, MessageCircleCode, PlusCircle, Trash } from "lucide-react"
+import { ArrowDown, BadgeCent, CircleDot, CircleEllipsis, Dot, Download, EllipsisVertical, Handshake, MessageCircleCode, PlusCircle, Trash, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
+import { ModalIncidence } from "./ui/modal-incidence"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { getIncidenceByInvoice } from "@/actions/order/Incidencia"
 
 interface Orden {
     orden: OrdenResponse
@@ -19,7 +37,8 @@ interface Orden {
 }
 
 export default function AccionesOrden({ orden, docActual }: Orden) {
-
+    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenDropMenu, setIsOpenDropMenu] = useState(false)
 
     const handleDownloadSalida = () => {
 
@@ -48,26 +67,52 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
         onDropObservaciones(orden.obj.ordenes[0].cabecera_pedido[0].numero_orden)
         toast.success('Eliminando Observaciones')
     }
+    const { data, isLoading, refetch, isPending } = useQuery({
+        queryKey: ['incidenceByInvoice', docActual],
+        queryFn: async () => await getIncidenceByInvoice(docActual),
+        enabled: false
+    })
+
+    const handleShowIncidences = async () => {
+        console.log("MOSTRAR INCIDENCIAS")
+        setIsOpen(true)
+        setIsOpenDropMenu(false)
+
+
+        // TODO:Consumir ACTION incidence🚩
+
+        refetch()
+
+
+
+    }
+
 
     return (
-        <DropdownMenu >
-            <DropdownMenuTrigger className=" p-2 rounded-md">
-                {/* <ArrowDown className="h-4 w-4" /> */}
-                <EllipsisVertical/>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuLabel>Acerca..</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDownloadSalida} >
-                    <Download className="mr-2 h-4 w-4" />
-                    <span>Descargar Salida</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleRemovingObservaciones} >
-                    <Trash className="mr-2 h-4 w-4" />
-                    <span>Eliminar Observaciones</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            <DropdownMenu onOpenChange={setIsOpenDropMenu} open={isOpenDropMenu}>
+                <DropdownMenuTrigger className=" p-2 rounded-full bg-slate-100 hover:bg-slate-200">
+                    <EllipsisVertical />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleDownloadSalida} >
+                        <Download className="mr-2 h-4 w-4" />
+                        <span>Descargar Salida</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleRemovingObservaciones} >
+                        <Trash className="mr-2 h-4 w-4" />
+                        <span>Eliminar Observaciones</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleShowIncidences} >
+                        <TriangleAlert className="mr-2 h-4 w-4" />
+                        <span>Mostrar Incidencias</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <ModalIncidence isOpen={isOpen} setIsOpen={setIsOpen} data={data} isLoading={isPending} />
+        </>
 
     )
 }

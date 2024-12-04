@@ -28,7 +28,7 @@ setDefaultOptions({ locale: es })
 
 
 export const metadata: Metadata = {
-    title: 'Orden de compra',
+    title: 'Detalle Orden',
     icons: '/kayser.ico'
 }
 
@@ -262,14 +262,14 @@ async function HomeOrden({ params }: Props) {
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Detalle de Productos</CardTitle>
-                                <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
+                                <AccionesOrden orden={data}  docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
                             </div>
                             <span className={`rounded-2xl p-2 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-300'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                             <CardDescription>Detalles de la orden</CardDescription>
 
                         </CardHeader>
                         <CardContent>
-                            <Tabs defaultValue="tablaNormal">
+                            {/* <Tabs defaultValue="tablaNormal">
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="tablaNormal">Tabla</TabsTrigger>
                                     <TabsTrigger value="tablaCambio">Tabla Actualizable</TabsTrigger>
@@ -317,7 +317,8 @@ async function HomeOrden({ params }: Props) {
                                 <TabsContent value="tablaCambio">
                                     <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} columns={columns} data={productos} orden={ordenes} />
                                 </TabsContent>
-                            </Tabs>
+                            </Tabs> */}
+                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} columns={columns} data={productos} orden={ordenes} />
                         </CardContent>
                     </Card>
 
@@ -332,7 +333,7 @@ async function HomeOrden({ params }: Props) {
                                     </span>
                                 </div>
 
-                                <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden}  />
+                                <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
                             </CardTitle>
 
                         </CardHeader>

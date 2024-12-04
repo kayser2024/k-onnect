@@ -48,11 +48,14 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion'
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import { insertComment } from "@/actions/order/insertComent"
-import { createIncidence } from "@/actions/order/Incidencia"
+import { createIncidence, getProductListTotalRefund } from "@/actions/order/Incidencia"
+import { useQuery } from "@tanstack/react-query"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { revalidatePath } from "next/cache"
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    columns: ColumnDef<TData, TValue>[],
+    data: TData[],
     orden: Orden,
     comprobante: any,
     persona?: string | null
@@ -64,6 +67,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     const [motivoCambio, setMotivoCambio] = useState("")
     const [loading, setLoading] = useState(false)
     const [openDrawer, setOpenDrawer] = useState(false)
+
+
+    const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
 
     const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
 
@@ -81,6 +87,10 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         columns,
         getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: setRowSelection,
+        enableRowSelection: (row) => {
+            const isReembolso = !listDevoluciones?.some((devolucion: any) => devolucion.CodProdOriginEAN === row.original.id);
+            return isReembolso
+        },
         state: {
             rowSelection,
         },
@@ -122,7 +132,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         let observacion = "A solicitud del cliente: "
         let listCodSap;
         const listaEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
-        console.log(listaEans, '🖐️')
 
         const res: string[] = await fetch('/api/producto', {
             method: 'POST',
@@ -161,18 +170,40 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         // ACTUALIZAR API
         await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
 
-        //TODO: GUARDAR COMENTARIO:🚩
-
         navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        console.log({ listCodSap }, '👀👀🚩')
+        console.log({ listCodSap, listaEans }, '👀👀🚩')
 
-        // TODO: Guardar insidencia🚩
+        const ordenFilter = orden.detalle_pedido.filter(p => {
+            return listaEans.includes(p.sku)
+        })
 
-        // await createIncidence(orden.cabecera_pedido[0].numero_orden, "INVOICE-001", listCodSap, listCodSap, tipoExtorno === "PARCIAL" ? 1 : 2, `Devolución ${tipoExtorno}`)
+        const productSelect = ordenFilter.map((p, index) => ({
+            code_ean_origin: p.sku,
+            code_sap_origin: listCodSap[index],
+            code_sap_change: null,
+            quantity: p.quantity_sku,
+            subtotal: p.subtotal_sku
+        }))
 
 
+        //TODO: guardar en tabla incidencia para la orden 
+        const data = {
+            orden: orden.cabecera_pedido[0].numero_orden,
+            invoice: orden.situacion_facturacion[0].estado_facturacion,
+            product: productSelect,
+            typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
+            reason: `Devolución ${tipoExtorno}`
+        }
+
+        await createIncidence(data);
+
+        refetch();
+        setRowSelection({})
+
+
+        // revalidatePath(orden.cabecera_pedido[0].numero_orden)
         // ENVIAR NOTIFICACION A DISCORD CANAL DE DEVOLUCIONES
         // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
         //     method: 'POST',
@@ -267,6 +298,10 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     // Función para Realizar camnbios
     const handleCambio = async () => {
 
+        if (!motivoCambio.trim()) {
+            toast.warning("Debe ingresar un motivo de cambio")
+            return
+        }
 
         const pagado = orden.situacion_pagos[0].estado_pago
         const observacionTotal = orden.situacion_facturacion[0].link_doc2
@@ -278,7 +313,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             return
         }
 
-        const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
+        const prendasOriginalesEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
 
 
         console.log('TABLA DE CAMBIOS ELEGIDA');
@@ -287,7 +322,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ data: eansOriginales })
+            body: JSON.stringify({ data: prendasOriginalesEans })
         }).then(res => res.json())
 
 
@@ -295,7 +330,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         //obetenemos los button
         const buttons = tabla!.getElementsByTagName("button")
-        console.log({ buttons }, '🟡')
 
         // imprimimos el contenido de los botones
         const prendasCambiadasEAN: string[] = []
@@ -322,11 +356,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             titulos += `\nk033,${prendasCambiadasEAN[i]},1,k001,SEPARADO-${docActual}-C,Venta Externa,1`
         }
 
-        let cambioRealizado: { prendaOriginalSap: string, prendaCambiadaEan: string }[] = []
+        let cambioRealizado: { prendaOriginalSap: string, prendaCambiadaEan: string, prendaCambiadaSap: string }[] = []
         for (let i = 0; i < prendasOriginalesSAP.length; i++) {
             cambioRealizado.push({
                 prendaOriginalSap: prendasOriginalesSAP[i],
-                prendaCambiadaEan: prendasCambiadasEAN[i]
+                prendaCambiadaEan: prendasCambiadasEAN[i],
+                prendaCambiadaSap: prendasCambiadasSAP[i]
             })
         }
 
@@ -402,11 +437,11 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             setOpenDrawer(false)
 
         } catch (error) {
-
-            console.error('Error al actualizar observaciones', error);
             toast.error('Error al actualizar observaciones')
         } finally {
             setLoading(false)
+            setMotivoCambio("")
+            setRowSelection({})
         }
 
 
@@ -418,28 +453,33 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         a.download = 'cambio.csv'
         a.click()
         URL.revokeObjectURL(url)
-// CAMBIAR
-
-        // const ordenFilter = orden.detalle_pedido.filter(p => {
-        //     cambioRealizado.some(cambio => cambio.prendaCambiadaEan === p.sku)
-        // });
-        // console.log({ ordenFilter }, '🟢')
-
-        // const productSelect = ordenFilter.map(p => ({
-        //     code_ean: p.sku,
-        //     code_sap: prendasCambiadasSAP,
-        //     quantity: p.quantity_sku,
-        //     subtotal: p.subtotal_sku
-        // }))
 
 
-        // console.log({ productSelect, cambioRealizado }, '💀💀💀')
+        // prendasOriginalesEans = ['"7800010385523"','"7800010385523"','"7800010385523"']
+        // prendasOriginalesSap = ["D6058-ROJ-S","D6058-ROJ-S","D6058-ROJ-S"]
+        const ordenFilter = orden.detalle_pedido.filter(p => {
+            return prendasOriginalesEans.includes(p.sku)
+        });
 
-        //TODO: guardar en tabla incidencia para la orden 🚩
-        // await createIncidence(orden.cabecera_pedido[0].numero_orden, "INVOICE-001", prendasOriginalesSAP, prendasCambiadasSAP, 3, motivoCambio)
+        const productSelect = ordenFilter.map((p, index) => ({
+            code_ean_origin: p.sku,
+            code_sap_origin: prendasOriginalesSAP[index],
+            code_sap_change: prendasCambiadasSAP[index],
+            quantity: p.quantity_sku,
+            subtotal: p.subtotal_sku
+        }))
 
 
+        //TODO: guardar en tabla incidencia para la orden 
+        const data = {
+            orden: orden.cabecera_pedido[0].numero_orden,
+            invoice: orden.situacion_facturacion[0].estado_facturacion,
+            product: productSelect,
+            typeIncidence: 3,
+            reason: motivoCambio
 
+        }
+        await createIncidence(data)
 
     }
 
@@ -511,15 +551,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
     }
 
 
-    const CreateIncidence = () => {
-
-    }
-
-
     return (
         <div >
-
-            <div className="max-h-[500px] overflow-y-auto">
+            <ScrollArea className="h-[500px]">
                 <Table >
                     <TableCaption>Tabla de Productos</TableCaption>
                     <TableHeader>
@@ -542,18 +576,26 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                            table.getRowModel().rows.map((row) => {
+                                const isDisabled = listDevoluciones?.some((devolucion: any) => devolucion.CodProdOriginEAN === row.original.id);
+
+
+                                return (
+
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className={isDisabled ? "bg-red-50 hover:bg-red-100 cursor-not-allowed" : ""}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                )
+                            }
+                            )
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
@@ -563,7 +605,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </ScrollArea>
 
             {/* BUTTONS */}
             <div className="my-2 flex flex-col gap-2">
@@ -583,7 +625,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
                         {/* Seleccionar Motivo de Cambio */}
-                        <div className="my-2 flex justify-center w-full ">
+                        <div className="my-2 flex justify-center w-full gap-2 ">
                             <Select onValueChange={manejarCambioMotivo}>
                                 <SelectTrigger className="w-[50%]">
                                     <SelectValue placeholder="Seleccionar Motivo de Cambio" />
@@ -597,6 +639,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
+
                         </div>
 
 
