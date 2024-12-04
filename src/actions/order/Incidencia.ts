@@ -58,7 +58,21 @@ export const createIncidence = async ({ orden, invoice, product, typeIncidence, 
 
 
 export const getAllIncidence = async () => {
+    let result;
 
+    try {
+        result = await prisma.incidence.groupBy({
+            by: ['Invoice', "OrdenID"],
+            _count:{
+                Quantity:true
+            }
+        })
+    } catch (error: any) {
+        result = error.message
+    }
+
+
+    return result
 };
 
 export const getIncidenceByInvoice = async (invoice: string) => {

@@ -11,7 +11,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Orden",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
     {
@@ -19,7 +19,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Boleta",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
     {
@@ -27,7 +27,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Fecha",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
     {
@@ -35,7 +35,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Usuario",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
     {
@@ -43,7 +43,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Motivo",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
     {
@@ -51,7 +51,7 @@ export const columns: ColumnDef<{ }>[] = [
         header: "Estado",
         cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original}</>
+            return <>{}</>
         }
     },
 ]

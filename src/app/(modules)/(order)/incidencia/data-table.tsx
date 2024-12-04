@@ -31,10 +31,11 @@ import { OptionOrder } from '@/types/Option'
 
 
 interface OrderProps {
-    incidentList: { }[];
+    incidentList: {}[];
 }
 export const DataTable = ({ incidentList }: OrderProps) => {
     const [sorting, setSorting] = useState<SortingState>([])
+    console.log(incidentList)
 
     const table = useReactTable({
         data: incidentList,

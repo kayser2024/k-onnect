@@ -3,11 +3,6 @@ import { DataTable } from './data-table'
 import { getAllIncidence } from '@/actions/order/Incidencia';
 
 
-
-const incidentList = [
-    {},
-    {}
-]
 const IncidenciaPage = async () => {
 
     const incidenciaList = await getAllIncidence();
@@ -18,7 +13,7 @@ const IncidenciaPage = async () => {
 
             <h2 className='text-2xl'>Lista de Incidencia</h2>
             {/* tabla */}
-            <DataTable incidentList={incidentList} />
+            <DataTable incidentList={incidenciaList} />
         </div>
     )
 }
