@@ -210,6 +210,7 @@ async function HomeOrden({ params }: Props) {
 
     const data = await fetchingDataFromOrder(orden)
 
+    console.log({ data }, '🚩🚩🚩')
     if (data.obj === null) { return <div>No se encontro la orden</div> }
 
     const ordenes = data?.obj?.ordenes[0];
@@ -228,12 +229,6 @@ async function HomeOrden({ params }: Props) {
 
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
     const productos = formatedDetallePedido(detalle_pedido)
-
-    let colorEnvio = ''
-    if (situacion_envio.estado_envio === "pendiente") colorEnvio = "bg-yellow-300"
-    else if (situacion_envio.estado_envio === 'en_preparacion') colorEnvio = "bg-gray-300"
-    else if (situacion_envio.estado_envio === 'enviado') colorEnvio = "bg-blue-300"
-    else if (situacion_envio.estado_envio === 'recibido') colorEnvio = "bg-green-300"
 
     let colorEstado = ''
     if (situacion_pagos.estado_pago === 'pagado') colorEstado = "bg-green-300"
@@ -262,7 +257,7 @@ async function HomeOrden({ params }: Props) {
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Detalle de Productos</CardTitle>
-                                <AccionesOrden orden={data}  docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
+                                <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
                             </div>
                             <span className={`rounded-2xl p-2 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-300'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                             <CardDescription>Detalles de la orden</CardDescription>

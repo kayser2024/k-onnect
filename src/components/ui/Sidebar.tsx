@@ -97,7 +97,7 @@ export const Sidebar = () => {
 
     const sesion = useSession()
     const userRole = sesion.data?.user.rolId;
-    console.log(sesion.data?.user.rolId)
+    // console.log(sesion.data?.user.rolId)
 
     const usuarioInfo = { nombre: sesion.data?.user?.name || 'No Conectado', image: sesion.data?.user?.image || '/personIcon.png' }
 

@@ -27,7 +27,7 @@ function PreparacionOrder() {
         event.preventDefault();
 
         // Validar si el input está vacío o no cumple con el formato
-        if (!order.trim() || order.length < 10 || !order.startsWith("ss")) {
+        if (!order.trim() || order.length < 10 || !order.toLowerCase().startsWith("ss")) {
             toast.error("Ingresar una orden válida");
             return;
         }
@@ -89,7 +89,6 @@ function PreparacionOrder() {
 
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
-            console.log(failedOrdersResult,'🟢🟢🟢🟡🟡')
 
             if (failedOrdersResult.length === 0) {
                 toast.success("Todas las órdenes se enviaron correctamente");

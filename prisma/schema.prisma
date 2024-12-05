@@ -183,6 +183,7 @@ model Incidence {
   Reason           String?         @db.Text
   TypeIncidenceID  Int?
   UserId           Int?
+  IsCompleted      Boolean?        @default(false)
   CreatedAt        DateTime?       @default(now()) @db.Timestamp(0)
   TotalRefund      Decimal?        @db.Decimal(10, 2)
   Quantity         Int?

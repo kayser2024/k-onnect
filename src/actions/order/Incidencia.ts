@@ -61,12 +61,56 @@ export const getAllIncidence = async () => {
     let result;
 
     try {
-        result = await prisma.incidence.groupBy({
+        const IncidenceGrouped = await prisma.incidence.groupBy({
             by: ['Invoice', "OrdenID"],
-            _count:{
-                Quantity:true
-            }
+            _count: {
+                TypeIncidenceID: true,
+            },
+            _sum: {
+                TotalRefund: true,
+                Quantity: true
+            },
+            orderBy: {
+                _count: {
+                    OrdenID: "desc"
+                }
+            },
+            take: 30
         })
+
+        result = await Promise.all(
+            IncidenceGrouped
+                .filter((item) => item.OrdenID != null) // Filtra entradas donde OrdenID no sea nulo
+                .map(async (item) => {
+                    const orderData = await prisma.orders.findUnique({
+                        where: { OrderID: item.OrdenID! },
+                        select: {
+                            OrderNumber: true,
+                            PickupPoint: true,
+                            OrderStatus: {
+                                select: {
+                                    Description: true,
+                                },
+                            },
+                        },
+                    });
+
+                    if (orderData) {
+                        return {
+                            Invoice: item.Invoice,
+                            OrderID: item.OrdenID,
+                            OrderNumber: orderData.OrderNumber,
+                            PickupPoint: orderData.PickupPoint,
+                            OrderStatusDescription: orderData.OrderStatus?.Description || null,
+                            TypeIncidenceCount: item._count.TypeIncidenceID,
+                            TotalRefundSum: item._sum.TotalRefund,
+                            QuantitySum: item._sum.Quantity,
+                        };
+                    }
+                    return null; // Si no hay datos relacionados, retorna null
+                })
+        );
+
     } catch (error: any) {
         result = error.message
     }
@@ -75,11 +119,40 @@ export const getAllIncidence = async () => {
     return result
 };
 
-export const getIncidenceByInvoice = async (invoice: string) => {
 
+export const detailOrder = async (orden: number) => {
     let result;
     try {
-        result = await prisma.incidence.findMany({ where: { Invoice: invoice } })
+        const detail = await prisma.incidence.findMany({
+            where: {
+                OrdenID: orden
+            }
+        })
+
+        result = detail
+    } catch (error: any) {
+        result = error.message;
+    }
+
+    return result;
+}
+
+
+export const getIncidenceByOrder = async (order: string) => {
+
+    let result;
+
+
+    try {
+        // obtener idOrder
+
+        const orderData = await prisma.orders.findUnique({
+            where: { OrderNumber: order },
+            select: { OrderID: true }
+        })
+
+
+        result = await prisma.incidence.findMany({ where: { OrdenID: orderData?.OrderID } })
     } catch (error: any) {
         result = error.message
     }
@@ -102,6 +175,29 @@ export const getProductListTotalRefund = async (invoice: string) => {
                 // Reason: true,
             }
         })
+    } catch (error: any) {
+        result = error.message
+    }
+
+    return result;
+}
+
+export const changStatusIncidence = async (invoice: string) => {
+    let result;
+
+
+    try {
+        result = await prisma.incidence.updateMany({
+            where: {
+                Invoice: invoice,
+            },
+            data: {
+                IsCompleted: true,
+            }
+
+        })
+
+
     } catch (error: any) {
         result = error.message
     }

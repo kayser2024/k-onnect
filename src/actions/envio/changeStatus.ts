@@ -112,6 +112,10 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                         const nombre_tienda = data_envio.direccion_envio
 
                         destino.label = nombre_tienda
+                    } else {
+                        const nombre_tienda = data_envio.direccion_envio
+
+                        destino.label = nombre_tienda
                     }
 
                 } catch (error: any) {

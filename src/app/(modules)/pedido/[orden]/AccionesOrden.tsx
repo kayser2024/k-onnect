@@ -29,7 +29,7 @@ import { toast } from "sonner"
 import { ModalIncidence } from "./ui/modal-incidence"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { getIncidenceByInvoice } from "@/actions/order/Incidencia"
+import { getIncidenceByOrder } from "@/actions/order/Incidencia"
 
 interface Orden {
     orden: OrdenResponse
@@ -39,6 +39,7 @@ interface Orden {
 export default function AccionesOrden({ orden, docActual }: Orden) {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDropMenu, setIsOpenDropMenu] = useState(false)
+
 
     const handleDownloadSalida = () => {
 
@@ -69,7 +70,7 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
     }
     const { data, isLoading, refetch, isPending } = useQuery({
         queryKey: ['incidenceByInvoice', docActual],
-        queryFn: async () => await getIncidenceByInvoice(docActual),
+        queryFn: async () => await getIncidenceByOrder(orden.obj.ordenes[0].cabecera_pedido[0].numero_orden),
         enabled: false
     })
 

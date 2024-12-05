@@ -6,7 +6,6 @@ import { getAllIncidence } from '@/actions/order/Incidencia';
 const IncidenciaPage = async () => {
 
     const incidenciaList = await getAllIncidence();
-    console.log({ incidenciaList }, '🚩')
 
     return (
         <div>
