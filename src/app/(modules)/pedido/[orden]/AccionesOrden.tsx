@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button'
 import { onDropObservaciones } from "@/actions/observaciones/dropObservaciones"
 
 import { OrdenResponse } from "@/types/Orden"
-import { ArrowDown, BadgeCent, CircleDot, CircleEllipsis, Dot, Download, EllipsisVertical, Handshake, MessageCircleCode, PlusCircle, Trash, TriangleAlert } from "lucide-react"
+import { ArrowDown, BadgeCent, CircleDot, CircleEllipsis, Dot, Download, EllipsisVertical, Handshake, MessageCircleCode, PlusCircle, Replace, Trash, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { ModalIncidence } from "./ui/modal-incidence"
 import { useState } from "react"
@@ -103,8 +103,14 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleRemovingObservaciones} >
                         <Trash className="mr-2 h-4 w-4" />
-                        <span>Eliminar Observaciones</span>
+                        <span>Eliminar Observ.</span>
                     </DropdownMenuItem>
+
+                    <DropdownMenuItem onClick={handleRemovingObservaciones} >
+                        <Replace className="mr-2 h-4 w-4" />
+                        <span>Cambio y Devoluc.</span>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem onClick={handleShowIncidences} >
                         <TriangleAlert className="mr-2 h-4 w-4" />
                         <span>Mostrar Incidencias</span>

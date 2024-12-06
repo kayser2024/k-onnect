@@ -19,6 +19,7 @@ import {
 import AccionCopiar from "@/components/Pedido/AccionCopiar";
 import useDebouncer from "@/hooks/useDebouncer";
 import { OSF_Product } from "@prisma/client";
+import Link from "next/link";
 
 export default function ComboboxDemo() {
     const [open, setOpen] = React.useState(false)
@@ -43,6 +44,7 @@ export default function ComboboxDemo() {
         }
     }, [debouncedValue]);
 
+
     return (
         <div>
             <div className="mb-2">
@@ -55,14 +57,14 @@ export default function ComboboxDemo() {
                                     <img className="max-h-28 rounded-lg" src={`${res.url_foto}`} alt={res.codigoEan || undefined} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-400">Codigo Sap</p>
+                                    <p className="text-xs text-gray-400">Codigo Sap</p>
                                     <AccionCopiar className="text-sm " texto={`${res.codigoSap}`} />
-                                    <p className="text-sm text-gray-400">Codigo Ean</p>
+                                    <p className="text-xs text-gray-400">Codigo Ean</p>
                                     <AccionCopiar className="text-sm " texto={`${res.codigoEan}`} />
-                                    <a className="flex items-center my-2" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${res.codigoEan}&tab=detail&page=1`}>
+                                    <Link className="text-sm flex items-center my-2" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${res.codigoEan}&tab=detail&page=1`}>
                                         <EyeIcon size={20} />
                                         Ver stock en Tutati
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         } else {
@@ -79,13 +81,13 @@ export default function ComboboxDemo() {
                             variant="outline"
                             role="combobox"
                             aria-expanded={open}
-                            className="w-[200px] justify-between"
+                            className="w-[250px] justify-between"
                         >
                             {value || "Buscar Pedido por Ean"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
+                    <PopoverContent className="w-[250px] p-0">
                         <Command>
                             <CommandInput className="EanCambiar" onValueChange={(e) => setValue(e)} placeholder="Busqueda Pedido..." />
                             <CommandEmpty>Producto No encontrado</CommandEmpty>

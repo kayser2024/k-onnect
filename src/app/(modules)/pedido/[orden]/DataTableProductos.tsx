@@ -40,7 +40,7 @@ import {
 import { useState } from "react"
 import { Orden } from "@/types/Orden"
 import { toast } from "sonner"
-import { BadgeCent } from "lucide-react"
+import { BadgeCent, RefreshCcwDot } from "lucide-react"
 import { ProductoTable } from "./Columnas"
 import { Button } from "@/components/ui/button"
 import ComboboxDemo from "./Combobx"
@@ -51,7 +51,12 @@ import { insertComment } from "@/actions/order/insertComent"
 import { createIncidence, getProductListTotalRefund } from "@/actions/order/Incidencia"
 import { useQuery } from "@tanstack/react-query"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { revalidatePath } from "next/cache"
+import { Input } from "@/components/ui/input"
+import { RiFileExcel2Line } from "react-icons/ri"
+import { TbStatusChange } from "react-icons/tb";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { SelectProductChange } from "./select-product-change"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[],
@@ -60,13 +65,19 @@ interface DataTableProps<TData, TValue> {
     comprobante: any,
     persona?: string | null
 }
-
+interface Product {
+    codigoEan: string;
+    codigoSap: string;
+    url_foto: string;
+    id: number;
+}
 export function DataTableProductos<TData, TValue>({ columns, data, orden, comprobante, persona }: DataTableProps<TData, TValue>) {
 
     const [rowSelection, setRowSelection] = useState({})
     const [motivoCambio, setMotivoCambio] = useState("")
     const [loading, setLoading] = useState(false)
     const [openDrawer, setOpenDrawer] = useState(false)
+    const [invoice, setInvoice] = useState("")
 
 
     const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
@@ -104,6 +115,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             toast.error("El pedido no ha sido pagado")
             return
         }
+
+        if (invoice.trim().length < 5) {
+            toast.warning("Ingresar la Boleta de la Incidencia")
+            return;
+        }
+
 
         // construyendo la data para enviar a discord
         const nroOrden = orden.cabecera_pedido[0].numero_orden
@@ -188,10 +205,12 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         }))
 
 
+
+
         //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
-            invoice: orden.situacion_facturacion[0].estado_facturacion,
+            invoice: invoice.toUpperCase(),
             product: productSelect,
             typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
             reason: `Devolución ${tipoExtorno}`
@@ -303,11 +322,16 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             return
         }
 
+        if (invoice.trim().length < 5) {
+            toast.warning("Ingresar la Boleta de la Incidencia")
+            return;
+        }
+
+
         const pagado = orden.situacion_pagos[0].estado_pago
         const observacionTotal = orden.situacion_facturacion[0].link_doc2
         const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
 
-        console.log(pagado);
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
@@ -341,6 +365,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             }
             prendasCambiadasEAN.push(buttons[i].textContent!)
         }
+
+        console.log({ prendasCambiadasEAN }, '🚩🚩🚩🟢🟢🟢')
 
         const prendasCambiadasSAP: string[] = await fetch('/api/producto', {
             method: 'POST',
@@ -442,6 +468,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             setLoading(false)
             setMotivoCambio("")
             setRowSelection({})
+            setInvoice("")
         }
 
 
@@ -473,7 +500,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
-            invoice: orden.situacion_facturacion[0].estado_facturacion,
+            invoice: invoice.toUpperCase(),
             product: productSelect,
             typeIncidence: 3,
             reason: motivoCambio
@@ -482,6 +509,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         await createIncidence(data)
 
     }
+
+
 
 
     function TablaRealizarCambio() {
@@ -502,7 +531,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         }
 
         return <Table id="tablaCambios">
-            <TableCaption>Tabla de cambios</TableCaption>
+            {/* <TableCaption>Tabla de cambios</TableCaption> */}
             <TableHeader>
                 <TableRow>
                     <TableHead >Actual</TableHead>
@@ -522,11 +551,11 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                                         <img height={"auto"} width={"auto"} className="rounded-lg max-h-28" src={producto.foto} alt="SIN FOTO" />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm  text-gray-400">{categoria}</h3>
-                                        <h2 className="text-lg">{title}</h2>
-                                        <p className="text-sm text-gray-400">{sku}</p>
-                                        <p className="text-sm text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
-                                        <p className="text-sm text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
+                                        <h3 className="text-xs  text-gray-400">{categoria}</h3>
+                                        <h2 className="text-normal truncate max-w-[150px]" title={title}>{title}</h2>
+                                        <p className="text-xs text-gray-400">{sku}</p>
+                                        <p className="text-xs text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
+                                        <p className="text-xs text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
                                     </div>
                                 </div>
                             </TableCell>
@@ -534,7 +563,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                             <TableCell>
 
                                 <div className="flex flex-col gap-2">
-                                    <ComboboxDemo />
+                                    {/* <ComboboxDemo /> */}
+                                    <SelectProductChange />
+
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -579,7 +610,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                             table.getRowModel().rows.map((row) => {
                                 const isDisabled = listDevoluciones?.some((devolucion: any) => devolucion.CodProdOriginEAN === row.original.id);
 
-
                                 return (
 
                                     <TableRow
@@ -612,49 +642,61 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
                 {/* <Button onClick={CreateIncidence}>Crear Incidencia</Button> */}
 
+                {/*  */}
 
-                <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-                    <DrawerTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DrawerTrigger>
+                {/* Drawer para cambiar producto */}
+                <Dialog open={openDrawer} onOpenChange={setOpenDrawer}>
+                    <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
 
                     {/* Modal Cambio Producto */}
-                    <DrawerContent className="max-h-[90%]">
-                        <DrawerHeader>
-                            <DrawerTitle>Cambio de Productos</DrawerTitle>
-                            <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription>
-                        </DrawerHeader>
+                    <DialogContent className="max-h-[90%] md:max-w-screen-md lg:max-w-screen-lg">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl uppercase text-center">CAMBIAR PRODUCTO</DialogTitle>
+                            {/* <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription> */}
+                        </DialogHeader>
 
 
                         {/* Seleccionar Motivo de Cambio */}
-                        <div className="my-2 flex justify-center w-full gap-2 ">
-                            <Select onValueChange={manejarCambioMotivo}>
-                                <SelectTrigger className="w-[50%]">
-                                    <SelectValue placeholder="Seleccionar Motivo de Cambio" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
-                                        <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
-                                        <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
-                                        <SelectItem value="Otro">Otro</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                        <div className="m-4 grid grid-cols-4 gap-2 ">
+                            <div className="col-start-1 col-span-2">
+                                <Label htmlFor="selectMotivo">Seleccionar Motivo</Label>
+                                <Select onValueChange={manejarCambioMotivo}>
+                                    <SelectTrigger className="">
+                                        <SelectValue placeholder="Seleccionar..." />
+                                    </SelectTrigger>
+                                    <SelectContent id="selectMotivo">
+                                        <SelectGroup>
+                                            <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
+                                            <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
+                                            <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
+                                            <SelectItem value="Otro">Otro</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
+                            <div className="col-start-3 col-span-2">
+                                <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
+                                <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                            </div>
                         </div>
 
 
                         {/* Tabla de Productos a Cambiar */}
                         <TablaRealizarCambio />
 
-                        <DrawerFooter>
-                            <Button onClick={handleCambio} disabled={loading}>{loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
-                            <Button onClick={handleDescargaCambio}>Descargar Salida de Cambio</Button>
-                            <Button className="bg-purple-400 p-2 rounded-lg  font-bold" onClick={() => setOpenDrawer(false)}>Cerrar</Button>
-                            {/* <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose> */}
-                        </DrawerFooter>
-                    </DrawerContent>
-                </Drawer>
+                        <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
+                            <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button>
+                            <Button onClick={handleCambio} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+                            {/* <Button className="" onClick={() => { }}> <RefreshCcwDot />Devolver</Button> */}
+                            {/* <Button className="bg-purple-400 p-2 rounded-lg  font-bold" onClick={() => setOpenDrawer(false)}>Cerrar</Button> */}
 
+                            {/* <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose> */}
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* DropMenu para Devolucion */}
                 <DropdownMenu >
                     <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
 

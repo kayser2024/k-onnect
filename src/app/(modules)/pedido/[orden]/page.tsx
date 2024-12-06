@@ -210,7 +210,6 @@ async function HomeOrden({ params }: Props) {
 
     const data = await fetchingDataFromOrder(orden)
 
-    console.log({ data }, '🚩🚩🚩')
     if (data.obj === null) { return <div>No se encontro la orden</div> }
 
     const ordenes = data?.obj?.ordenes[0];

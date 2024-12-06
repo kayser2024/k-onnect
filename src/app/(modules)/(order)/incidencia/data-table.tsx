@@ -47,6 +47,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     const [order, setOrder] = useState(0);
     const [isOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [invoice, setInvoice] = useState("");
 
 
     console.log(incidentList)
@@ -129,10 +130,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                         <TableHead key={header.id} className='text-white'>
                                             {header.isPlaceholder
                                                 ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                : flexRender(header.column.columnDef.header, header.getContext())
+                                            }
                                         </TableHead>
                                     )
                                 })}
@@ -147,17 +146,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                     <TableRow data-state={row.getIsSelected() && "selected"}>
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </TableCell>
                                         ))}
                                     </TableRow>
 
-                                    {/* Contenido expandido */}
+                                    {/* Contenido expandido (FILA HIJO)*/}
                                     {row.getIsExpanded() && (
-
                                         <TableRow className=' bg-slate-50 '>
                                             <TableCell colSpan={row.getVisibleCells().length} className="">
                                                 <Table className='bg-slate-50 border'>
@@ -179,15 +174,14 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                                                 <TableCell className='w-[200px]'>{detail.CodProd}</TableCell>
                                                                 <TableCell className='text-center w-[200px]'>{detail.CodProdChange || "─"}</TableCell>
                                                                 <TableCell className='text-center'>{detail.Reason || "─"}</TableCell>
-                                                                <TableCell>B0L374-INCIDENCE</TableCell>
+                                                                <TableCell>B0L374-INCID.</TableCell>
                                                                 <TableCell className='text-center'>{detail.Quantity}</TableCell>
                                                                 <TableCell className='flex items-center justify-between w-[100px]'><span>S/</span> {detail.TotalRefund || "0.00"}</TableCell>
                                                                 <TableCell className='text-xs w-[200px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
                                                                 {
-                                                                    detail.TypeIncidenceID == 3 ?
-                                                                        <TableCell className='flex gap-2 items-center'>
-                                                                            <Checkbox onCheckedChange={() => setIsOpen((prev) => !prev)} checked={detail.IsCompleted} disabled={detail.IsCompleted} />
-                                                                            ¿Completado?
+                                                                    detail.TypeIncidenceID == 3
+                                                                        ? <TableCell className='flex gap-2 items-center'>
+                                                                            <Checkbox onCheckedChange={() => setIsOpen((prev) => !prev)} checked={detail.IsCompleted} disabled={detail.IsCompleted} />Completado
                                                                         </TableCell>
 
                                                                         : <TableCell className='text-center'>─</TableCell>
@@ -208,10 +202,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
                                     Ningún elemento agregado
                                 </TableCell>
                             </TableRow>
@@ -222,25 +213,15 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
             {/* PAGINATION */}
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
+                {/* <div className="flex-1 text-sm text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} de{" "}
                     {table.getFilteredRowModel().rows.length} Fila(s) Seleccionado(s).
-                </div>
+                </div> */}
                 <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                         Anterior
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                         Siguiente
                     </Button>
                 </div>
