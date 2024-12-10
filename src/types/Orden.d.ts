@@ -75,6 +75,7 @@ export interface DatosFacturacion {
 }
 
 export interface DetallePedido {
+    id?: number;
     sku: string;
     quantity_sku: number;
     recurrente: string;

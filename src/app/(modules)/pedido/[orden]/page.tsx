@@ -8,7 +8,6 @@ import { Metadata } from "next"
 import AccionCopiar from "@/components/Pedido/AccionCopiar"
 import AccionesOrden from "./AccionesOrden"
 import { DataTableProductos } from "./DataTableProductos"
-import { columns } from "./Columnas";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { Suspense } from "react"
@@ -170,34 +169,34 @@ async function EmptyCardFacturacion() {
 
 }
 
-function formatedDetallePedido(detalle_pedido: DetallePedido[]) {
+// function formatedDetallePedido(detalle_pedido: DetallePedido[]) {
 
-    const data: ProductoTable[] = detalle_pedido.map(producto => ({
-        id: producto.sku,
-        foto: producto.url_imagen_sku,
-        descripcion: `${producto.categoria},${producto.title},${producto.sku},${producto.atributo1_titulo},${producto.atributo1_valor},${producto.atributo2_titulo},${producto.atributo2_valor}`,
-        cantidad: producto.quantity_sku,
-        precio: producto.sale_price,
-        subTotal: producto.sale_price * producto.quantity_sku
-    }));
+//     const data: ProductoTable[] = detalle_pedido.map(producto => ({
+//         id: producto.sku,
+//         foto: producto.url_imagen_sku,
+//         descripcion: `${producto.categoria},${producto.title},${producto.sku},${producto.atributo1_titulo},${producto.atributo1_valor},${producto.atributo2_titulo},${producto.atributo2_valor}`,
+//         cantidad: producto.quantity_sku,
+//         precio: producto.sale_price,
+//         subTotal: producto.sale_price * producto.quantity_sku
+//     }));
 
-    const dataReal: ProductoTable[] = []
+//     const dataReal: ProductoTable[] = []
 
-    for (let i = 0; i < detalle_pedido.length; i++) {
-        for (let j = 0; j < detalle_pedido[i].quantity_sku; j++) {
-            dataReal.push({
-                id: detalle_pedido[i].sku,
-                foto: detalle_pedido[i].url_imagen_sku,
-                descripcion: `${detalle_pedido[i].categoria},${detalle_pedido[i].title},${detalle_pedido[i].sku},${detalle_pedido[i].atributo1_titulo},${detalle_pedido[i].atributo1_valor},${detalle_pedido[i].atributo2_titulo},${detalle_pedido[i].atributo2_valor}`,
-                cantidad: 1,
-                precio: detalle_pedido[i].sale_price,
-                subTotal: detalle_pedido[i].sale_price
-            })
-        }
-    }
+//     for (let i = 0; i < detalle_pedido.length; i++) {
+//         for (let j = 0; j < detalle_pedido[i].quantity_sku; j++) {
+//             dataReal.push({
+//                 id: detalle_pedido[i].sku,
+//                 foto: detalle_pedido[i].url_imagen_sku,
+//                 descripcion: `${detalle_pedido[i].categoria},${detalle_pedido[i].title},${detalle_pedido[i].sku},${detalle_pedido[i].atributo1_titulo},${detalle_pedido[i].atributo1_valor},${detalle_pedido[i].atributo2_titulo},${detalle_pedido[i].atributo2_valor}`,
+//                 cantidad: 1,
+//                 precio: detalle_pedido[i].sale_price,
+//                 subTotal: detalle_pedido[i].sale_price
+//             })
+//         }
+//     }
 
-    return dataReal
-};
+//     return dataReal
+// };
 
 async function HomeOrden({ params }: Props) {
 
@@ -227,7 +226,8 @@ async function HomeOrden({ params }: Props) {
 
 
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
-    const productos = formatedDetallePedido(detalle_pedido)
+    // const productos = formatedDetallePedido(detalle_pedido)
+
 
     let colorEstado = ''
     if (situacion_pagos.estado_pago === 'pagado') colorEstado = "bg-green-300"
@@ -263,56 +263,19 @@ async function HomeOrden({ params }: Props) {
 
                         </CardHeader>
                         <CardContent>
-                            {/* <Tabs defaultValue="tablaNormal">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="tablaNormal">Tabla</TabsTrigger>
-                                    <TabsTrigger value="tablaCambio">Tabla Actualizable</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="tablaNormal">
-                                    <div className="max-h-[500px] overflow-y-auto">
-                                        <Table>
-                                            <TableCaption>Tabla de Productos</TableCaption>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Foto</TableHead>
-                                                    <TableHead>Descripcion</TableHead>
-                                                    <TableHead>Cantidad</TableHead>
-                                                    <TableHead>Precio</TableHead>
-                                                    <TableHead>Subtotal</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-
-                                            <TableBody>
-                                                {detalle_pedido.map((producto: DetallePedido, index: number) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell>
-                                                            <img src={`${producto.url_imagen_sku}`} className="max-h-28 rounded-lg" alt="" />
-                                                        </TableCell>
-                                                        <TableCell className="flex flex-col">
-                                                            <h3 className="text-sm  text-gray-400">{producto.categoria}</h3>
-                                                            <h2 className="text-lg">{producto.title}</h2>
-                                                            <AccionCopiar className="text-sm text-gray-400" texto={producto.sku} />
-                                                            <p className="text-sm text-gray-400">{producto.atributo1_titulo}: {producto.atributo1_valor}</p>
-                                                            <p className="text-sm text-gray-400">{producto.atributo2_titulo}: {producto.atributo2_valor}</p>
-                                                            <a className="bg-gray-300 p-1 w-max rounded-md text-black my-3 font-bold" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${producto.sku}&tab=detail&page=1&row_count=100`}>Ver en tutati</a>
-                                                        </TableCell>
-                                                        <TableCell>{producto.quantity_sku}</TableCell>
-                                                        <TableCell>
-                                                            <p className="line-through text-gray-400">S/.{producto.price.toFixed(2)}</p>
-                                                            <p>S/.{producto.sale_price.toFixed(2)}</p>
-                                                        </TableCell>
-                                                        <TableCell>S/.{producto.subtotal_sku.toFixed(2)}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </TabsContent>
-                                <TabsContent value="tablaCambio">
+                            {/* <Tabs defaultValue="tablaNormal"> */}
+                            {/* <TabsList className="grid w-full grid-cols-2"> */}
+                            {/* <TabsTrigger value="tablaNormal">Tabla</TabsTrigger> */}
+                            {/* <TabsTrigger value="tablaCambio">Tabla Actualizable</TabsTrigger> */}
+                            {/* </TabsList> */}
+                            {/* <TabsContent value="tablaNormal"> */}
+                           
+                            {/* </TabsContent> */}
+                            {/* <TabsContent value="tablaCambio">
                                     <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} columns={columns} data={productos} orden={ordenes} />
-                                </TabsContent>
-                            </Tabs> */}
-                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} columns={columns} data={productos} orden={ordenes} />
+                                </TabsContent> */}
+                            {/* </Tabs> */}
+                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion}  data={data.obj.ordenes[0]} orden={ordenes} />
                         </CardContent>
                     </Card>
 
@@ -384,7 +347,7 @@ async function HomeOrden({ params }: Props) {
 
 
                     {/* Observaciones */}
-                    <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando </div>}>
+                    <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
                         {situacion_facturacion.link_doc2 && <CardComentarios comentarios={situacion_facturacion.link_doc2} />}
                     </Suspense>
                 </div>

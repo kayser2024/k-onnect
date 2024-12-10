@@ -38,10 +38,10 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
-import { Orden } from "@/types/Orden"
+import { DetallePedido, Orden, OrdenResponse } from "@/types/Orden"
 import { toast } from "sonner"
 import { BadgeCent, RefreshCcwDot } from "lucide-react"
-import { ProductoTable } from "./Columnas"
+// import { ProductoTable } from "./Columnas"
 import { Button } from "@/components/ui/button"
 import ComboboxDemo from "./Combobx"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -57,29 +57,36 @@ import { TbStatusChange } from "react-icons/tb";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { SelectProductChange } from "./select-product-change"
+import { columns } from "./Columnas"
+import { ProductToChangeList } from "./product-to-change.list"
+import { ProductSelectList } from "./product-select-list"
+import { ProductChangeModal } from "./product-change-modal"
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[],
-    data: TData[],
+interface DataTableProps {
+    data: any,
     orden: Orden,
     comprobante: any,
     persona?: string | null
 }
+
 interface Product {
     codigoEan: string;
     codigoSap: string;
     url_foto: string;
     id: number;
 }
-export function DataTableProductos<TData, TValue>({ columns, data, orden, comprobante, persona }: DataTableProps<TData, TValue>) {
+export function DataTableProductos({ data, orden, comprobante, persona }: DataTableProps) {
 
     const [rowSelection, setRowSelection] = useState({})
     const [motivoCambio, setMotivoCambio] = useState("")
     const [loading, setLoading] = useState(false)
     const [openDrawer, setOpenDrawer] = useState(false)
     const [invoice, setInvoice] = useState("")
+    const [newProducts, setNewProducts] = useState<Product[] | []>([])
 
 
+
+    // obtener incidencias "Devoluciones"
     const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
 
     const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
@@ -94,7 +101,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
     const table = useReactTable({
-        data,
+        data: data.detalle_pedido,
         columns,
         getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: setRowSelection,
@@ -138,7 +145,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         const montoPago = orden.resumen_pedido[0].total
         const nc = "-"
         let montoExtorno = 0
-        table.getSelectedRowModel().rows.forEach(row => montoExtorno += (row.original as ProductoTable).subTotal)
+        table.getSelectedRowModel().rows.forEach(row => montoExtorno += (row.original).subtotal_sku)
         montoExtorno = parseFloat(montoExtorno.toFixed(2))
         const plazoMaximo = new Date(new Date().setDate(new Date().getDate() + 10)).toLocaleDateString()
         const ordenCompra = orden.cabecera_pedido[0].numero_orden
@@ -148,7 +155,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
         let observacion = "A solicitud del cliente: "
         let listCodSap;
-        const listaEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
+        const listaEans = table.getSelectedRowModel().rows.map(row => (row.original).sku)
 
         const res: string[] = await fetch('/api/producto', {
             method: 'POST',
@@ -268,7 +275,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             return
         }
 
-        const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
+        // const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable))
+        const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original).sku)
 
         console.log('TABLA DE CAMBIOS ELEGIDA');
         const prendasOriginalesSAP: string[] = await fetch('/api/producto', {
@@ -329,16 +337,17 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
         const pagado = orden.situacion_pagos[0].estado_pago
-        const observacionTotal = orden.situacion_facturacion[0].link_doc2
-        const numeroCelular = orden.datos_facturacion[0].telefono_facturacion
 
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
         }
 
-        const prendasOriginalesEans = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable).descripcion.split(',')[2])
+        console.log({ newProducts }, '🟡🟡🟡🟡')
+        const prendasOriginalesEans = table.getSelectedRowModel().rows.map(row => (row.original).sku)
+        const prendasCambiadasEAN = newProducts.map(p => p.codigoEan)
 
+        console.log({ prendasOriginalesEans, prendasCambiadasEAN }, '🟢🟢🟢🟢')
 
         console.log('TABLA DE CAMBIOS ELEGIDA');
         const prendasOriginalesSAP: string[] = await fetch('/api/producto', {
@@ -349,22 +358,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             body: JSON.stringify({ data: prendasOriginalesEans })
         }).then(res => res.json())
 
-
-        const tabla = document.getElementById("tablaCambios")
-
-        //obetenemos los button
-        const buttons = tabla!.getElementsByTagName("button")
-
-        // imprimimos el contenido de los botones
-        const prendasCambiadasEAN: string[] = []
-        for (let i = 0; i < buttons.length; i++) {
-
-            if (buttons[i].textContent === "Buscar Pedido por Ean") {
-                toast.error("Falta seleccionar un producto")
-                return
-            }
-            prendasCambiadasEAN.push(buttons[i].textContent!)
-        }
 
         console.log({ prendasCambiadasEAN }, '🚩🚩🚩🟢🟢🟢')
 
@@ -506,74 +499,9 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             reason: motivoCambio
 
         }
-        await createIncidence(data)
 
-    }
+        // await createIncidence(data)
 
-
-
-
-    function TablaRealizarCambio() {
-
-        const datosElegidos = table.getSelectedRowModel().rows.map(row => row.original as ProductoTable)
-        const reDatos = []
-
-        for (let i = 0; i < datosElegidos.length; i++) {
-            for (let j = 0; j < datosElegidos[i].cantidad; j++) {
-                reDatos.push({
-                    foto: datosElegidos[i].foto,
-                    descripcion: datosElegidos[i].descripcion,
-                    cantidad: 1,
-                    precio: datosElegidos[i].precio,
-                    subTotal: datosElegidos[i].subTotal
-                })
-            }
-        }
-
-        return <Table id="tablaCambios">
-            {/* <TableCaption>Tabla de cambios</TableCaption> */}
-            <TableHeader>
-                <TableRow>
-                    <TableHead >Actual</TableHead>
-                    <TableHead></TableHead>
-                    <TableHead>Cambio</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {reDatos.map((producto, index) => {
-                    const [categoria, title, sku, atributo1_titulo, atributo1_valor, atributo2_titulo, atributo2_valor] = producto.descripcion.split(',')
-
-                    return (
-                        <TableRow key={`${producto.cantidad}_${index}`}>
-                            <TableCell  >
-                                <div className="flex gap-2">
-                                    <div>
-                                        <img height={"auto"} width={"auto"} className="rounded-lg max-h-28" src={producto.foto} alt="SIN FOTO" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xs  text-gray-400">{categoria}</h3>
-                                        <h2 className="text-normal truncate max-w-[150px]" title={title}>{title}</h2>
-                                        <p className="text-xs text-gray-400">{sku}</p>
-                                        <p className="text-xs text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
-                                        <p className="text-xs text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
-                                    </div>
-                                </div>
-                            </TableCell>
-                            <TableCell ><LiaExchangeAltSolid /></TableCell>
-                            <TableCell>
-
-                                <div className="flex flex-col gap-2">
-                                    {/* <ComboboxDemo /> */}
-                                    <SelectProductChange />
-
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    )
-                }
-                )}
-            </TableBody>
-        </Table >
     }
 
     // Hacemos que recuerde el motivo de cambio
@@ -586,7 +514,7 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
         <div >
             <ScrollArea className="h-[500px]">
                 <Table >
-                    <TableCaption>Tabla de Productos</TableCaption>
+                    {/* <TableCaption>Tabla de Productos</TableCaption> */}
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -640,10 +568,6 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
             {/* BUTTONS */}
             <div className="my-2 flex flex-col gap-2">
 
-                {/* <Button onClick={CreateIncidence}>Crear Incidencia</Button> */}
-
-                {/*  */}
-
                 {/* Drawer para cambiar producto */}
                 <Dialog open={openDrawer} onOpenChange={setOpenDrawer}>
                     <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
@@ -657,8 +581,8 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
 
 
                         {/* Seleccionar Motivo de Cambio */}
-                        <div className="m-4 grid grid-cols-4 gap-2 ">
-                            <div className="col-start-1 col-span-2">
+                        <div className="m-4 grid grid-cols-2 gap-2 ">
+                            <div className="">
                                 <Label htmlFor="selectMotivo">Seleccionar Motivo</Label>
                                 <Select onValueChange={manejarCambioMotivo}>
                                     <SelectTrigger className="">
@@ -675,23 +599,37 @@ export function DataTableProductos<TData, TValue>({ columns, data, orden, compro
                                 </Select>
                             </div>
 
-                            <div className="col-start-3 col-span-2">
+                            {/* Ingresar Incidencia */}
+                            <div className="">
                                 <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
                                 <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
                             </div>
+
+                            {/* Escoger Productos Nuevos */}
+
+                            <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
                         </div>
 
 
                         {/* Tabla de Productos a Cambiar */}
-                        <TablaRealizarCambio />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="grid-cols-1">
+
+                                {/* <TablaRealizarCambio /> */}
+                                <h3 className="text-lg mb-2">Lista de Productos</h3>
+                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} />
+                            </div>
+                            <div className="grid-cols-1">
+                                <h3 className="text-lg mb-2"> Nuevos Productos</h3>
+                                <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} />
+                            </div>
+                        </div>
 
                         <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
                             <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button>
                             <Button onClick={handleCambio} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
-                            {/* <Button className="" onClick={() => { }}> <RefreshCcwDot />Devolver</Button> */}
-                            {/* <Button className="bg-purple-400 p-2 rounded-lg  font-bold" onClick={() => setOpenDrawer(false)}>Cerrar</Button> */}
 
-                            {/* <DrawerClose className="bg-purple-400 p-2 rounded-lg  font-bold">Cancelar</DrawerClose> */}
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

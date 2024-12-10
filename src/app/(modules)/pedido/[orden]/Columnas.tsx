@@ -1,17 +1,11 @@
 "use client"
 
 import { Checkbox } from "@/components/ui/checkbox"
+import { DetallePedido } from "@/types/Orden"
 import { ColumnDef } from "@tanstack/react-table"
 
-export type ProductoTable = {
-    foto: string
-    descripcion: string
-    cantidad: number
-    precio: number,
-    subTotal: number
-}
 
-export const columns: ColumnDef<ProductoTable>[] = [
+export const columns: ColumnDef<DetallePedido>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -38,7 +32,7 @@ export const columns: ColumnDef<ProductoTable>[] = [
         accessorKey: "foto",
         header: "Foto",
         cell: ({ row }) => {
-            const img = row.getValue("foto") as string
+            const img = row.original.url_imagen_sku;
             return <img src={img} alt="foto" className="rounded-lg max-h-28" />
         }
     },
@@ -46,34 +40,45 @@ export const columns: ColumnDef<ProductoTable>[] = [
         accessorKey: "descripcion",
         header: "Descripción",
         cell: ({ row }) => {
-            const [categoria, title, sku, atributo1_titulo, atributo1_valor, atributo2_titulo, atributo2_valor] = row.original.descripcion.split(',')
+
+
+            const { categoria, title, sku, atributo1_titulo, atributo1_valor, atributo2_titulo, atributo2_valor, sub_categoria } = row.original
             return <div>
-                <h3 className="text-sm  text-gray-400">{categoria}</h3>
+                <h3 className="text-xs  text-gray-400">{categoria} / {sub_categoria}</h3>
                 <h2 className="text-normal truncate max-w-[200px]" title={title}>{title}</h2>
-                <p className="text-sm text-gray-400">{sku}</p>
-                <p className="text-sm text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
-                <p className="text-sm text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
+                <p className="text-xs text-gray-400">{sku}</p>
+                <p className="text-xs text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
+                <p className="text-xs text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
             </div>
         }
     },
     {
         accessorKey: "cantidad",
         header: "Cantidad",
+        cell: ({ row }) => {
+            const cantidad = row.original.quantity_sku
+            return <>{cantidad}</>
+        }
     },
     {
         accessorKey: "precio",
         header: "Precio",
         cell: ({ row }) => {
-            const precio = row.getValue("precio") as string
-            return <p>S/.{Number(precio)?.toFixed(2)}</p>
+            const price = row.original.price;
+            const sale_price = row.original.sale_price;
+            return <div className="flex flex-col gap-2">
+                <p className="text-xs line-through">S/.{Number(price)?.toFixed(2)}</p>
+                <p className="font-xs text-sm">S/.{Number(sale_price)?.toFixed(2)}</p>
+
+            </div>
         }
     },
     {
         accessorKey: "subTotal",
         header: "Subtotal",
         cell: ({ row }) => {
-            const subtotal = row.getValue("subTotal") as string
-            return <p>S/.{Number(subtotal)?.toFixed(2)}</p>
+            const subtotal = row.original.subtotal_sku
+            return <p className="font-bold text-lg">S/.{Number(subtotal)?.toFixed(2)}</p>
         }
     },
 ]
