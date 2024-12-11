@@ -5,56 +5,76 @@ import prisma from "@/lib/prisma"
 
 interface IncidenceProps {
     orden: string,
-    invoice: string,
-    product: { code_ean_origin: string, code_sap_origin: string, code_sap_change?: string | null, quantity: number, subtotal: number }[],
+    invoiceOrigin: string,
+    invoiceIncidence: string,
+    product: { codeEan: string, quantity: number, codeSap: string, text: string }[],
     typeIncidence: number,
     reason?: string
 }
 
 
-export const createIncidence = async ({ orden, invoice, product, typeIncidence, reason = '' }: IncidenceProps) => {
+export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, typeIncidence, reason = '' }: IncidenceProps) => {
 
-    const user = await auth()
-    console.log(user)
+    try {
+        const user = await auth();
+        if (!user) {
+            throw new Error("Usuario no autenticado");
+        }
 
-    const now = new Date();
-    now.setHours(now.getHours() - 5);
+        console.log(user);
 
-    // obtener el Id de la orden
-    const order = await prisma.orders.findFirst({
-        where: { OrderNumber: orden },
-        select: { OrderID: true }
-    })
-    const OrderId = order?.OrderID
+        const now = new Date();
+        now.setHours(now.getHours() - 5); // Ajuste de zona horaria
 
-    if (!OrderId) {
-        throw new Error(`Orden no encontrado: ${orden}`)
-    }
+        // Obtener el ID de la orden
+        const order = await prisma.orders.findFirst({
+            where: { OrderNumber: orden },
+            select: { OrderID: true },
+        });
 
+        const OrderId = order?.OrderID;
 
-    // si es cambio registrar todos los productos con su respectivo producto a cambiar
+        if (!OrderId) {
+            throw new Error(`Orden no encontrada: ${orden}`);
+        }
 
-    for (let i = 0; i < product.length; i++) {
-        // TODO:Insert a la tabla Insert
-        await prisma.incidence.create({
+        // Insertar en la tabla Incidence
+        const incidence = await prisma.incidence.create({
             data: {
                 OrdenID: OrderId,
-                Invoice: invoice,
-                CodProdOriginEAN: product[i].code_ean_origin,
-                CodProd: product[i].code_sap_origin,
-                CodProdChange: typeIncidence === 3 ? product[i].code_sap_change : null,
+                UserId: 1, // Asegúrate de que `user.id` sea el ID correcto
                 TypeIncidenceID: typeIncidence,
-                Quantity: product[i].quantity,
-                TotalRefund: typeIncidence !== 3 ? product[i].subtotal : null,
-                UserId: 1,
-                Reason: reason,
+                IsCompleted: false,
+                Description: reason.trim() || "Sin descripción", // Validar descripción
                 CreatedAt: now,
-            }
-        })
+            },
+        });
+
+
+        // Insertar productos en incidenceLogs
+        const incidenceLogs = product.map((item) => ({
+            IncidenceID: incidence.IncidenceID,
+            CodEan: item.codeEan,
+            CodProd: item.codeSap,
+            ProdQuantity: item.quantity,
+            ProdSubtotal: 0, // Cambia según la lógica de tu aplicación
+            InvoiceOriginal: invoiceOrigin,
+            InvoiceIncidence: invoiceIncidence,
+            Description: item.text || "Sin descripción",
+            CreatedAt: now,
+        }));
+
+        // Insertar logs en paralelo
+        await prisma.incidenceLogs.createMany({
+            data: incidenceLogs,
+        });
+
+    } catch (error: any) {
+        console.error("Error en createIncidence:", error.message);
+        throw error; // Re-lanza el error para manejarlo en un nivel superior
     }
+};
 
-
-}
 
 
 export const getAllIncidence = async () => {
@@ -65,10 +85,6 @@ export const getAllIncidence = async () => {
             by: ['Invoice', "OrdenID"],
             _count: {
                 TypeIncidenceID: true,
-            },
-            _sum: {
-                TotalRefund: true,
-                Quantity: true
             },
             orderBy: {
                 _count: {
@@ -104,7 +120,7 @@ export const getAllIncidence = async () => {
                             OrderStatusDescription: orderData.OrderStatus?.Description || null,
                             TypeIncidenceCount: item._count.TypeIncidenceID,
                             TotalRefundSum: item._sum.TotalRefund,
-                            QuantitySum: item._sum.Quantity,
+                            QuantitySum: item._sum.QuantityOld,
                         };
                     }
                     return null; // Si no hay datos relacionados, retorna null
@@ -152,7 +168,13 @@ export const getIncidenceByOrder = async (order: string) => {
         })
 
 
-        result = await prisma.incidence.findMany({ where: { OrdenID: orderData?.OrderID } })
+        result = await prisma.incidence.findMany({
+            where: { OrdenID: orderData?.OrderID },
+            include: {
+                TypesIncidence:true
+            }
+        })
+
     } catch (error: any) {
         result = error.message
     }
@@ -163,16 +185,10 @@ export const getIncidenceByOrder = async (order: string) => {
 export const getProductListTotalRefund = async (invoice: string) => {
     let result;
     try {
-        result = await prisma.incidence.findMany({
-            where: { Invoice: invoice, TypeIncidenceID: { in: [1, 2] } },
+        result = await prisma.incidenceLogs.findMany({
+            where: { Description: 'RETURN', InvoiceOriginal: invoice },
             select: {
-                // IncidenceID: true,
-                CodProdOriginEAN: true,
-                // CodProd: true,
-                // CodProdChange: true,
-                // TotalRefund: true,
-                // Quantity: true,
-                // Reason: true,
+                CodEan: true
             }
         })
     } catch (error: any) {
@@ -189,7 +205,7 @@ export const changStatusIncidence = async (invoice: string) => {
     try {
         result = await prisma.incidence.updateMany({
             where: {
-                Invoice: invoice,
+                OrdenID: undefined,
             },
             data: {
                 IsCompleted: true,

@@ -14,6 +14,7 @@ interface Product {
     codigoSap: string;
     url_foto: string;
     id: number;
+    quantity: number;
 }
 
 interface Option {

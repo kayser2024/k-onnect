@@ -1,44 +1,49 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { DetallePedido } from '@/types/Orden'
 import Image from 'next/image'
 
+interface ProductsSelect {
+    sku: string,
+    quantity: number
+}
+
+interface ProductsSelectListProps {
+    productsSelect: any,
+    setProductsSelect: Dispatch<SetStateAction<ProductsSelect[]>>;
+}
 
 
 
-export const ProductSelectList = ({ productsSelect }: any) => {
+export const ProductSelectList = ({ productsSelect, setProductsSelect }: ProductsSelectListProps) => {
 
-    const [products, setProducts] = useState<{ sku: string, quantity: number }[] | { sku: '', quantity: 0 }[]>(productsSelect.map((product: DetallePedido) => ({
-        sku: product.sku,
-        quantity: product.quantity_sku,
-    })))
+    const initSelect = productsSelect.map((product: DetallePedido) => ({ sku: product.sku, quantity: product.quantity_sku }))
 
+    // Sincronizamos el estado local con el estado del padre
+    const [products, setProducts] = useState<ProductsSelect[]>(initSelect);
 
-    const handleIncrement = (sku: string) => {
-        setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-                product.sku === sku
-                    ? { ...product, quantity: product.quantity + 1 }
-                    : product
-            )
+    const handleQuantityChange = (sku: string, increment: number) => {
+        // Actualizamos la cantidad en el estado local del componente
+        const updatedProducts = products.map((product) =>
+            product.sku === sku
+                ? { ...product, quantity: Math.max(1, Math.min(10, product.quantity + increment)) }
+                : product
         );
-    };
+        setProducts(updatedProducts); // Actualizamos el estado local
+
+        // Actualizamos la cantidad en el estado del padre
+        setProductsSelect(updatedProducts); // Actualizamos el estado del padre
+    }
+
+    
+    useEffect(() => {
+        setProductsSelect(products)
+    }, [])
 
 
-    const handleDecrement = (sku: string) => {
-        setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-                product.sku === sku && product.quantity > 1
-                    ? { ...product, quantity: product.quantity - 1 }
-                    : product
-            )
-        );
-    };
-
-    console.log({ products }, 'PRODUCTO_______________')
     return (
         <ScrollArea className="h-[350px] w-full ">
             <div className="flex flex-col gap-2">
@@ -60,9 +65,9 @@ export const ProductSelectList = ({ productsSelect }: any) => {
                                 <p className="text-xs text-gray-400">{producto.atributo2_titulo}: {producto.atributo2_valor}</p>
                                 <div className="flex  gap-2 items-center">
 
-                                    <Button className="" onClick={() => handleDecrement(producto.sku)} disabled={currentProduct?.quantity === 1} size="sm">-</Button>
+                                    <Button className="" onClick={() => handleQuantityChange(producto.sku, -1)} disabled={currentProduct?.quantity === 1} size="sm">-</Button>
                                     <p className="text-lg">{currentProduct?.quantity}</p>
-                                    <Button className="" onClick={() => handleIncrement(producto.sku)} disabled={currentProduct?.quantity === producto.quantity_sku} size="sm">+</Button>
+                                    <Button className="" onClick={() => handleQuantityChange(producto.sku, +1)} disabled={currentProduct?.quantity === producto.quantity_sku} size="sm">+</Button>
                                 </div>
                             </div>
                         </div>
@@ -71,8 +76,5 @@ export const ProductSelectList = ({ productsSelect }: any) => {
 
             </div>
         </ScrollArea>
-
     )
-
 }
-

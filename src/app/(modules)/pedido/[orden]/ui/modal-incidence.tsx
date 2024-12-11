@@ -29,7 +29,7 @@ interface ModalIncidenceProps {
     isLoading: boolean;
 }
 export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalIncidenceProps) => {
-
+    console.log({ data }, 'DATA INCIDENCIA BY ORDER')
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen} >
@@ -46,23 +46,21 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[200px]">Producto</TableHead>
-                                    <TableHead className="w-[200px]">Producto Cambiado</TableHead>
-                                    <TableHead>Motivo</TableHead>
-                                    <TableHead className='w-[100px]'>Devolucion</TableHead>
-                                    <TableHead className='w-[250px]'>Fecha</TableHead>
+                                    <TableHead className="w-[200px]">Tipo Incidencia</TableHead>
+                                    <TableHead className="w-[200px]">Motivo</TableHead>
+                                    <TableHead className='w-[100px]'>Estado</TableHead>
                                     <TableHead className='w-[150px]'>Usuario</TableHead>
+                                    <TableHead className='w-[250px]'>Fecha</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {data?.map((p: any) => (
-                                    <TableRow key={p.CodProdOriginEAN}>
-                                        <TableCell className="font-medium w-[200px]">{p.CodProd}</TableCell>
-                                        <TableCell className="font-medium text-center w-[200px]">{p.CodProdChange || "-"}</TableCell>
-                                        <TableCell >{p.Reason}</TableCell>
-                                        <TableCell className='text-right flex items-center justify-between'><span>S/</span> {p.TotalRefund || <span>0.00</span>}</TableCell>
-                                        <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
+                                    <TableRow key={p.IncidenceID}>
+                                        <TableCell className="font-medium w-[200px]">{p.TypesIncidence.Description}</TableCell>
+                                        <TableCell >{p.Description}</TableCell>
+                                        <TableCell className='text-right flex items-center justify-between'>{p.IsCompleted ? "Completado" : "Pendiente"}</TableCell>
                                         <TableCell>Administrador(System)</TableCell>
+                                        <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

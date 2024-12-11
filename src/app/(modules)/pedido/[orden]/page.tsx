@@ -263,18 +263,7 @@ async function HomeOrden({ params }: Props) {
 
                         </CardHeader>
                         <CardContent>
-                            {/* <Tabs defaultValue="tablaNormal"> */}
-                            {/* <TabsList className="grid w-full grid-cols-2"> */}
-                            {/* <TabsTrigger value="tablaNormal">Tabla</TabsTrigger> */}
-                            {/* <TabsTrigger value="tablaCambio">Tabla Actualizable</TabsTrigger> */}
-                            {/* </TabsList> */}
-                            {/* <TabsContent value="tablaNormal"> */}
-                           
-                            {/* </TabsContent> */}
-                            {/* <TabsContent value="tablaCambio">
-                                    <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} columns={columns} data={productos} orden={ordenes} />
-                                </TabsContent> */}
-                            {/* </Tabs> */}
+                          
                             <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion}  data={data.obj.ordenes[0]} orden={ordenes} />
                         </CardContent>
                     </Card>

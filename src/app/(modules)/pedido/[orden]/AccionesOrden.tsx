@@ -75,17 +75,10 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
     })
 
     const handleShowIncidences = async () => {
-        console.log("MOSTRAR INCIDENCIAS")
         setIsOpen(true)
         setIsOpenDropMenu(false)
 
-
-        // TODO:Consumir ACTION incidence🚩
-
         refetch()
-
-
-
     }
 
 

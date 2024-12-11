@@ -7,42 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model OSF_PEDIDOS {
-  FECHA_REGISTRO      DateTime? @db.Date
-  SS_NUMERO_ORDEN     String?   @db.VarChar(150)
-  OSF_SERIE_DOCUMENTO String    @id @db.VarChar(15)
-  BS_URL_PDF          String?   @db.VarChar(4000)
-}
-
-model OSF_PROMOTORA {
-  CODIGO_DOCIDEN      String  @db.VarChar(5)
-  NRO_DOCIDEN_CLIENTE String  @id @db.VarChar(15)
-  APELLIDO            String? @db.VarChar(75)
-  NOMBRES             String? @db.VarChar(75)
-  CLIENTE             String  @db.VarChar(75)
-  CODIGO_UBIGEO       String? @db.VarChar(8)
-  DIRECCION           String? @db.VarChar(100)
-  PUNTOS_KAYSER       Int?
-}
-
-model ubigeo_peru_departments {
-  id   String @id @db.VarChar(2)
-  name String @db.VarChar(45)
-}
-
-model ubigeo_peru_districts {
-  id            String  @id @db.VarChar(6)
-  name          String? @db.VarChar(45)
-  province_id   String? @db.VarChar(4)
-  department_id String? @db.VarChar(2)
-}
-
-model ubigeo_peru_provinces {
-  id            String @id @db.VarChar(4)
-  name          String @db.VarChar(45)
-  department_id String @db.VarChar(2)
-}
-
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model OSF_Product {
   codigoEan String? @db.VarChar(20)
@@ -174,30 +138,41 @@ model tbl_articulo {
 }
 
 model Incidence {
-  IncidenceID      Int             @id @default(autoincrement())
-  OrdenID          Int?
-  CodProd          String?         @db.VarChar(30)
-  CodProdOriginEAN String?         @db.VarChar(25)
-  CodProdChange    String?         @db.VarChar(30)
-  Invoice          String?         @db.VarChar(20)
-  Reason           String?         @db.Text
-  TypeIncidenceID  Int?
-  UserId           Int?
-  IsCompleted      Boolean?        @default(false)
-  CreatedAt        DateTime?       @default(now()) @db.Timestamp(0)
-  TotalRefund      Decimal?        @db.Decimal(10, 2)
-  Quantity         Int?
-  Orders           Orders?         @relation(fields: [OrdenID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_1")
-  TypesIncidence   TypesIncidence? @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
-  Users            Users?          @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
+  IncidenceID     Int             @id @default(autoincrement())
+  OrdenID         Int
+  UserId          Int
+  TypeIncidenceID Int
+  IsCompleted     Boolean?        @default(false)
+  Description     String?         @db.Text
+  CreatedAt       DateTime?       @default(now()) @db.Timestamp(0)
+  Orders          Orders          @relation(fields: [OrdenID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_1")
+  TypesIncidence  TypesIncidence  @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
+  Users           Users           @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
+  IncidenceLogs   IncidenceLogs[]
 
   @@index([OrdenID], map: "OrdenID")
-  @@index([TypeIncidenceID], map: "TypeIncidenceID")
   @@index([UserId], map: "UserId")
+  @@index([TypeIncidenceID], map: "Incidence_ibfk_2")
 }
 
 model TypesIncidence {
   TypeIncidenceID Int         @id @default(autoincrement())
   Description     String?     @db.VarChar(20)
   Incidence       Incidence[]
+}
+
+model IncidenceLogs {
+  IncidenceLogID   Int       @id @default(autoincrement())
+  IncidenceID      Int
+  CodEan           String    @db.VarChar(50)
+  CodProd          String?   @db.VarChar(50)
+  ProdQuantity     Int?
+  ProdSubtotal     Int?
+  InvoiceOriginal  String?   @db.VarChar(25)
+  InvoiceIncidence String?   @db.VarChar(25)
+  Description      String?   @db.VarChar(255)
+  CreatedAt        DateTime? @db.Timestamp(0)
+  Incidence        Incidence @relation(fields: [IncidenceID], references: [IncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "FK_IncidenceID")
+
+  @@index([IncidenceID], map: "FK_IncidenceID")
 }

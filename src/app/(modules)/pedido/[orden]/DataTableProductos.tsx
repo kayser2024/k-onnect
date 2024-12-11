@@ -61,6 +61,7 @@ import { columns } from "./Columnas"
 import { ProductToChangeList } from "./product-to-change.list"
 import { ProductSelectList } from "./product-select-list"
 import { ProductChangeModal } from "./product-change-modal"
+import { Value } from "@radix-ui/react-select"
 
 interface DataTableProps {
     data: any,
@@ -74,6 +75,12 @@ interface Product {
     codigoSap: string;
     url_foto: string;
     id: number;
+    quantity: number
+}
+
+interface ProductSelect {
+    sku: string;
+    quantity: number
 }
 export function DataTableProductos({ data, orden, comprobante, persona }: DataTableProps) {
 
@@ -82,12 +89,12 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [loading, setLoading] = useState(false)
     const [openDrawer, setOpenDrawer] = useState(false)
     const [invoice, setInvoice] = useState("")
-    const [newProducts, setNewProducts] = useState<Product[] | []>([])
-
-
+    const [newProducts, setNewProducts] = useState<Product[]>([])
+    const [productsSelect, setProductsSelect] = useState<ProductSelect[]>([]);
 
     // obtener incidencias "Devoluciones"
     const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
+    console.log({ listDevoluciones }, '-----------DEVOLUCIONES----------')
 
     const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
 
@@ -106,7 +113,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: setRowSelection,
         enableRowSelection: (row) => {
-            const isReembolso = !listDevoluciones?.some((devolucion: any) => devolucion.CodProdOriginEAN === row.original.id);
+            const isReembolso = !listDevoluciones?.some((devolucion: any) => devolucion.CodEan === row.original.sku);
             return isReembolso
         },
         state: {
@@ -116,13 +123,14 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
     const handleReembolso = async () => {
 
+        // Verificar si la voleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
-
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
         }
 
+        // Validar Boleta de inicdencia
         if (invoice.trim().length < 5) {
             toast.warning("Ingresar la Boleta de la Incidencia")
             return;
@@ -197,18 +205,16 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
 
-        console.log({ listCodSap, listaEans }, '👀👀🚩')
-
         const ordenFilter = orden.detalle_pedido.filter(p => {
             return listaEans.includes(p.sku)
         })
 
         const productSelect = ordenFilter.map((p, index) => ({
-            code_ean_origin: p.sku,
-            code_sap_origin: listCodSap[index],
-            code_sap_change: null,
+            codeEan: p.sku,
+            codeSap: listCodSap[index],
             quantity: p.quantity_sku,
-            subtotal: p.subtotal_sku
+            subtotal: p.subtotal_sku,
+            text: "RETURN"
         }))
 
 
@@ -217,7 +223,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
-            invoice: invoice.toUpperCase(),
+            invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
+            invoiceIncidence: invoice.toUpperCase(),
             product: productSelect,
             typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
             reason: `Devolución ${tipoExtorno}`
@@ -269,7 +276,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
         const pagado = orden.situacion_pagos[0].estado_pago
 
-        console.log(pagado);
         if (pagado !== "pagado") {
             toast.error("El pedido no ha sido pagado")
             return
@@ -278,7 +284,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         // const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original as ProductoTable))
         const eansOriginales = table.getSelectedRowModel().rows.map(row => (row.original).sku)
 
-        console.log('TABLA DE CAMBIOS ELEGIDA');
         const prendasOriginalesSAP: string[] = await fetch('/api/producto', {
             method: 'POST',
             headers: {
@@ -286,7 +291,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             },
             body: JSON.stringify({ data: eansOriginales })
         }).then(res => res.json())
-        // console.log(prendasOriginalesSAP);
 
 
         const tabla = document.getElementById("tablaCambios")
@@ -343,13 +347,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             return
         }
 
-        console.log({ newProducts }, '🟡🟡🟡🟡')
         const prendasOriginalesEans = table.getSelectedRowModel().rows.map(row => (row.original).sku)
         const prendasCambiadasEAN = newProducts.map(p => p.codigoEan)
 
-        console.log({ prendasOriginalesEans, prendasCambiadasEAN }, '🟢🟢🟢🟢')
-
-        console.log('TABLA DE CAMBIOS ELEGIDA');
         const prendasOriginalesSAP: string[] = await fetch('/api/producto', {
             method: 'POST',
             headers: {
@@ -358,8 +358,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             body: JSON.stringify({ data: prendasOriginalesEans })
         }).then(res => res.json())
 
-
-        console.log({ prendasCambiadasEAN }, '🚩🚩🚩🟢🟢🟢')
 
         const prendasCambiadasSAP: string[] = await fetch('/api/producto', {
             method: 'POST',
@@ -384,9 +382,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             })
         }
 
-        // console.log('TRANSACCION REALIZADA');
-        // console.table(cambioRealizado);
-
         //GESTIONANDO LINEA DE EXCEL
         const fechaSolicitud = new Date().toLocaleDateString()
         const encargada = persona ? persona : "Apoyo"
@@ -398,8 +393,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         const boleta = docActual
         const nc = '-'
         const nuevaBoleta = '-'
-        // Plazo maximo es 10 dias despues de hoy
-        const plazoMaximo = new Date(new Date().setDate(new Date().getDate() + 10)).toLocaleDateString()
+        const plazoMaximo = new Date(new Date().setDate(new Date().getDate() + 10)).toLocaleDateString();// Plazo maximo es 10 dias despues de hoy
         const antes = prendasOriginalesSAP.join(' / ')
         const despues = prendasCambiadasSAP.join(' / ')
         const ean = prendasCambiadasEAN.join(' / ')
@@ -452,7 +446,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
             // const res = await notificacionDiscord.json()
 
-            toast.success('Notificacion Enviada a Discord')
+            // toast.success('Notificacion Enviada a Discord')
             setOpenDrawer(false)
 
         } catch (error) {
@@ -481,26 +475,33 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             return prendasOriginalesEans.includes(p.sku)
         });
 
-        const productSelect = ordenFilter.map((p, index) => ({
-            code_ean_origin: p.sku,
-            code_sap_origin: prendasOriginalesSAP[index],
-            code_sap_change: prendasCambiadasSAP[index],
-            quantity: p.quantity_sku,
-            subtotal: p.subtotal_sku
-        }))
 
-
+        const productCombined = [
+            ...productsSelect.map((p, index) => ({
+                codeEan: p.sku,
+                quantity: p.quantity,
+                codeSap: prendasOriginalesSAP[index],
+                text: "ORIGIN",
+            })),
+            ...newProducts.map(p => ({
+                codeEan: p.codigoEan,
+                quantity: p.quantity,
+                codeSap: p.codigoSap,
+                text: "CHANGE",
+            })),
+        ];
         //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
-            invoice: invoice.toUpperCase(),
-            product: productSelect,
+            invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
+            invoiceIncidence: invoice.toUpperCase(),
+            product: productCombined,
             typeIncidence: 3,
             reason: motivoCambio
 
         }
 
-        // await createIncidence(data)
+        await createIncidence(data)
 
     }
 
@@ -536,10 +537,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => {
-                                const isDisabled = listDevoluciones?.some((devolucion: any) => devolucion.CodProdOriginEAN === row.original.id);
+                                const isDisabled = listDevoluciones?.some((devolucion: any) => devolucion.CodEan === row.original.sku);
 
                                 return (
-
                                     <TableRow
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
@@ -606,19 +606,17 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             </div>
 
                             {/* Escoger Productos Nuevos */}
-
                             <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
                         </div>
 
 
                         {/* Tabla de Productos a Cambiar */}
-
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid-cols-1">
 
                                 {/* <TablaRealizarCambio /> */}
                                 <h3 className="text-lg mb-2">Lista de Productos</h3>
-                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} />
+                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} />
                             </div>
                             <div className="grid-cols-1">
                                 <h3 className="text-lg mb-2"> Nuevos Productos</h3>
@@ -640,11 +638,18 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                     {/* Drawer Menu Devolucion */}
                     <DropdownMenuContent>
-                        <DropdownMenuLabel>¿Realizar Devolución?</DropdownMenuLabel>
+                        <DropdownMenuLabel>
+                            <span>¿Realizar Devolución?</span>
+
+                            <Input placeholder="Ingresar Boleta" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+
+                        </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleReembolso}>
-                            <BadgeCent className="mr-2 h-4 w-4" />
-                            <span>Copiar Linea excel y<br /> Notificar Discord</span>
+                        <DropdownMenuItem onClick={handleReembolso} className="flex flex-col gap-2">
+                            <div>
+                                <BadgeCent className="mr-2 h-4 w-4" />
+                                <span>Copiar Linea excel y<br /> Notificar Discord</span>
+                            </div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -654,4 +659,3 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         </div>
     )
 }
-
