@@ -68,12 +68,18 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
         onDropObservaciones(orden.obj.ordenes[0].cabecera_pedido[0].numero_orden)
         toast.success('Eliminando Observaciones')
     }
+
+    // obtener incidencia de la orden || pedido
     const { data, isLoading, refetch, isPending } = useQuery({
         queryKey: ['incidenceByInvoice', docActual],
         queryFn: async () => await getIncidenceByOrder(orden.obj.ordenes[0].cabecera_pedido[0].numero_orden),
         enabled: false
     })
 
+
+    console.log({ data }, 'DATA INCIDENCES')
+
+    // Funcion para mostrar incidencias del pedido/orden
     const handleShowIncidences = async () => {
         setIsOpen(true)
         setIsOpenDropMenu(false)
@@ -99,10 +105,11 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
                         <span>Eliminar Observ.</span>
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem onClick={handleRemovingObservaciones} >
+                    {/* <DropdownMenuItem onClick={handleRemovingObservaciones} >
+                    
                         <Replace className="mr-2 h-4 w-4" />
                         <span>Cambio y Devoluc.</span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
 
                     <DropdownMenuItem onClick={handleShowIncidences} >
                         <TriangleAlert className="mr-2 h-4 w-4" />

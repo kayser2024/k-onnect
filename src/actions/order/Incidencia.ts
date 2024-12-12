@@ -78,7 +78,6 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
 };
 
 
-
 export const getAllIncidence = async () => {
     let result;
 
@@ -194,8 +193,6 @@ export const getAllIncidenceByInvoice = async (invoice: string) => {
     return result
 };
 
-
-
 export const detailOrder = async (orden: number) => {
     let result;
     try {
@@ -228,53 +225,41 @@ export const detailOrder = async (orden: number) => {
             }
         })
 
-        console.log({ incidences }, 'INCIDENCE')
-
-        // const incidenceLogs = await prisma.incidenceLogs.findMany({
-        //     where: {
-        //         InvoiceIncidence: 'B00123-00'
-        //     }
-        // })
-
-        // console.log({ incidenceLogs }, 'INCIDENCE LOGS------')
         result = incidences
     } catch (error: any) {
         result = error.message;
     }
 
-    console.log({ result }, 'DETAIL ORDER------');
     return result;
 }
 
-
 export const getIncidenceByOrder = async (order: string) => {
 
-    let result;
-
-
     try {
-        // obtener idOrder
-
+        // obtener id de la orden
         const orderData = await prisma.orders.findUnique({
             where: { OrderNumber: order },
             select: { OrderID: true }
         })
 
+        if (!orderData) {
+            return []
+        }
 
-        result = await prisma.incidence.findMany({
+        const result = await prisma.incidence.findMany({
             where: { OrdenID: orderData?.OrderID },
             include: {
                 TypesIncidence: true
             }
         })
+        return result;
 
     } catch (error: any) {
-        result = error.message
+        // console.error('Error al obtener las incidencias:', error.message);
+        throw new Error('No se pudo obtener las incidencias.');
     }
 
 
-    console.log({ result }, "DETALLE ORDEN--------")
-    return result;
 }
 
 export const getProductListTotalRefund = async (invoice: string) => {
@@ -295,7 +280,6 @@ export const getProductListTotalRefund = async (invoice: string) => {
 
 export const changStatusIncidence = async (incidenceId: number) => {
     let result;
-
 
     try {
         result = await prisma.incidence.update({

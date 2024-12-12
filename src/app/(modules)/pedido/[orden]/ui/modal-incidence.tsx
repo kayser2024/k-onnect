@@ -29,6 +29,7 @@ interface ModalIncidenceProps {
     isLoading: boolean;
 }
 export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalIncidenceProps) => {
+
     console.log({ data }, 'DATA INCIDENCIA BY ORDER')
 
     return (
@@ -36,7 +37,7 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
             {!isLoading &&
                 <DialogContent className="max-w-screen-lg">
                     <DialogHeader>
-                        <DialogTitle>Incidencias - {!isLoading && <>{data[0].Invoice}</>}</DialogTitle>
+                        <DialogTitle>Listado de Incidencias </DialogTitle>
                         <DialogDescription>
                             {/* Make changes to your profile here. Click save when you're done. */}
                         </DialogDescription>
@@ -54,15 +55,24 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {data?.map((p: any) => (
-                                    <TableRow key={p.IncidenceID}>
-                                        <TableCell >{p.Description}</TableCell>
-                                        <TableCell className='text-right flex items-center justify-between'>{p.IsCompleted ? "Completado" : "Pendiente"}</TableCell>
-                                        <TableCell className="font-medium w-[200px]">{p.InvoiceIncidence}</TableCell>
-                                        <TableCell>Administrador(System)</TableCell>
-                                        <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
+
+                                {data.length > 0 ? <>
+                                    {data?.map((p: any) => (
+                                        <TableRow key={p.IncidenceID}>
+                                            <TableCell >{p.Description}</TableCell>
+                                            <TableCell className='text-right flex items-center justify-between'>{p.IsCompleted ? "Completado" : "Pendiente"}</TableCell>
+                                            <TableCell className="font-medium w-[200px]">{p.InvoiceIncidence}</TableCell>
+                                            <TableCell>Administrador(System)</TableCell>
+                                            <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </>
+                                    : <TableRow >
+                                        <TableCell colSpan={5} className='text-center h-28'>
+                                            Aún no cuenta con Incidencias
+                                        </TableCell>
                                     </TableRow>
-                                ))}
+                                }
                             </TableBody>
 
                         </Table>
