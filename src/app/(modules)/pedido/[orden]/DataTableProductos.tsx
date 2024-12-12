@@ -91,6 +91,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [invoice, setInvoice] = useState("")
     const [newProducts, setNewProducts] = useState<Product[]>([])
     const [productsSelect, setProductsSelect] = useState<ProductSelect[]>([]);
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+
 
     // obtener incidencias "Devoluciones"
     const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
@@ -122,6 +124,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     })
 
     const handleReembolso = async () => {
+        setLoading(true);
 
         // Verificar si la voleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
@@ -230,7 +233,16 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             reason: `Devolución ${tipoExtorno}`
         }
 
-        await createIncidence(data);
+
+        try {
+            await createIncidence(data);
+
+        } catch (error: any) {
+            console.log(error.message)
+        } finally {
+            setLoading(false);
+            setDropdownOpen(false)
+        }
 
         refetch();
         setRowSelection({})
@@ -633,24 +645,31 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                 </Dialog>
 
                 {/* DropMenu para Devolucion */}
-                <DropdownMenu >
+                <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} >
                     <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
 
                     {/* Drawer Menu Devolucion */}
                     <DropdownMenuContent>
                         <DropdownMenuLabel>
-                            <span>¿Realizar Devolución?</span>
+                            <div className="flex flex-col mb-2">
+                                <span>¿Realizar Devolución?</span>
+                                <span className="text-xs text-slate-400 font-normal">Copiar Linea Excel y Notificar Discord</span>
+                            </div>
 
-                            <Input placeholder="Ingresar Boleta" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                            <span className="text-xs mt-4">Ingresar Boleta:</span>
+                            <div className="flex gap-2">
+
+                                <Input placeholder="B00-123" className="uppercase" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                                <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
+                            </div>
 
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleReembolso} className="flex flex-col gap-2">
-                            <div>
-                                <BadgeCent className="mr-2 h-4 w-4" />
-                                <span>Copiar Linea excel y<br /> Notificar Discord</span>
-                            </div>
-                        </DropdownMenuItem>
+                        {/* <DropdownMenuItem onClick={handleReembolso} className="flex flex-col gap-2"> */}
+                        {/* <div> */}
+                        {/* <BadgeCent className="mr-2 h-4 w-4" /> */}
+                        {/* <span>Copiar Linea excel y<br /> Notificar Discord</span> */}
+                        {/* </div> */}
+                        {/* </DropdownMenuItem> */}
                     </DropdownMenuContent>
                 </DropdownMenu>
 

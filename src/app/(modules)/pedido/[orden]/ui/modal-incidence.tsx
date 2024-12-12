@@ -46,9 +46,9 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[200px]">Tipo Incidencia</TableHead>
                                     <TableHead className="w-[200px]">Motivo</TableHead>
                                     <TableHead className='w-[100px]'>Estado</TableHead>
+                                    <TableHead className="w-[200px]">Boleta Incidencia</TableHead>
                                     <TableHead className='w-[150px]'>Usuario</TableHead>
                                     <TableHead className='w-[250px]'>Fecha</TableHead>
                                 </TableRow>
@@ -56,9 +56,9 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                             <TableBody>
                                 {data?.map((p: any) => (
                                     <TableRow key={p.IncidenceID}>
-                                        <TableCell className="font-medium w-[200px]">{p.TypesIncidence.Description}</TableCell>
                                         <TableCell >{p.Description}</TableCell>
                                         <TableCell className='text-right flex items-center justify-between'>{p.IsCompleted ? "Completado" : "Pendiente"}</TableCell>
+                                        <TableCell className="font-medium w-[200px]">{p.InvoiceIncidence}</TableCell>
                                         <TableCell>Administrador(System)</TableCell>
                                         <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
                                     </TableRow>
