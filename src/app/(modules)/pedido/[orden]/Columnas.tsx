@@ -73,12 +73,12 @@ export const columns: ColumnDef<DetallePedido>[] = [
             </div>
         }
     },
-    {
-        accessorKey: "subTotal",
-        header: "Subtotal",
-        cell: ({ row }) => {
-            const subtotal = row.original.subtotal_sku
-            return <p className="font-bold text-lg">S/.{Number(subtotal)?.toFixed(2)}</p>
-        }
-    },
+    // {
+    //     accessorKey: "subTotal",
+    //     header: "Subtotal",
+    //     cell: ({ row }) => {
+    //         const subtotal = row.original.subtotal_sku
+    //         return <p className="font-bold text-lg">S/.{Number(subtotal)?.toFixed(2)}</p>
+    //     }
+    // },
 ]

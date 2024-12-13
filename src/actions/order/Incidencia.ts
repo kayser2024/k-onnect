@@ -7,7 +7,7 @@ interface IncidenceProps {
     orden: string,
     invoiceOrigin: string,
     invoiceIncidence: string,
-    product: { codeEan: string, quantity: number, codeSap: string, text: string }[],
+    product: { codeEan: string, quantity: number, codeSap: string, text: string, subtotal: number }[],
     typeIncidence: number,
     reason?: string
 }
@@ -59,7 +59,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             CodEan: item.codeEan,
             CodProd: item.codeSap,
             ProdQuantity: item.quantity,
-            ProdSubtotal: 0, // Cambia según la lógica de tu aplicación
+            ProdSubtotal: item.subtotal, // Cambia según la lógica de tu aplicación
             InvoiceOriginal: invoiceOrigin,
             InvoiceIncidence: invoiceIncidence,
             Description: item.text || "Sin descripción",
@@ -229,7 +229,7 @@ export const detailOrder = async (orden: number) => {
     } catch (error: any) {
         result = error.message;
     }
-
+    console.log({ result:result.IncidenceLogs });
     return result;
 }
 

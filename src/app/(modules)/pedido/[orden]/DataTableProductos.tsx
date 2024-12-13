@@ -74,13 +74,18 @@ interface Product {
     codigoEan: string;
     codigoSap: string;
     url_foto: string;
-    id: number;
+    id: string;
     quantity: number
+    price: number;
+    priceSale: number;
+    size: string;
+    color: string;
 }
 
 interface ProductSelect {
     sku: string;
     quantity: number
+    price: number
 }
 export function DataTableProductos({ data, orden, comprobante, persona }: DataTableProps) {
 
@@ -91,7 +96,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [invoice, setInvoice] = useState("")
     const [newProducts, setNewProducts] = useState<Product[]>([])
     const [productsSelect, setProductsSelect] = useState<ProductSelect[]>([]);
-    const [dropdownOpen, setDropdownOpen] = useState(false)
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [prodOriginSubtotal, setProdOriginSubtotal] = useState(0);
+    const [prodChangeSubtotal, setProdChangeSubtotal] = useState(0);
 
 
     // obtener incidencias "Devoluciones"
@@ -341,6 +348,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     // Función para Realizar camnbios
     const handleCambio = async () => {
 
+        setLoading(true)
+
+
         if (!motivoCambio.trim()) {
             toast.warning("Debe ingresar un motivo de cambio")
             return
@@ -421,7 +431,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
         try {
-            setLoading(true)
             // Actualizar Api
             // await onUpdateObservaciones(nroOrden, antes + " >> " + despues, 'Cambio', observacionTotal)
             await insertComment(`${antes}  >>  ${despues}`, nroOrden, 1)
@@ -468,6 +477,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             setMotivoCambio("")
             setRowSelection({})
             setInvoice("")
+            setNewProducts([])
         }
 
 
@@ -493,12 +503,14 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                 codeEan: p.sku,
                 quantity: p.quantity,
                 codeSap: prendasOriginalesSAP[index],
+                subtotal: p.quantity * p.price,
                 text: "ORIGIN",
             })),
             ...newProducts.map(p => ({
                 codeEan: p.codigoEan,
                 quantity: p.quantity,
                 codeSap: p.codigoSap,
+                subtotal: p.quantity * p.priceSale,
                 text: "CHANGE",
             })),
         ];
@@ -585,60 +597,87 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                     <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
 
                     {/* Modal Cambio Producto */}
-                    <DialogContent className="max-h-[90%] md:max-w-screen-md lg:max-w-screen-lg">
+                    <DialogContent className=" md:max-w-screen-md lg:max-w-screen-lg">
+
                         <DialogHeader>
                             <DialogTitle className="text-xl uppercase text-center">CAMBIAR PRODUCTO</DialogTitle>
                             {/* <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription> */}
                         </DialogHeader>
 
+                        {/* Header Modal Cambiar Producto */}
+                        <div className="mb-4 grid grid-cols-2 gap-3 ">
 
-                        {/* Seleccionar Motivo de Cambio */}
-                        <div className="m-4 grid grid-cols-2 gap-2 ">
-                            <div className="">
-                                <Label htmlFor="selectMotivo">Seleccionar Motivo</Label>
-                                <Select onValueChange={manejarCambioMotivo}>
-                                    <SelectTrigger className="">
-                                        <SelectValue placeholder="Seleccionar..." />
-                                    </SelectTrigger>
-                                    <SelectContent id="selectMotivo">
-                                        <SelectGroup>
-                                            <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
-                                            <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
-                                            <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
-                                            <SelectItem value="Otro">Otro</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                            {/* RESUMEN Orden */}
+                            <div className="w-full rounded-lg border p-4">
+
+                                <h2 className="text-center text-lg font-semibold  mb-3">Resumen Orden #12345</h2>
+                                <div className=" flex items-center justify-between">
+                                    <p className="">Total Orden: </p>
+                                    <span className="">S/ {prodOriginSubtotal.toFixed(2)}</span>
+                                </div>
+                                <div className=" flex items-center justify-between my-2">
+                                    <p className="">Total Cambio: </p>
+                                    <span className="">S/ {prodChangeSubtotal.toFixed(2)}</span>
+                                </div>
+
                             </div>
 
-                            {/* Ingresar Incidencia */}
-                            <div className="">
-                                <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
-                                <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                            <div className=" flex flex-col gap-3">
+
+                                {/* Ingresar Incidencia */}
+                                <div className="">
+                                    <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
+                                    <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                                </div>
+
+                                {/* Seleccionar Motivo de Cambio */}
+                                <div className="">
+                                    <Label htmlFor="selectMotivo">Seleccionar Motivo</Label>
+                                    <Select onValueChange={manejarCambioMotivo}>
+                                        <SelectTrigger className="">
+                                            <SelectValue placeholder="Seleccionar..." />
+                                        </SelectTrigger>
+                                        <SelectContent id="selectMotivo">
+                                            <SelectGroup>
+                                                <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
+                                                <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
+                                                <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
+                                                <SelectItem value="Otro">Otro</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+
+                                {/* Escoger Productos Nuevos */}
+                                <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
                             </div>
 
-                            {/* Escoger Productos Nuevos */}
-                            <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
                         </div>
 
 
                         {/* Tabla de Productos a Cambiar */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid-cols-1">
+                        <ScrollArea className="max-h-[500px]">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid-cols-1">
 
-                                {/* <TablaRealizarCambio /> */}
-                                <h3 className="text-lg mb-2">Lista de Productos</h3>
-                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} />
+                                    {/* <TablaRealizarCambio /> */}
+                                    <h3 className="text-lg mb-2">Lista de Productos</h3>
+                                    <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
+                                </div>
+                                <div className="grid-cols-1">
+                                    <h3 className="text-lg mb-2"> Nuevos Productos</h3>
+                                    <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} setProdChangeSubtotal={setProdChangeSubtotal} />
+
+                                </div>
+
                             </div>
-                            <div className="grid-cols-1">
-                                <h3 className="text-lg mb-2"> Nuevos Productos</h3>
-                                <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} />
-                            </div>
-                        </div>
+                        </ScrollArea>
 
                         <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
                             <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button>
-                            <Button onClick={handleCambio} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+
+                            <Button onClick={handleCambio} disabled={loading || (prodOriginSubtotal >= prodChangeSubtotal)} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
 
                         </DialogFooter>
                     </DialogContent>

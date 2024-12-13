@@ -169,7 +169,7 @@ model IncidenceLogs {
   CodEan           String    @db.VarChar(50)
   CodProd          String?   @db.VarChar(50)
   ProdQuantity     Int?
-  ProdSubtotal     Int?
+  ProdSubtotal     Decimal?  @db.Decimal(10, 2)
   InvoiceOriginal  String?   @db.VarChar(25)
   InvoiceIncidence String?   @db.VarChar(25)
   Description      String?   @db.VarChar(255)

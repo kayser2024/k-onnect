@@ -8,18 +8,23 @@ import React, { useEffect, useState } from 'react';
 import { SingleValue } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { toast } from 'sonner';
+import { fetchData } from './fetchProduct';
 
 interface Product {
     codigoEan: string;
     codigoSap: string;
     url_foto: string;
-    id: number;
-    quantity: number;
+    id: string;
+    quantity: number
+    price: number;
+    priceSale: number;
+    size: string;
+    color: string;
 }
 
 interface Option {
     label: string;
-    value: number;
+    value: string;
     product: Product;
 }
 
@@ -31,18 +36,6 @@ interface SelectProductProps {
 export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProductProps) => {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [listProduct, setListProduct] = useState<Product[]>(newProducts);
-
-    // Función para obtener datos desde la API
-    const fetchData = async (search: string): Promise<Option[]> => {
-        const res = await fetch(`/api/producto/buscador?buscado=${search}`);
-        if (!res.ok) throw new Error('Error al cargar productos');
-        const data: Product[] = await res.json();
-        return data.map((product) => ({
-            label: `${product.codigoEan}`,
-            value: product.id,
-            product,
-        }));
-    };
 
     // Función para React Select Async
     const promiseOptions = async (inputValue: string): Promise<Option[]> => {
@@ -66,7 +59,10 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
             const alreadyExists = listProduct.some((product) => product.id === selectedProduct.id);
 
             if (!alreadyExists) {
-                const updatedList = [...listProduct, selectedProduct];
+                // const updatedList = [...listProduct, selectedProduct];
+
+                const newProduct = { ...selectedProduct, quantity: 1 }; // Asignar cantidad inicial
+                const updatedList = [...listProduct, newProduct];
                 setListProduct(updatedList); // Actualiza la lista interna
                 setNewProducts(updatedList); // Actualiza el estado global
             } else {
@@ -82,6 +78,8 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
         setListProduct(newProducts); // Esto asegurará que `listProduct` se actualice cuando cambie `newProducts`
     }, [newProducts]);
 
+
+    console.log({ selectedProduct }, '👀👀👀👀')
 
     return (
         <div className="flex flex-col gap-4 w-full">
@@ -109,19 +107,40 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
                         alt={selectedProduct.codigoEan}
                         className="h-24 w-auto rounded-lg"
                     />
-                    <div className="flex flex-col">
-                        <p className="text-xs font-bold">Código SAP:</p>
-                        <p className="text-xs">{selectedProduct.codigoSap}</p>
-                        <p className="text-xs font-bold mt-2">Código EAN:</p>
-                        <p className="text-xs">{selectedProduct.codigoEan}</p>
-                        <Link
-                            href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${selectedProduct.codigoEan}&tab=detail&page=1`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs mt-2 inline-flex items-center text-blue-500 hover:underline gap-2"
-                        >
-                            <ExternalLink size={15} /> Ver stock en Tutati
-                        </Link>
+                    <div className="flex flex-col w-full gap-1">
+                        <div className="flex gap-2">
+                            <p className="text-xs font-bold">Cód. Padre: </p>
+                            <p className="text-xs">{selectedProduct.codigoSap}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <p className="text-xs font-bold">Código EAN:</p>
+                            <p className="text-xs">{selectedProduct.codigoEan}</p>
+
+                        </div>
+                        <div className="flex gap-2">
+                            <p className="text-xs font-bold">Precio:</p>
+                            <div className="flex gap-3">
+                                <p className="text-xs line-through text-slate-500">S/ {selectedProduct.price}</p>
+                                <p className="text-xs">S/ {selectedProduct.priceSale}</p>
+                            </div>
+
+                        </div>
+                        <div className="flex gap-2 text-center">
+                            <p className="text-xs font-bold">Talla:</p>
+                            <p className='text-xs'>{selectedProduct.size}</p>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <p className="text-xs font-bold">Color:</p>
+                            <p className="text-xs">{selectedProduct.color}</p>
+
+                        </div>
+                        <div className="flex gap-2">
+                            <p className="text-xs font-bold">Stock:</p>
+                            <p className="text-xs">{selectedProduct.quantity}</p>
+
+                        </div>
+
                     </div>
                 </div>
             ) : (

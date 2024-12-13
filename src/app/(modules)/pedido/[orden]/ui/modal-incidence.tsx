@@ -60,7 +60,7 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                                     {data?.map((p: any) => (
                                         <TableRow key={p.IncidenceID}>
                                             <TableCell >{p.Description}</TableCell>
-                                            <TableCell className='text-right flex items-center justify-between'>{p.IsCompleted ? "Completado" : "Pendiente"}</TableCell>
+                                            <TableCell className='text-right flex items-center justify-between'>{(p.TypeIncidenceID == 3)?(p.IsCompleted ? "Completado" : "Pendiente"):(<>─</>)}</TableCell>
                                             <TableCell className="font-medium w-[200px]">{p.InvoiceIncidence}</TableCell>
                                             <TableCell>Administrador(System)</TableCell>
                                             <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
