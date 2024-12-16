@@ -79,8 +79,6 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
     }, [newProducts]);
 
 
-    console.log({ selectedProduct }, '👀👀👀👀')
-
     return (
         <div className="flex flex-col gap-4 w-full">
             {/* Select para buscar productos */}

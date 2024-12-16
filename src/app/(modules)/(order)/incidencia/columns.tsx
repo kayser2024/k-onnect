@@ -1,5 +1,6 @@
 
 import { ColumnDef } from "@tanstack/react-table"
+import { Download } from "lucide-react";
 import Link from "next/link";
 
 
@@ -12,7 +13,7 @@ interface RowData {
     OrderID: number;
 }
 
-export const columns = (getDetailOrder: (OrderProps: number) => void): ColumnDef<RowData, any>[] => [
+export const columns = (getDetailOrder: (OrderProps: number) => void, handleDownLoadDetail:(id: number) => void): ColumnDef < RowData, any > [] => [
     {
         id: 'expander',
         header: () => null, // No encabezado para la columna del expander
@@ -72,9 +73,15 @@ export const columns = (getDetailOrder: (OrderProps: number) => void): ColumnDef
     {
         id: 'TotalRefundSum',
         accessorFn: (row) => row.TotalRefundSum,
-        header: "Total Rembolso",
+        header: "",
         cell: ({ row }) => {
-            return <div className="flex items-center justify-between w-[100px]"><span>S/</span> {row.original.TotalRefundSum || <span>0.00</span>}</div>
+            const id = Number(row.original.OrderID);
+
+
+
+
+            return <div className="flex items-center justify-between cursor-pointer" title="Descargar Detalle" onClick={() => handleDownLoadDetail(id)}> <Download color="green" size={20} /></div >
         }
     },
+
 ]

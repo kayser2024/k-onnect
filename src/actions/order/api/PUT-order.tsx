@@ -2,13 +2,17 @@
 
 export const orderUpdate = async (order: string, estado: string) => {
     let result;
+    const currentUTCDate = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "UTC" })
+    ).toISOString();
+    
     let jsonUpdateEstado;
     if (estado === 'reset_status') {
         jsonUpdateEstado = {
             "actualizar": {
                 "situacion_envio": {
                     "estado_envio": "preparacion",
-                    "preparacion": new Date().toISOString(),
+                    "preparacion": currentUTCDate,
                     "enviado": null,
                     "recibido": null
                 },
@@ -20,7 +24,7 @@ export const orderUpdate = async (order: string, estado: string) => {
             "actualizar": {
                 "situacion_envio": {
                     "estado_envio": estado,
-                    [estado]: new Date().toISOString(),
+                    [estado]: currentUTCDate,
                 },
             },
         };

@@ -2,31 +2,16 @@
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 
 import {
-    ColumnDef,
     flexRender,
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/ui/drawer"
-
 
 import {
     Table,
@@ -38,15 +23,11 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
-import { DetallePedido, Orden, OrdenResponse } from "@/types/Orden"
+import { Orden } from "@/types/Orden"
 import { toast } from "sonner"
-import { BadgeCent, RefreshCcwDot } from "lucide-react"
-// import { ProductoTable } from "./Columnas"
 import { Button } from "@/components/ui/button"
-import ComboboxDemo from "./Combobx"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion'
-import { LiaExchangeAltSolid } from "react-icons/lia";
 import { insertComment } from "@/actions/order/insertComent"
 import { createIncidence, getProductListTotalRefund } from "@/actions/order/Incidencia"
 import { useQuery } from "@tanstack/react-query"
@@ -60,8 +41,6 @@ import { SelectProductChange } from "./select-product-change"
 import { columns } from "./Columnas"
 import { ProductToChangeList } from "./product-to-change.list"
 import { ProductSelectList } from "./product-select-list"
-import { ProductChangeModal } from "./product-change-modal"
-import { Value } from "@radix-ui/react-select"
 
 interface DataTableProps {
     data: any,
@@ -345,6 +324,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
     }
 
+
+
     // Función para Realizar camnbios
     const handleCambio = async () => {
 
@@ -527,6 +508,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
         await createIncidence(data)
 
+        // Descar Excel
+        // handleDescargaCambio()
+
     }
 
     // Hacemos que recuerde el motivo de cambio
@@ -610,7 +594,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             {/* RESUMEN Orden */}
                             <div className="w-full rounded-lg border p-4">
 
-                                <h2 className="text-center text-lg font-semibold  mb-3">Resumen Orden #12345</h2>
+                                <h2 className="text-center text-lg font-semibold  mb-3">Resumen Orden: {docActual}</h2>
                                 <div className=" flex items-center justify-between">
                                     <p className="">Total Orden: </p>
                                     <span className="">S/ {prodOriginSubtotal.toFixed(2)}</span>
@@ -695,7 +679,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                                 <span className="text-xs text-slate-400 font-normal">Copiar Linea Excel y Notificar Discord</span>
                             </div>
 
-                            <span className="text-xs mt-4">Ingresar Boleta:</span>
+                            <span className="text-xs mt-4">Ingresar Nota Cred.:</span>
                             <div className="flex gap-2">
 
                                 <Input placeholder="B00-123" className="uppercase" onChange={(e) => setInvoice(e.target.value)} value={invoice} />

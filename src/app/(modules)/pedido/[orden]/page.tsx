@@ -208,21 +208,25 @@ async function HomeOrden({ params }: Props) {
 
 
     const data = await fetchingDataFromOrder(orden)
-
+    
+    if (!data) {
+        return <>Something Error</>
+    }
+    
     if (data.obj === null) { return <div>No se encontro la orden</div> }
-
     const ordenes = data?.obj?.ordenes[0];
 
     const cupon = ordenes?.cupon;
     const cabecera_pedido = ordenes?.cabecera_pedido[0]
-    const { detalle_pedido } = ordenes
-    const datos_facturacion = ordenes.datos_facturacion[0]
+    // const { detalle_pedido } = ordenes
+    // const datos_facturacion = ordenes.datos_facturacion[0]
     const resumen_pedido = ordenes.resumen_pedido[0]
     const datos_envio = ordenes.datos_envio[0]
     const situacion_pagos = ordenes.situacion_pagos[0]
     const situacion_envio = ordenes.situacion_envio[0]
     const situacion_facturacion = ordenes.situacion_facturacion[0]
     const created_at = ordenes.created_at
+
 
 
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
@@ -233,6 +237,8 @@ async function HomeOrden({ params }: Props) {
     if (situacion_pagos.estado_pago === 'pagado') colorEstado = "bg-green-300"
     else if (situacion_pagos.estado_pago === 'cancelado') colorEstado = "bg-red-300"
     else if (situacion_pagos.estado_pago === 'pendiente') colorEstado = "bg-orange-300"
+
+
 
 
     return (
@@ -263,8 +269,8 @@ async function HomeOrden({ params }: Props) {
 
                         </CardHeader>
                         <CardContent>
-                          
-                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion}  data={data.obj.ordenes[0]} orden={ordenes} />
+
+                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} />
                         </CardContent>
                     </Card>
 

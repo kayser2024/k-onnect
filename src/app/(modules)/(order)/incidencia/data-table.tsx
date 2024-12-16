@@ -32,6 +32,9 @@ import { ConfirmCompleted } from './ui/confirm-completed'
 import { Loader } from '@/components/loader'
 import { toast } from 'sonner'
 import { columns } from './columns'
+import { RiFileExcel2Line } from 'react-icons/ri'
+import Papa from 'papaparse';
+import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 
 
 interface OrderProps {
@@ -62,12 +65,10 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         enabled: enabled,
     })
 
-    console.log({ data }, '🚩🚩🚩🚩')
 
     // se ejecutará cuando se hace click
     const getDetailOrden = (orden: number) => {
         setOrder(orden)
-        console.log(order, "Consumir Action")
         setEnabled(true);
         refetch();
     }
@@ -89,10 +90,29 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
     }
 
+    // Función para Descar DetailReport
+    const handleDownLoadDetail = async (orden: number) => {
+        try {
+            // obtener la data
+            const dataDetails = await detailOrder(orden)
+
+            // Si los datos existen, realiza la descarga
+            await downloadExcelReportDetail(dataDetails);
+
+            toast.success("Detalle descargado exitosamente");
+        } catch (error: any) {
+            console.error("Error al descargar el detalle:", error);
+            toast.error("Ocurrió un error al descargar");
+        } finally {
+            setLoading(false); // Restablece el estado de carga
+            setOrder(0)
+        }
+    }
+
 
     const table = useReactTable({
         data: dataIncidente,
-        columns: columns(getDetailOrden),
+        columns: columns(getDetailOrden, handleDownLoadDetail),
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -153,11 +173,21 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
     }
 
+    // Función para Descargar Excel
+    const downloadExcel = () => {
+        downloadExcelReport(incidentList)
+    };
+
+
+
+
     return (
         <div className="w-full">
             <div className='flex gap-2 py-4'>
                 <Input placeholder='Buscar # Orden' onChange={e => setValueSearch(e.target.value)} value={valueSearch} />
                 <Button onClick={handleSearch} disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</Button>
+                <Button variant="outline" title='Descargar Reporte' onClick={downloadExcel}><RiFileExcel2Line color='green' size={25} />Descargar</Button>
+
             </div>
 
             <div className="rounded-md border">
@@ -262,7 +292,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                                                         {
                                                                             detail.TypeIncidenceID == 3
                                                                                 ? <TableCell className='flex gap-2 items-center'>
-                                                                                    <Checkbox onCheckedChange={() => handleChange(Number(detail.IncidenceID))} checked={detail.IsCompleted} disabled={detail.IsCompleted} />Completado
+                                                                                    <Checkbox
+                                                                                        onCheckedChange={() => handleChange(Number(detail.IncidenceID))}
+                                                                                        checked={detail.IsCompleted}
+                                                                                        disabled={detail.IsCompleted}
+                                                                                        className={`peer ${detail.IsCompleted ? 'checked:bg-green-500' : ''}`}
+                                                                                        style={{ backgroundColor: detail.IsCompleted ? 'green' : '' }}
+                                                                                    />Completado
                                                                                 </TableCell>
 
                                                                                 : <TableCell className='text-center'>─</TableCell>

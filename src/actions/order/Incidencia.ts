@@ -78,6 +78,8 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
 };
 
 
+
+// Obtener todas las incidencias por BoletaOriginal
 export const getAllIncidence = async () => {
     let result;
 
@@ -133,6 +135,16 @@ export const getAllIncidence = async () => {
 
     return result
 };
+
+
+// Obtener todas las incidencias por Nro Orden
+export const getAllIncidenceByOrder = async () => {
+
+    let result;
+
+
+
+}
 
 export const getAllIncidenceByInvoice = async (invoice: string) => {
     let result;
@@ -229,7 +241,7 @@ export const detailOrder = async (orden: number) => {
     } catch (error: any) {
         result = error.message;
     }
-    console.log({ result:result.IncidenceLogs });
+    console.log({ result: result.IncidenceLogs });
     return result;
 }
 
