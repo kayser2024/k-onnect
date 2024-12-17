@@ -1,10 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 import { SingleValue } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { toast } from 'sonner';
@@ -59,10 +57,9 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
             const alreadyExists = listProduct.some((product) => product.id === selectedProduct.id);
 
             if (!alreadyExists) {
-                // const updatedList = [...listProduct, selectedProduct];
-
                 const newProduct = { ...selectedProduct, quantity: 1 }; // Asignar cantidad inicial
                 const updatedList = [...listProduct, newProduct];
+                
                 setListProduct(updatedList); // Actualiza la lista interna
                 setNewProducts(updatedList); // Actualiza el estado global
             } else {

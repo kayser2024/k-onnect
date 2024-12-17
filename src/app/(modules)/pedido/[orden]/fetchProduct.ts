@@ -114,3 +114,4 @@ export const fetchData = async (search: string): Promise<Option[]> => {
         },
     }));
 };
+

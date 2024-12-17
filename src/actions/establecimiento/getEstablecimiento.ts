@@ -3,9 +3,20 @@
 import prisma from "@/lib/prisma";
 
 
-export const getAllEstablecimientos = async () => {
+export const getAllEstablecimientos = async (search: string) => {
 
-    const pickupPoints = await prisma.pickupPoints.findMany();
+    const pickupPoints = await prisma.pickupPoints.findMany({
+        where: {
+            Description: {
+                contains: search,
+            }
+        }
+    }
+    );
 
-    return pickupPoints;
+    return pickupPoints.map(p => ({
+        value: `${p.PickupPointID}`,
+        label: `${p.Description}`
+    }));
 }
+

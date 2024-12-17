@@ -88,6 +88,12 @@ model Orders {
 model PickupPoints {
   PickupPointID Int      @id @default(autoincrement())
   Description   String?  @db.VarChar(100)
+  District      String?  @db.VarChar(100)
+  Province      String?  @db.VarChar(100)
+  Department    String?  @db.VarChar(100)
+  LocationCode  String?  @db.VarChar(10)
+  Place         String?  @db.VarChar(255)
+  Address       String?  @db.VarChar(255)
   Orders        Orders[]
 }
 

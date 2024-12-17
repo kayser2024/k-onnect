@@ -23,6 +23,9 @@ import { TimeLineHorizontal } from "./TimeLineHorizontal"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import { Collapisble } from "./ui/Collapisble"
+import { LiaUserEditSolid } from "react-icons/lia";
+import { ModalEditEnvio } from "./ui/modal-edit-envio"
+
 setDefaultOptions({ locale: es })
 
 
@@ -208,11 +211,11 @@ async function HomeOrden({ params }: Props) {
 
 
     const data = await fetchingDataFromOrder(orden)
-    
+
     if (!data) {
         return <>Something Error</>
     }
-    
+
     if (data.obj === null) { return <div>No se encontro la orden</div> }
     const ordenes = data?.obj?.ordenes[0];
 
@@ -350,7 +353,7 @@ async function HomeOrden({ params }: Props) {
                 {/* COLUMN 2*/}
                 <div className="flex flex-col  gap-2">
 
-                    <Suspense fallback={<div>Cargando </div>}>
+                    <Suspense fallback={<div>Cargando ... </div>}>
                         {(situacion_facturacion.estado_facturacion !== 'pendiente') ? <CardFacturacion situacion_facturacion={situacion_facturacion} /> : <EmptyCardFacturacion />}
                     </Suspense>
 
@@ -368,7 +371,10 @@ async function HomeOrden({ params }: Props) {
                     {/* INFORMACIÓN FACTURACIÓN */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Informacion de Envio</CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Informacion de Envio </CardTitle>
+                                <ModalEditEnvio datos_envio={datos_envio} orden={cabecera_pedido?.numero_orden} />
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div >
