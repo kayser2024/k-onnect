@@ -170,13 +170,13 @@ export const updateShippingInfo = async (data: any) => {
                 CreatedAt: now
             }
         })
+    
 
+        if (dataFetch.sRpta) {
+            revalidatePath(`/pedido/${orden}`);
+        }
 
-        // if (data.sRpta) {
-        //     revalidatePath(`/pedido/${orden}`);
-        // }
-
-        return data.sRpta;
+        return dataFetch.sRpta;
 
     } catch (error: any) {
         return error.message
