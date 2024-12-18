@@ -108,13 +108,13 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     }
                     const data_envio = dataOrder.obj.ordenes[0].datos_envio[0]
 
+                    // obtener el nombre del destino de la tienda
                     if (data_envio.tipo_envio === 'recojo en tienda') {
                         const nombre_tienda = data_envio.direccion_envio
 
                         destino.label = nombre_tienda
                     } else {
-                        const nombre_tienda = data_envio.direccion_envio
-
+                        const nombre_tienda = "DELIVERY"
                         destino.label = nombre_tienda
                     }
 
@@ -125,9 +125,8 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             }
 
             // Actualizar orden en la API
-            await updateOrderInAPI(order, estado);
+            // await updateOrderInAPI(order, estado);
 
-            // -- sp_UpdateOrders(p_OrderNumber, p_StatusID, p_UserID, p_PickupPoint, p_status, p_CommentText) 
 
             // Ejecutar sp_updateOrders
             const [result] = await prisma.$transaction(async (tx) => {

@@ -111,16 +111,16 @@ model TypesDoc {
 
 model Users {
   UserID    Int         @id @default(autoincrement())
-  Password  String      @db.VarChar(255)
   Email     String      @unique(map: "Email") @db.VarChar(255)
+  Password  String      @db.VarChar(255)
+  Name      String      @db.VarChar(100)
   Status    Boolean
   TypeDocID Int
   NroDoc    String      @unique(map: "NroDoc") @db.VarChar(16)
   RoleID    Int
+  LastName  String?     @db.VarChar(255)
   CreatedAt DateTime?   @default(now()) @db.Timestamp(0)
   UpdatedAt DateTime?   @default(now()) @db.Timestamp(0)
-  Name      String      @db.VarChar(100)
-  LastName  String?     @db.VarChar(255)
   Incidence Incidence[]
   OrderLogs OrderLogs[]
   Orders    Orders[]

@@ -82,7 +82,7 @@ function PreparacionOrder() {
 
         try {
             setIsLoading(true);
-            console.log("cambiando estado del pedido");
+            // console.log("cambiando estado del pedido");
 
             // Obtén las órdenes fallidas
             const failedOrdersResult = await onChangeStatusSend(orderList, 'en_preparacion', '/preparacion');

@@ -59,7 +59,7 @@ export const Sidebar = () => {
             nombre: 'Recepción Orden (tienda)',
             icon: <Box />,
             ruta: '/recepcion',
-            roles: [1, 6]
+            roles: [1, 2, 6]
 
         },
         {
@@ -67,7 +67,7 @@ export const Sidebar = () => {
             icon: <ClipboardCheck />,
             ruta: '/entrega',
             // roles: ['admin', 'web_master', 'almacen', 'soporte']
-            roles: [1, 6]
+            roles: [1, 2, 6]
 
         },
         {
