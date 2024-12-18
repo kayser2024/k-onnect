@@ -108,11 +108,19 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     }
                     const data_envio = dataOrder.obj.ordenes[0].datos_envio[0]
 
+                    const tipo_envio = data_envio.tipo_envio;
+                    const departamento = data_envio.departamento;
+                    const provincia = data_envio.provincia;
+                    const distrito = data_envio.distrito;
+                    const referencia = data_envio.referencia_envio;
+                    const ubigeo = data_envio.ubigeo;
+
                     // obtener el nombre del destino de la tienda
-                    if (data_envio.tipo_envio === 'recojo en tienda') {
+                    if (tipo_envio === 'recojo en tienda') {
                         const nombre_tienda = data_envio.direccion_envio
 
                         destino.label = nombre_tienda
+
                     } else {
                         const nombre_tienda = "DELIVERY"
                         destino.label = nombre_tienda

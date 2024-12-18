@@ -65,10 +65,15 @@ export const authConfig: NextAuthConfig = {
             email: email,
             status: true
           },
-        }
-        )
+        })
 
-        console.log(user)
+        const userData = await prisma.users.findUnique({
+          where: {
+            Email: '',
+            Status: true
+          },
+        })
+
 
         if (!user) return null;
 
