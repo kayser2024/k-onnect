@@ -32,6 +32,12 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     const [openEdit, setOpenEdit] = useState(false);
     const [store, setStore] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const [name, setName] = useState(datos_envio.nombres_envio)
+    const [lastName, setLastName] = useState(datos_envio.apellidos_envio)
+    const [phone, setPhone] = useState(datos_envio.telefono_envio)
+    const [dni, setDni] = useState(datos_envio.dni_envio)
+    
     const [department, setDepartment] = useState("")
     const [province, setProvince] = useState("")
     const [district, setDistrict] = useState("")
@@ -39,62 +45,67 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     const [reference, setReference] = useState("")
     const [locationCode, setLocationCode] = useState("")
 
-
-
     const tipo_envio = datos_envio.tipo_envio;
 
-
-    // Función para Editar el envío
-    const handleEditEnvio = () => {
-        setOpenEdit(true)
-        // Enviar al servidor la data
-        try {
-            // GUARDAR INCIDENCIA
-            // await updateShippingInfo (data)
-
-        } catch (error: any) {
-            console.log(error.message)
-        } finally {
-            setOpenEdit(false)
-        }
-
-    }
-
-
+    const isDelivery = datos_envio.tipo_envio === 'delivery';
 
     // Función para guardar la información del Envío
     const handleSave = async () => {
         setLoading(true)
         const data = {
             orden,
-            nombres_envio: datos_envio.nombres_envio,
-            apellidos_envio: datos_envio.apellidos_envio,
+            nombres_envio: name,
+            apellidos_envio: lastName,
+            telefono_envio: phone,
+            referencia_envio: isDelivery ? datos_envio.referencia_envio : reference,
             direccion_envio: store,
-            telefono_envio: datos_envio.telefono_envio,
+            pais: "Perú",
+            departamento: isDelivery ? datos_envio.departamento : department,
+            provincia: isDelivery ? datos_envio.provincia : province,
+            distrito: isDelivery ? datos_envio.distrito : district,
             dni_envio: datos_envio.dni_envio,
+            servicio_envio: isDelivery ? "recojo en tienda" : "programado",
+            ubigeo: isDelivery ? datos_envio.ubigeo : locationCode,
+            tipo_envio: isDelivery ? "delivery" : "recojo en tienda"
         }
+
         if (!store) {
             toast.warning("Por favor seleccionar una Tienda")
         }
 
-        // ACtualizar información envio
-        const response = await updateShippingInfo(data)
-        console.log(response, 'RESPONSE-----')
 
-        setOpenEdit(false)
-        toast.success("Operación exitosa")
+        try {
+            // ACtualizar información envio
+            await updateShippingInfo(data)
 
-        setLoading(false)
+            toast.success("Operación exitosa")
+
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setOpenEdit(false)
+            setLoading(false)
+
+            setName("")
+            setLastName("")
+            setAddress("")
+            setProvince("")
+            setDepartment("")
+            setPhone("")
+            setReference("")
+            setLocationCode("")
+            setDistrict("")
+            setStore("")
+            setDni("")
+        }
+
 
     }
 
 
-    console.log({ department, province, district }, '--------------')
-
-
     return (
         <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-            <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={handleEditEnvio}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>
+            <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={() => setOpenEdit(true)}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>
             <DialogContent className="">
                 <DialogHeader>
                     <DialogTitle className='text-center'>Editar Envio</DialogTitle>
@@ -109,9 +120,22 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                             </Label>
                             <Input
                                 id="name"
-                                defaultValue={datos_envio.nombres_envio}
                                 className=""
-                                disabled
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+
+                            />
+                        </div>
+                        <div className=" items-center gap-4">
+                            <Label htmlFor="lastname" className="text-right text-slate-500">
+                                Apellidos
+                            </Label>
+                            <Input
+                                id="lastname"
+                                className=""
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+
                             />
                         </div>
                         <div className=" items-center gap-4">
@@ -120,9 +144,9 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                             </Label>
                             <Input
                                 id="dni"
-                                defaultValue={datos_envio.dni_envio}
+                                defaultValue={dni}
                                 className=""
-                                disabled
+                                onChange={e => setDni(e.target.value)}
                             />
                         </div>
                         <div className=" items-center gap-4">
@@ -131,14 +155,12 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                             </Label>
                             <Input
                                 id="cel"
-                                defaultValue={datos_envio.telefono_envio}
-                                className=""
+                                onChange={(e) => setPhone(e.target.value)}
+                                value={phone}
                             />
                         </div>
 
                         <div className=" items-center gap-4">
-
-
 
                             {tipo_envio === 'recojo en tienda'
                                 ? <>

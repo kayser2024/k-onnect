@@ -115,6 +115,8 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     const referencia = data_envio.referencia_envio;
                     const ubigeo = data_envio.ubigeo;
 
+                    // ENVIAR EN UN JSON LA INFORAMCIÓN DE ENVÍO
+
                     // obtener el nombre del destino de la tienda
                     if (tipo_envio === 'recojo en tienda') {
                         const nombre_tienda = data_envio.direccion_envio

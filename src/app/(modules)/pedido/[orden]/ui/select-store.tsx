@@ -15,8 +15,6 @@ interface Option {
 }
 export const SelectStore = ({ setStore }: SelectStoreProps) => {
 
-    // const [search, setSearch] = useState("");
-
     const promiseOptions = async (search: string): Promise<Option[]> => {
         try {
             const result = await getAllEstablecimientos(search)
@@ -41,7 +39,7 @@ export const SelectStore = ({ setStore }: SelectStoreProps) => {
             defaultOptions={false}
             placeholder="Buscar Tienda"
             loadOptions={promiseOptions}
-            className='w-full bg-blue-300'
+            className='w-full'
             onChange={handleChange}
 
         />

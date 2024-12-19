@@ -61,31 +61,6 @@ export const orderUpdate = async (order: string, estado: string) => {
 
 }
 
-// actualizar datos de envío
-// https://sami3-external.winwinafi.com/orders/kayser.pe/ss1728534382069upvg
-// method: PUT
-// {
-//     "actualizar": {      
-//          "datos_envio": [
-//                     {
-//                         "nombres_envio": "Silvia andrea Montañez quiroz",
-//                         "apellidos_envio": "Silvia andrea Montañez quiroz",
-//                         "direccion_envio": "Tienda Real Plaza Santa Clara",
-//                         "referencia_envio": "",
-//                         "telefono_envio": "997282255",
-//                         "pais": "Peru",
-//                         "departamento": "Lima",
-//                         "provincia": "Lima",
-//                         "distrito": "Ate",
-//                         "dni_envio": "44998566",
-//                         "servicio_envio": "recojo en tienda",
-//                         "ubigeo": "150141",
-//                         "tipo_envio": "recojo en tienda"
-//                     }
-//                 ],
-//          }
-// }
-
 export const updateShippingInfo = async (data: any) => {
 
     const { orden } = data;
@@ -106,7 +81,6 @@ export const updateShippingInfo = async (data: any) => {
 
 
     const jsonData = {
-
         "actualizar": {
             "datos_envio":
             {
@@ -115,14 +89,14 @@ export const updateShippingInfo = async (data: any) => {
                 "direccion_envio": data.direccion_envio,
                 "referencia_envio": data.referencia_envio,
                 "telefono_envio": data.telefono_envio,
-                "pais": "Peru",
-                "departamento": pickupPoint[0].Department,
-                "provincia": pickupPoint[0].Province,
-                "distrito": pickupPoint[0].District,
+                "pais": data.pais,
+                "departamento": data.departamento,
+                "provincia": data.provincia,
+                "distrito": data.distrito,
                 "dni_envio": data.dni_envio,
-                "servicio_envio": "recojo en tienda",
-                "ubigeo": pickupPoint[0].LocationCode,
-                "tipo_envio": "recojo en tienda"
+                "servicio_envio": data.servicio_envio,
+                "ubigeo": data.ubigeo,
+                "tipo_envio": data.tipo_envio
             }
         }
     }
@@ -162,7 +136,7 @@ export const updateShippingInfo = async (data: any) => {
 
         await prisma.orderLogs.create({
             data: {
-                CommentText: `Cambio de tienda ${orderData?.PickupPoint} -> ${data.direccion_envio}`,
+                CommentText: `Se edito Información de Envío`,
                 StatusOld: orderData!.StatusID,
                 StatusID: orderData!.StatusID || 0,
                 OrderNumber: orden,
@@ -170,7 +144,7 @@ export const updateShippingInfo = async (data: any) => {
                 CreatedAt: now
             }
         })
-    
+
 
         if (dataFetch.sRpta) {
             revalidatePath(`/pedido/${orden}`);
