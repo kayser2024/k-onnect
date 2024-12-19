@@ -242,8 +242,6 @@ async function HomeOrden({ params }: Props) {
     else if (situacion_pagos.estado_pago === 'pendiente') colorEstado = "bg-orange-300"
 
 
-
-
     return (
         <main className="p-2" >
             <section>
@@ -287,7 +285,6 @@ async function HomeOrden({ params }: Props) {
                                         {situacion_pagos.estado_pago}
                                     </span>
                                 </div>
-
                                 <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
                             </CardTitle>
 
@@ -368,7 +365,7 @@ async function HomeOrden({ params }: Props) {
                     </Card>
 
 
-                    {/* INFORMACIÓN FACTURACIÓN */}
+                    {/* INFORMACIÓN ENVIO */}
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
