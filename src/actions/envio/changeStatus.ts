@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { DatosEnvio } from "@/types/Orden";
 import { revalidatePath } from "next/cache";
 
 interface Option {
@@ -88,6 +89,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
     // RECORRER LA LISTA DE LOS ORDENES 
     for (const { order, destino } of orderList) {
         try {
+            let dataEnvio: string;
 
             // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
@@ -109,13 +111,9 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     const data_envio = dataOrder.obj.ordenes[0].datos_envio[0]
 
                     const tipo_envio = data_envio.tipo_envio;
-                    const departamento = data_envio.departamento;
-                    const provincia = data_envio.provincia;
-                    const distrito = data_envio.distrito;
-                    const referencia = data_envio.referencia_envio;
-                    const ubigeo = data_envio.ubigeo;
 
-                    // ENVIAR EN UN JSON LA INFORAMCIÓN DE ENVÍO
+                    // TODO: ENVIAR  UN JSON LA INFORAMCIÓN DE ENVÍO 🚩
+                    dataEnvio = JSON.stringify(data_envio)
 
                     // obtener el nombre del destino de la tienda
                     if (tipo_envio === 'recojo en tienda') {
@@ -131,7 +129,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                 } catch (error: any) {
                     failedOrders.push({ order: { order, destino }, error: error.message })
                     continue;
-                }
+                } 
             }
 
             // Actualizar orden en la API
@@ -142,7 +140,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, @result);
+                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida

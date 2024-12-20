@@ -8,11 +8,6 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 		IN p_PickupPoint VARCHAR ( 100 ),
 		IN p_status VARCHAR ( 20 ),
 		IN p_CommentText TEXT,
-		
-			-- parámentro en JSON
-		IN p_InfoShipping JSON, 
-		
-		
 		OUT p_Result VARCHAR ( 255 ) 
 ) 
 	BEGIN
@@ -21,23 +16,6 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 	DECLARE currentStatusID INT;
 	DECLARE findID INT;
 	DECLARE currentStatusDescription VARCHAR ( 50 );
-	
-	
-		-- Extraer datos_envio de JSON
-	SET v_Name= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.nombres_envio'));
-	SET v_LastName= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.apellidos_envio'));
-	SET v_Address= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.direccion_envio'));
-	SET v_Reference= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.referencia_envio'));
-	SET v_Phone= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.telefono_envio'));	
-	SET v_Country= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.pais'));	
-	SET v_Department= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.departamento'));
-	SET v_Province= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.provincia'));	
-	SET v_District= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.distrito'));
-	SET v_Dni= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.dni_envio'));
-	SET v_Service= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.servicio_envio'));
-	SET v_LocationCode= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.ubigeo'));
-	SET v_TypeShipping= JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.tipo_envio'));
-	
 	
 	-- Asignar un valor predeterminado si p_CommentText es NULL
 	SET p_CommentText = IFNULL( p_CommentText, '' );
@@ -75,34 +53,20 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 							SELECT PickupPointID INTO findID FROM PickupPoints WHERE Description = p_PickupPoint;
 							
 							-- Insertar la orden si no existe en la tabla "Orders"
-							INSERT INTO Orders ( OrderNumber, PickupPointID, StatusID, UserID, PickupPoint,  CreatedAt )
-							VALUES (p_OrderNumber,findID,2,p_UserID,p_PickupPoint, NOW());
-							
-							
-							-- Insertar en la Table: InfoShipping
-							INSERT INTO InfoShipping ()
-							VALUES ();
-							
-							
+							INSERT INTO Orders ( OrderNumber, PickupPointID, StatusID, UserID, PickupPoint, CreatedAt )
+							VALUES (p_OrderNumber,findID,2,p_UserID,p_PickupPoint,NOW());
 							
 							INSERT INTO OrderLogs ( OrderNumber, StatusOld, StatusID, UserID, CommentText, CreatedAt )
 							VALUES (p_OrderNumber,1,2,p_UserID,'CREACIÓN DE LA ORDEN',NOW());
-							
-							
-							
 							
 							SET p_Result = 'OK: Orden insertada correctamente';
 						
 						
 						ELSE 
 							-- Verificar si es Delivery o Recojo en tienda
-							IF v_TypeShipping = 'delivery' THEN						
-								INSERT INTO Orders ( OrderNumber, StatusID, UserID, PickupPoint,Name,LastName,Address,Reference,Phone,Department,Province,District,Dni,Service,LocationCode,ShippingType, CreatedAt )
-								VALUES ( p_OrderNumber,2,p_UserID,p_PickupPoint,v_Name,v_LastName,v_Address,v_Reference,v_Phone,v_Department,v_Province,v_District,v_Dni,v_Service,v_LocationCode,v_ShippingType, NOW());
-								
-								-- Insertar en la Tabla InfoShipping
-								
-								
+							IF p_PickupPoint = 'DELIVERY' THEN						
+								INSERT INTO Orders ( OrderNumber, StatusID, UserID, PickupPoint, CreatedAt )
+								VALUES (p_OrderNumber,2,p_UserID,p_PickupPoint,NOW());
 								SET p_Result = 'OK: Orden creada correctamente con entrega a domicilio.';
 							ELSE
 								SET p_Result = CONCAT( 'ERROR: Establecimiento "', p_PickupPoint, '" no encontrado en la BD' );								
@@ -184,9 +148,6 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 	
 END$$
 DELIMITER;
-
-
-
 
 
 
