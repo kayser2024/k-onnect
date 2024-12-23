@@ -66,19 +66,33 @@ model OrderStatus {
 }
 
 model Orders {
-  OrderID       Int           @id @default(autoincrement())
-  OrderNumber   String        @unique(map: "OrderNumber") @db.VarChar(50)
-  StatusID      Int?
-  UserID        Int?
-  PickupPointID Int?
-  CreatedAt     DateTime?     @default(now()) @db.Timestamp(0)
-  UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
-  PickupPoint   String?       @db.VarChar(100)
-  UserUpdaterID Int?
-  Incidence     Incidence[]
-  OrderStatus   OrderStatus?  @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
-  Users         Users?        @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
-  PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
+  OrderID        Int            @id @default(autoincrement())
+  OrderNumber    String         @unique(map: "OrderNumber") @db.VarChar(50)
+  StatusID       Int
+  UserID         Int
+  PickupPointID  Int?
+  CreatedAt      DateTime       @default(now()) @db.Timestamp(0)
+  UpdatedAt      DateTime?      @default(now()) @db.Timestamp(0)
+  PickupPoint    String?        @db.VarChar(100)
+  UserUpdaterID  Int?
+  ShippingType   String?        @db.VarChar(100)
+  Phone          String?        @db.VarChar(9)
+  Department     String?        @db.VarChar(100)
+  Province       String?        @db.VarChar(100)
+  District       String?        @db.VarChar(100)
+  Address        String?        @db.VarChar(255)
+  Reference      String?        @db.VarChar(255)
+  Dni            String?        @db.VarChar(16)
+  Name           String?        @db.VarChar(255)
+  Lastname       String?        @db.VarChar(255)
+  LocationCode   String?        @db.VarChar(10)
+  Service        String?        @db.VarChar(100)
+  InfoShippingID Int?
+  Incidence      Incidence[]
+  InfoShipping   InfoShipping[]
+  OrderStatus    OrderStatus    @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
+  Users          Users          @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+  PickupPoints   PickupPoints?  @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
 
   @@index([PickupPointID], map: "PickupPointID")
   @@index([StatusID], map: "StatusID")
@@ -86,14 +100,15 @@ model Orders {
 }
 
 model PickupPoints {
-  PickupPointID Int      @id @default(autoincrement())
-  Description   String?  @db.VarChar(100)
-  District      String?  @db.VarChar(100)
-  Province      String?  @db.VarChar(100)
-  Department    String?  @db.VarChar(100)
-  LocationCode  String?  @db.VarChar(10)
-  Place         String?  @db.VarChar(255)
-  Address       String?  @db.VarChar(255)
+  PickupPointID Int            @id @default(autoincrement())
+  Description   String?        @db.VarChar(100)
+  District      String?        @db.VarChar(100)
+  Province      String?        @db.VarChar(100)
+  Department    String?        @db.VarChar(100)
+  LocationCode  String?        @db.VarChar(10)
+  Place         String?        @db.VarChar(255)
+  Address       String?        @db.VarChar(255)
+  InfoShipping  InfoShipping[]
   Orders        Orders[]
 }
 
@@ -183,4 +198,42 @@ model IncidenceLogs {
   Incidence        Incidence @relation(fields: [IncidenceID], references: [IncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "FK_IncidenceID")
 
   @@index([IncidenceID], map: "FK_IncidenceID")
+}
+
+model InfoShipping {
+  InfoShippingID Int           @id @default(autoincrement())
+  Name           String        @db.VarChar(255)
+  LastName       String?       @db.VarChar(255)
+  Address        String        @db.VarChar(255)
+  Reference      String?       @db.VarChar(255)
+  Phone          String?       @db.VarChar(12)
+  Country        String?       @db.VarChar(50)
+  Department     String?       @db.VarChar(100)
+  Province       String?       @db.VarChar(100)
+  District       String?       @db.VarChar(100)
+  Dni            String        @db.VarChar(16)
+  Service        String        @db.VarChar(50)
+  LocationCode   String        @db.VarChar(20)
+  TypeShipping   String        @db.VarChar(20)
+  PickupPointID  Int?
+  OrderID        Int
+  Orders         Orders        @relation(fields: [OrderID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "fk_OrderID")
+  PickupPoints   PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "fk_PickupPointID")
+
+  @@index([InfoShippingID], map: "InfoShippingID")
+  @@index([OrderID], map: "fk_OrderID")
+  @@index([PickupPointID], map: "fk_PickupPointID")
+}
+
+model tbl_inventary {
+  id         Int      @id @default(autoincrement())
+  sku        String?  @db.VarChar(255)
+  url_1      String?  @db.VarChar(255)
+  url_2      String?  @db.VarChar(255)
+  url_3      String?  @db.VarChar(255)
+  url_4      String?  @db.VarChar(255)
+  url_5      String?  @db.VarChar(255)
+  url_6      String?  @db.VarChar(255)
+  price      Decimal? @db.Decimal(10, 2)
+  price_sale Decimal? @db.Decimal(10, 2)
 }

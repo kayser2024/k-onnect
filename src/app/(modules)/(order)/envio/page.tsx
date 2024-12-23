@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -9,6 +9,8 @@ import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
+import { SelectEstablec } from "@/components/SelectEsablec";
+import { getDataOrderByInvoice } from "@/actions/order/api/GET-order";
 
 function EnvioMasivo() {
     const session = useSession();
@@ -21,14 +23,34 @@ function EnvioMasivo() {
     const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
+    const [establecSelect, setEstablecSelect] = useState("")
+
+    const [error, setError] = useState(false);
+
+    const VERIFY_OPTIONS = {
+        RECOJO_TIENDA: "recojo en tienda",
+        DELIVERY: "DELIVERY",
+    };
+
+    // función para verificar que tienda es la orden
+    const verifyOrderEstablec = useCallback(async (invoice: string, establec: string) => {
+        const dataInvoice = await getDataOrderByInvoice(invoice);
+        const { tipo_envio, direccion_envio } = dataInvoice.datos_envio[0] || {};
+        console.log({ tipo_envio, direccion_envio })
+        return (
+            (tipo_envio === VERIFY_OPTIONS.RECOJO_TIENDA && establec === direccion_envio) ||
+            (tipo_envio === 'delivery' && establec === VERIFY_OPTIONS.DELIVERY)
+        );
+    }, []);
 
     // función para agregar a la tabla
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // Validar si el input está vacío o no cumple con el formato
-        if (!order.trim() || order.length < 10 || !order.startsWith("ss")) {
-            toast.error("Ingresar una orden válida");
+
+        // verificar si hay una tienda seleccionada
+        if (!establecSelect) {
+            toast.warning("Por favor, selecciona una tienda antes de agregar órdenes.");
             return;
         }
 
@@ -61,16 +83,28 @@ function EnvioMasivo() {
                 return;
             }
 
-            setOrderList((prevList) => [
-                ...prevList,
-                { order: order.trim(), destino: optionSelection },
-            ]);
+
+            console.log(order, establecSelect)
+            // agregar solo si corresponde a la tienda seleccionada
+            const isOrderValid = await verifyOrderEstablec(order, establecSelect)
+
+            if (isOrderValid) {
+                setOrderList((prevList) => [
+                    ...prevList,
+                    { order: order.trim(), destino: optionSelection },
+                ]);
+                setError(false)
+            } else {
+                // toast.warning("El destino no coincide")
+                setError(true)
+                return;
+            }
+
         }
 
         // Limpiar el campo de entrada
         setOrder("");
     };
-
 
 
     // Cambiar estado de las ordenes
@@ -144,14 +178,31 @@ function EnvioMasivo() {
     return (
         <>
             <main>
-                <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
-                    <div className="w-full">
+                <div className="grid sm:grid-cols-4 gap-2 bg-blue-50 p-2 rounded-md">
 
-                        <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
-                        <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
+                    <form onSubmit={handleSubmit} className="flex flex-col">
+                        <label htmlFor="orden" className="text-sm font-bold"># Boleta/ Factura:</label>
+                        <Input
+                            placeholder="B001-ABC"
+                            id="orden"
+                            value={order}
+                            onChange={(e) => {
+                                setOrder(e.target.value);
+                                if (error) setError(false); 
+                            }}
+                            className={`border ${error ? "border-red-500" : ""}`}
+                        />
+                        {error && (
+                            <span className="text-red-500 text-sm mt-1">
+                                El destino no coincide con la Boleta.
+                            </span>
+                        )}
+                    </form>
+                    <div className="flex flex-col">
+                        <label htmlFor="" className="text-sm font-bold">Destino:</label>
+                        <SelectEstablec setEstablec={setEstablecSelect} />
                     </div>
-
-                </form>
+                </div>
 
                 <br />
 
