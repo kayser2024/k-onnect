@@ -1,14 +1,16 @@
 import React from 'react'
 import { DataTable } from './table'
 
-const MantenimientoUser = () => {
+const MantenimientoEstablec = () => {
     return (
-        <div>
+        <div className=''>
 
+       
             {/* Tabla */}
             <DataTable />
+
         </div>
     )
 }
 
-export default MantenimientoUser
+export default MantenimientoEstablec

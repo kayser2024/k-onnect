@@ -1,13 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, ClipboardCheck, ListRestart, Power, ScanEye, Search, TriangleAlert, Truck, UserCog } from 'lucide-react';
-
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, Settings, TriangleAlert, Truck, UserCog } from 'lucide-react';
+import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
@@ -19,6 +19,8 @@ export const Sidebar = () => {
 
     const isSideMenuOpen = useUIStore(state => state.isSideMenuOpen);
     const closeMenu = useUIStore(state => state.closeSideMenu);
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(null); // Estado para controlar menús desplegados.
+
 
     const rutas = [
         {
@@ -59,7 +61,8 @@ export const Sidebar = () => {
             nombre: 'Recepción Orden (tienda)',
             icon: <Box />,
             ruta: '/recepcion',
-            roles: [1, 2, 6]
+            roles: [1, 2, 6],
+            
 
         },
         {
@@ -70,18 +73,23 @@ export const Sidebar = () => {
             roles: [1, 2, 6]
 
         },
-        {
-            nombre: 'Reiniciar Orden (Soporte)',
-            icon: <ListRestart />,
-            ruta: '/reset',
-            roles: [1, 2]
+        // {
+        //     nombre: 'Reiniciar Orden (Soporte)',
+        //     icon: <ListRestart />,
+        //     ruta: '/reset',
+        //     roles: [1, 2]
 
-        },
+        // },
         {
             nombre: 'Mantenimiento (Soporte)',
-            icon: <UserCog />,
-            ruta: '/mantenimiento_user',
-            roles: [1, 2]
+            icon: <Monitor  />,
+            ruta: '/mantenimiento',
+            roles: [1, 2],
+            children: [
+                { nombre: 'Usuarios', ruta: '/mantenimiento/usuarios', icon: <UserCog /> },
+                { nombre: 'Tiendas', ruta: '/mantenimiento/tiendas', icon: <Building /> },
+                { nombre: 'Orden', ruta: '/reset', icon: <FileBox /> },
+            ],
 
         },
         // {
@@ -114,6 +122,11 @@ export const Sidebar = () => {
 
     // console.log(usuarioInfo)
     const pathname = usePathname()
+
+
+    const toggleMenu = (menu: string) => {
+        setExpandedMenu((prev) => (prev === menu ? null : menu));
+    };
 
     return (
         <div>
@@ -150,7 +163,7 @@ export const Sidebar = () => {
                     <div className='m-4  bg-gray-100 h-[1px]' />
                 </div>
 
-                <div className='flex flex-col gap-3'>
+                {/* <div className='flex flex-col gap-3'>
                     <div>
                         <div className='flex flex-col gap-2 my-2'>
                             {
@@ -167,6 +180,42 @@ export const Sidebar = () => {
                         </div>
                     </div>
 
+                </div> */}
+
+
+                <div className='flex flex-col gap-1'>
+                    {rutasFiltradas.map((ruta) => (
+                        <div key={ruta.nombre}>
+                            <div
+                                className={clsx(
+                                    'flex items-center justify-between hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
+                                    { 'text-blue-500 border': pathname === ruta.ruta || expandedMenu === ruta.nombre }
+                                )}
+                                onClick={() => ruta.children ? toggleMenu(ruta.nombre) : closeMenu()}
+                            >
+                                <div className='flex items-center gap-3'>
+                                    {ruta.icon} {ruta.nombre}
+                                </div>
+                                {ruta.children && (
+                                    <span>{expandedMenu === ruta.nombre ? '-' : '+'}</span>
+                                )}
+                            </div>
+                            {ruta.children && expandedMenu === ruta.nombre && (
+                                <div className='ml-6 flex flex-col gap-2'>
+                                    {ruta.children.map((child) => (
+                                        <Link
+                                            key={child.ruta}
+                                            href={child.ruta}
+                                            onClick={closeMenu}
+                                            className={clsx('flex gap-2 hover:bg-gray-200 dark:hover:text-black p-3 rounded-lg transition-all', { 'text-blue-500': pathname === child.ruta })}
+                                        >
+                                            {child.icon} {child.nombre}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
 
                 <div>

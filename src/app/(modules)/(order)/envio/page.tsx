@@ -36,7 +36,6 @@ function EnvioMasivo() {
     const verifyOrderEstablec = useCallback(async (invoice: string, establec: string) => {
         const dataInvoice = await getDataOrderByInvoice(invoice);
         const { tipo_envio, direccion_envio } = dataInvoice.datos_envio[0] || {};
-        console.log({ tipo_envio, direccion_envio })
         return (
             (tipo_envio === VERIFY_OPTIONS.RECOJO_TIENDA && establec === direccion_envio) ||
             (tipo_envio === 'delivery' && establec === VERIFY_OPTIONS.DELIVERY)

@@ -12,22 +12,23 @@ import { Input } from '@/components/ui/input';
 import { Loader } from '@/components/loader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { columns } from './columns'
-import { AlertConfirm } from './alert-confirm';
-import { ModalUser } from './modal';
 import { User } from '@/types/User';
+import { columns } from './columns';
+import { Modal } from './modal';
+import { getEstablecById, getListEstablecimientos, updateEstablec } from '@/actions/establecimiento/getEstablecimiento';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { PickupPoint } from '@/types/Establec';
 
 
-let initialDataUsuer = {
-    dni: '',
-    name: '',
-    lastName: '',
-    email: '',
-    emailVerified: '',
-    password: '',
-    image: '',
-    rolId: 1,
-    status: false,
+let initialData: PickupPoint = {
+    PickupPointID: 0,
+    Description: "",
+    District: "",
+    Province: "",
+    Department: "",
+    LocationCode: "",
+    Place: "",
+    Address: ""
 }
 
 export const DataTable = () => {
@@ -36,22 +37,21 @@ export const DataTable = () => {
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [isOpenAlert, setIsOpenAlert] = useState(false)
     const [action, setAction] = useState("")
-    const [dataUser, setDataUser] = useState(initialDataUsuer);
+    const [dataUser, setDataUser] = useState(initialData);
     const [isSaving, setIsSaving] = useState(false)
     const [totalRegistros, setTotalRegistros] = useState(0);
-    const [searchUsuario, setSearchUsuario] = useState("");
+    const [searchStore, setSearchStore] = useState("");
 
 
     const { data, isLoading, isError, refetch } = useQuery({
-        queryKey: ['allUsers'],
-        queryFn: async () => await getAllUsers(),
+        queryKey: ['listEstablec'],
+        queryFn: async () => await getListEstablecimientos(),
     })
 
 
-    const handleOpenModal = (action: string, id?: string, currentStatus?: boolean) => {
+    const handleOpenModal = (action: string, id?: number) => {
         setAction(action);
 
-        console.log(action, id, currentStatus)
         switch (action) {
 
             case 'create':
@@ -59,14 +59,6 @@ export const DataTable = () => {
                 break
             case 'edit':
                 if (id) handleEdit(id)
-                break
-            case 'delete':
-                if (id && typeof currentStatus === "boolean") {
-                    handleDelete(action, id, currentStatus);
-                }
-                break
-            case 'reset':
-                if (id) handleReset(id)
                 break
             default:
                 break
@@ -76,22 +68,24 @@ export const DataTable = () => {
 
     // FUNCIÓN PARA CREAR UN NUEVO USUARIO
     const handleCreate = () => {
-        setDataUser(initialDataUsuer)
+        setDataUser(initialData)
         setIsOpenModal(true);
     }
 
     // FUNCIÓN PARA EDITAR DATOS DEL USUARIO
-    const handleEdit = async (id: string) => {
+    const handleEdit = async (id: number) => {
         if (!id) return;
         try {
-            const user = await getUserByDni(id);
-            setDataUser(user)
+            const establec: PickupPoint = await getEstablecById(id);
+            console.log({ establec }, '👀👀')
+            setDataUser(establec)
             setIsOpenModal(true);
         } catch (error: any) {
             console.log(error.message)
             toast.error(error.message)
         }
     }
+
 
     // FUNCION PARA CAMBIAR ESTADO DEL USUARIO
     const handleDelete = (action: string, id: string, currentStatus: boolean) => {
@@ -115,45 +109,31 @@ export const DataTable = () => {
 
 
     // FUNCIÓN PARA GUARDAR LOS DATOS DEL USUARIO
-    const handleSave = async (action: string, data: User) => {
+    const handleSave = async (action: string, data: PickupPoint) => {
 
         setIsSaving(true)
         try {
-            if (action === 'create') await createUser(data);
-            if (action === 'edit') await updateUser(data);
+            // if (action === 'create') await createUser(data);
+            // if (action === 'edit') await updateUser(data);
+
+            // llamar action para crear un establecimiento y actualizar establecimiento
+            if (action === 'edit') await updateEstablec(data)
+
+
+
             toast.success("Operación exitosa");
         } catch (error: any) {
             toast.error(error.message);
         } finally {
             setIsSaving(false)
             setIsOpenModal(false)
-            setDataUser(initialDataUsuer)
+            setDataUser(initialData)
         }
 
         refetch();
 
     }
 
-    // FUNCIÓN PARA ACEPTAR Y GUARDAR
-    const handleAlertAccept = async (action: string) => {
-
-        setIsSaving(true)
-        try {
-            if (action === 'reset') await resetPassword(dataUser.dni)
-            if (action === 'delete') await changeStatusUser(dataUser.dni, dataUser.status)
-            toast.success("Operación exitosa");
-        } catch (error: any) {
-            toast.error(error.message)
-        } finally {
-            setIsSaving(false)
-            setIsOpenAlert(false)
-            setDataUser(initialDataUsuer);
-        }
-
-
-        refetch()
-
-    }
 
     // REACT-TABLE
     const table = useReactTable({
@@ -169,7 +149,7 @@ export const DataTable = () => {
         },
         initialState: {
             pagination: {
-                pageSize: 5,
+                pageSize: 10,
             },
         },
     })
@@ -184,18 +164,18 @@ export const DataTable = () => {
 
     useEffect(() => {
         const filters = []
-        if (searchUsuario) {
-            filters.push({ id: 'name', value: searchUsuario })
+        if (searchStore) {
+            filters.push({ id: 'name', value: searchStore })
         }
         setColumnFilters(filters);
-    }, [searchUsuario])
+    }, [searchStore])
 
     return (
         <div>
             {/* SEARCH */}
             <div className="flex gap-2 w-full my-4">
                 <label className="input  input-bordered flex items-center gap-2 w-full">
-                    <Input placeholder='Buscar nombre ...' value={searchUsuario} onChange={e => setSearchUsuario(e.target.value)} />
+                    <Input placeholder='Buscar nombre ...' value={searchStore} onChange={e => setSearchStore(e.target.value)} />
                 </label>
                 <Button
                     variant='default'
@@ -208,40 +188,45 @@ export const DataTable = () => {
 
             <div className="overflow-x-auto">
 
-                {isLoading && <Loader />}
-
-                <Table >
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                    </TableHead>
+                {isLoading
+                    ? <Loader />
+                    :
+                    <Table >
+                        <ScrollArea className='h-[500px]'>
+                            <TableHeader>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                            </TableHead>
+                                        ))}
+                                    </TableRow>
                                 ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableHeader>
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>
+                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                                            Sin Resultados
                                         </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    Sin Resultados
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                                    </TableRow>
+                                )}
+
+                            </TableBody>
+                        </ScrollArea>
+                    </Table>
+                }
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between space-x-2 py-4">
@@ -275,11 +260,11 @@ export const DataTable = () => {
             </div>
 
             {/* MODAL CREATE  - UPDATE */}
-            <ModalUser isOpenModal={isOpenModal} handleSave={handleSave} setIsOpenModal={setIsOpenModal} action={action} data={dataUser} isSaving={isSaving} />
+            <Modal isOpenModal={isOpenModal} handleSave={handleSave} setIsOpenModal={setIsOpenModal} action={action} data={dataUser} isSaving={isSaving} />
 
 
             {/* CONFIRM RESET - DELETE */}
-            <AlertConfirm isOpenAlert={isOpenAlert} setIsOpenAlert={setIsOpenAlert} action={action} handleAccept={handleAlertAccept} isSaving={isSaving} />
+            {/* <AlertConfirm isOpenAlert={isOpenAlert} setIsOpenAlert={setIsOpenAlert} action={action} handleAccept={handleAlertAccept} isSaving={isSaving} /> */}
         </div>
     )
 }
