@@ -60,16 +60,30 @@ export const SelectDistrict = ({ province, district, setDistrict, locationCode, 
     }, [province])
 
 
+    // valor por defecto
+    const defaultDistrict = districts.filter(d =>
+        d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") &&
+        d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    ).map(d => ({
+        label: d.distrito,
+        value: d.reniec || "",
+    }))
+
+
+    console.log({ defaultDistrict, province }, '🟡🟡')
+
     return (
         <AsyncSelect
             // cacheOptions
             defaultOptions={false}
             placeholder="Buscar Provincia"
+            // defaultValue={defaultDistrict}
+            value={defaultDistrict}
             loadOptions={promiseOptions}
             className='w-full'
             onChange={handleChange}
-            value={district ? { label: `${locationCode} - ${district}`, value: locationCode } : null}
-            isDisabled={!province}
+        // value={district ? { label: `${locationCode} - ${district}`, value: locationCode } : null}
+        // isDisabled={!province}
         />
     )
 }

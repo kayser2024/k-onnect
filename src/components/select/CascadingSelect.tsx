@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Label } from '../ui/label'
 import { SelectDepartment } from './select-department'
 import { SelectProvince } from './select-province'
 import { SelectDistrict } from './select-district'
+
+import deparments from '@/mock/data/departamento.json'
+import provinces from '@/mock/data/provincia.json'
+import districts from '@/mock/data/distrito.json'
 
 
 interface CascadingSelectProps {
@@ -21,6 +25,8 @@ interface CascadingSelectProps {
 export const CascadingSelect = ({ department, setDepartment, province, setProvince, district, setDistrict, locationCode, setLocationCode }: CascadingSelectProps) => {
 
 
+  console.log({ department, province, district }, '👍👍👍')
+
   const handleSetDepartment = (value: string) => {
     setDepartment(value);
     setProvince("")
@@ -34,6 +40,34 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
     setLocationCode("")
   }
 
+  // // valor por defecto
+  // const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.departamento,
+  //   value: d.reniec,
+  // }))
+
+  // // valor por defecto
+  // const defaultProvince = provinces.filter(d => d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.provincia,
+  //   value: d.reniec,
+  // }))
+
+
+  // // valor por defecto
+  // const defaultDistrict = districts.filter(d => d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.distrito,
+  //   value: d.reniec || "",
+  // }))
+
+
+  // useEffect(() => {
+  //   setDepartment(defaultDepartment[0].label)
+  //   setProvince(defaultProvince[0]?.label || "")
+  //   setDistrict(defaultDistrict[0]?.label || "")
+  //   setLocationCode(defaultDistrict[0]?.value || "")
+  // }, [])
+
+
   return (
     <div className='grid grid-cols-1 gap-4'>
 
@@ -43,6 +77,7 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
           Departamento
         </Label>
         <SelectDepartment
+          department={department}
           setDepartment={handleSetDepartment}
           setProvince={setProvince}
           setDistrict={setDistrict}

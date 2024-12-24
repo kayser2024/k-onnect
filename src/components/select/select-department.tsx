@@ -6,6 +6,7 @@ import deparments from '@/mock/data/departamento.json'
 
 
 interface SelectDepartmentProps {
+    department: string
     setDepartment: (value: string) => void
     setProvince: (value: string) => void
     setDistrict: (value: string) => void
@@ -17,8 +18,10 @@ interface Option {
     value: string;
 }
 
-export const SelectDepartment = ({ setDepartment, setProvince, setDistrict, setLocationCode }: SelectDepartmentProps) => {
+export const SelectDepartment = ({ department, setDepartment, setProvince, setDistrict, setLocationCode }: SelectDepartmentProps) => {
 
+
+    console.log({ department }, 'DEPARTAMENTO')
     // Filtra las provincias según el valor de búsqueda
     const filterProvinces = (inputValue: string) => {
         return deparments.filter(p =>
@@ -52,12 +55,21 @@ export const SelectDepartment = ({ setDepartment, setProvince, setDistrict, setL
     }
 
 
+    // valor por defecto
+    const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === (department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+        label: d.departamento,
+        value: d.reniec,
+    }))
 
+
+    console.log({ defaultDepartment }, 'DEFAULT DEPARTMENT')
 
     return (
         <AsyncSelect
             // cacheOptions
             defaultOptions={false}
+            // defaultValue={defaultDepartment}
+            value={defaultDepartment}
             placeholder="Buscar Departamento"
             loadOptions={promiseOptions}
             className='w-full'

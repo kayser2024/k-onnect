@@ -11,11 +11,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User } from '@/types/User'
 
-import { toast } from 'sonner'
 import { PickupPoint } from '@/types/Establec'
-import { add } from 'date-fns'
 import { CascadingSelect } from '@/components/select/CascadingSelect'
 
 interface ModalProps {
@@ -29,21 +26,28 @@ interface ModalProps {
 export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalProps) => {
 
 
-    const [dataPickupPoint, setDataPickupPoint] = useState<PickupPoint>({
-        PickupPointID: data.PickupPointID || 0,
-        Description: data.Description || '',
-        District: data.District || '',
-        Province: data.Province || '',
-        Department: data.Department || '',
-        LocationCode: data.LocationCode || '',
-        Place: data.Place || '',
-        Address: data.Address || '',
-    });
+    const initialData = {
+        PickupPointID: 0,
+        Description: '',
+        District: '',
+        Province: '',
+        Department: '',
+        LocationCode: '',
+        Place: '',
+        Address: '',
 
-    const [department, setDepartment] = useState("")
-    const [province, setProvince] = useState("")
-    const [district, setDistrict] = useState("")
-    const [locationCode, setLocationCode] = useState("")
+    }
+
+    const [dataPickupPoint, setDataPickupPoint] = useState<PickupPoint>({
+        PickupPointID: data.PickupPointID,
+        Description: data.Description,
+        District: data.District,
+        Province: data.Province,
+        Department: data.Department,
+        LocationCode: data.LocationCode,
+        Place: data.Place,
+        Address: data.Address,
+    });
 
 
     const handleChange = (field: keyof PickupPoint, value: string) => {
@@ -54,14 +58,14 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
     useEffect(() => {
         if (data) {
             setDataPickupPoint({
-                PickupPointID: data.PickupPointID || 0,
-                Description: data.Description || '',
-                District: data.District || '',
-                Province: data.Province || '',
-                Department: data.Department || '',
-                LocationCode: data.LocationCode || '',
-                Place: data.Place || '',
-                Address: data.Address || '',
+                PickupPointID: data.PickupPointID,
+                Description: data.Description,
+                District: data.District,
+                Province: data.Province,
+                Department: data.Department,
+                LocationCode: data.LocationCode,
+                Place: data.Place,
+                Address: data.Address,
             });
         }
     }, [data]);
@@ -84,13 +88,14 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
     }, [isOpenModal, setIsOpenModal]);
 
     // validar información antes de enviar
-
     const handleSubmit = () => {
         // validar data
 
         // enviar data 
         handleSave(action, dataPickupPoint)
     }
+
+    console.log({ data, dataPickupPoint }, '🟢🟢')
 
     return (
         <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}  >
@@ -117,15 +122,14 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
 
                     <CascadingSelect
-                        department={department}
-                        setDepartment={setDepartment}
-                        province={province}
-                        setProvince={setProvince}
-                        district={district}
-                        setDistrict={setDistrict}
-                        locationCode={locationCode}
-                        setLocationCode={setLocationCode}
-
+                        department={`${dataPickupPoint.Department}`}
+                        setDepartment={(value) => handleChange('Department', value)}
+                        province={dataPickupPoint.Province || ""}
+                        setProvince={(value) => handleChange('Province', value)}
+                        district={dataPickupPoint.District || ""}
+                        setDistrict={(value) => handleChange('District', value)}
+                        locationCode={dataPickupPoint.LocationCode || ""}
+                        setLocationCode={(value) => handleChange('LocationCode', value)}
                     />
 
                     {/* Ubigeo */}

@@ -26,7 +26,7 @@ export const getListEstablecimientos = async () => {
 
     try {
         // obtenemos todos los establecimientos menos el delivery
-        const establecimientos = await prisma.pickupPoints.findMany({
+        const establecimientos: PickupPoint[] = await prisma.pickupPoints.findMany({
             where: {
                 NOT: {
                     Description: {
@@ -58,13 +58,13 @@ export const getEstablecById = async (id: number) => {
 
         return {
             PickupPointID: establec.PickupPointID,
-            Description: establec.Description || '',
-            District: establec.District || '',
-            Province: establec.Province || '',
-            Department: establec.Department || '',
-            LocationCode: establec.LocationCode || '',
-            Place: establec.Place || '',
-            Address: establec.Address || '',
+            Description: establec.Description,
+            District: establec.District,
+            Province: establec.Province,
+            Department: establec.Department,
+            LocationCode: establec.LocationCode,
+            Place: establec.Place,
+            Address: establec.Address,
         };
     } catch (error) {
         console.log(error)

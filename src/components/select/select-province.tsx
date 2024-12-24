@@ -16,7 +16,7 @@ interface Option {
     value: string;
 }
 
-export const SelectProvince = ({ department,province, setProvince, setDistrict, setLocationCode }: SelectProvinceProps) => {
+export const SelectProvince = ({ department, province, setProvince, setDistrict, setLocationCode }: SelectProvinceProps) => {
 
     const provincias = provinces.filter(p => { p.departamento === department }).map(pp => ({ value: pp.provincia, label: pp.inei }))
 
@@ -61,16 +61,30 @@ export const SelectProvince = ({ department,province, setProvince, setDistrict, 
     }, [department])
 
 
+    // valor por defecto
+    const defaultProvince = provinces.filter(d => (
+        d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")) &&
+        d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    ).map(d => ({
+        label: d.provincia,
+        value: d.reniec,
+    }))
+
+
+    console.log({ provinces, defaultProvince, department, province }, '🔴🔴🔴')
+
     return (
         <AsyncSelect
             // cacheOptions
             defaultOptions={false}
+            // defaultValue={defaultProvince}
+            value={defaultProvince}
             placeholder="Buscar Distrito"
             loadOptions={promiseOptions}
             className='w-full '
             onChange={handleChange}
-            value={province ? { label: province, value: province } : null}
-            isDisabled={!department}
+        // value={province ? { label: province, value: province } : null}
+        // isDisabled={!department}
         />
     )
 }

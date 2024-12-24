@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
 import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -12,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Loader } from '@/components/loader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { User } from '@/types/User';
 import { columns } from './columns';
 import { Modal } from './modal';
 import { getEstablecById, getListEstablecimientos, updateEstablec } from '@/actions/establecimiento/getEstablecimiento';
@@ -118,7 +116,6 @@ export const DataTable = () => {
 
             // llamar action para crear un establecimiento y actualizar establecimiento
             if (action === 'edit') await updateEstablec(data)
-
 
 
             toast.success("Operación exitosa");
@@ -260,7 +257,7 @@ export const DataTable = () => {
             </div>
 
             {/* MODAL CREATE  - UPDATE */}
-            <Modal isOpenModal={isOpenModal} handleSave={handleSave} setIsOpenModal={setIsOpenModal} action={action} data={dataUser} isSaving={isSaving} />
+            {!isLoading && <Modal isOpenModal={isOpenModal} handleSave={handleSave} setIsOpenModal={setIsOpenModal} action={action} data={dataUser} isSaving={isSaving} />}
 
 
             {/* CONFIRM RESET - DELETE */}
