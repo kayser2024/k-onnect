@@ -140,7 +140,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio}, @result);
+                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida

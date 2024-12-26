@@ -41,6 +41,9 @@ import { SelectProductChange } from "./select-product-change"
 import { columns } from "./Columnas"
 import { ProductToChangeList } from "./product-to-change.list"
 import { ProductSelectList } from "./product-select-list"
+import { updateStatusPayment } from "@/actions/order/api/PUT-order"
+import { CascadingSelect } from "@/components/select/CascadingSelect"
+import { SelectStore } from "./ui/select-store"
 
 interface DataTableProps {
     data: any,
@@ -78,6 +81,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [prodOriginSubtotal, setProdOriginSubtotal] = useState(0);
     const [prodChangeSubtotal, setProdChangeSubtotal] = useState(0);
+    const [store, setStore] = useState("")
+    const [comment, setComment] = useState("");
+
 
 
     // obtener incidencias "Devoluciones"
@@ -109,21 +115,22 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         },
     })
 
+    // Función para Devoluciones
     const handleReembolso = async () => {
         setLoading(true);
 
         // Verificar si la voleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
         if (pagado !== "pagado") {
-            toast.error("El pedido no ha sido pagado")
+            toast.error(`El estado de pago: ${pagado}`)
             return
         }
 
         // Validar Boleta de inicdencia
-        if (invoice.trim().length < 5) {
-            toast.warning("Ingresar la Boleta de la Incidencia")
-            return;
-        }
+        // if (invoice.trim().length < 5) {
+        //     toast.warning("Ingresar la Boleta de la Incidencia")
+        //     return;
+        // }
 
 
         // construyendo la data para enviar a discord
@@ -183,13 +190,19 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             }
 
         } else {
+            console.log("ACTUALIZAR EL ESTADO A CANCELADO")
             observacion = "Devolucion Total a pedido del cliente"
+            // Actualizar API situación de Pago CANCELADO 🚩
+            await updateStatusPayment(nroOrden, "cancelado");
+
+
         }
 
         // navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
 
-        // ACTUALIZAR API
-        await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+        // Agregar Comentario a la BD
+        const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+        toast.warning(JSON.stringify(responseDB, null, 2))
 
         navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
         toast.success("Devolucion Copiada al Portapapeles")
@@ -207,9 +220,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         }))
 
 
-
-
-        //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
             invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
@@ -221,8 +231,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
         try {
-            await createIncidence(data);
-
+            const responseIncidencia = await createIncidence(data);
+            toast.info(JSON.stringify(responseIncidencia, null, 2));
         } catch (error: any) {
             console.log(error.message)
         } finally {
@@ -234,7 +244,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         setRowSelection({})
 
 
-        // revalidatePath(orden.cabecera_pedido[0].numero_orden)
         // ENVIAR NOTIFICACION A DISCORD CANAL DE DEVOLUCIONES
         // const notificacionDiscord = await fetch('/api/notificacion/devolucion', {
         //     method: 'POST',
@@ -265,7 +274,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         //     })
         // })
         // const res = await notificacionDiscord.json()
-        toast.success('Notificacion Enviada a Discord')
+        // toast.success('Notificacion Enviada a Discord')
 
 
     }
@@ -323,8 +332,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
     }
-
-
 
     // Función para Realizar camnbios
     const handleCambio = async () => {
@@ -495,6 +502,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                 text: "CHANGE",
             })),
         ];
+
         //TODO: guardar en tabla incidencia para la orden 
         const data = {
             orden: orden.cabecera_pedido[0].numero_orden,
@@ -508,7 +516,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
         await createIncidence(data)
 
-        // Descar Excel
+        // Descargar Excel
         // handleDescargaCambio()
 
     }
@@ -581,10 +589,10 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                     <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
 
                     {/* Modal Cambio Producto */}
-                    <DialogContent className=" md:max-w-screen-md lg:max-w-screen-lg">
+                    <DialogContent className=" md:max-w-screen-md lg:w-screen-lg">
 
                         <DialogHeader>
-                            <DialogTitle className="text-xl uppercase text-center">CAMBIAR PRODUCTO</DialogTitle>
+                            <DialogTitle className="text-xl uppercase text-center mb-4">CAMBIAR PRODUCTO</DialogTitle>
                             {/* <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription> */}
                         </DialogHeader>
 
@@ -607,34 +615,44 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             </div>
 
                             <div className=" flex flex-col gap-3">
+                                <ScrollArea className="max-h-72 flex flex-col gap-4 px-2">
 
-                                {/* Ingresar Incidencia */}
-                                <div className="">
-                                    <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
-                                    <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
-                                </div>
+                                    {/* Ingresar Incidencia */}
+                                    {/* <div className="">
+                                        <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
+                                        <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
+                                    </div> */}
 
-                                {/* Seleccionar Motivo de Cambio */}
-                                <div className="">
-                                    <Label htmlFor="selectMotivo">Seleccionar Motivo</Label>
-                                    <Select onValueChange={manejarCambioMotivo}>
-                                        <SelectTrigger className="">
-                                            <SelectValue placeholder="Seleccionar..." />
-                                        </SelectTrigger>
-                                        <SelectContent id="selectMotivo">
-                                            <SelectGroup>
-                                                <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
-                                                <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
-                                                <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
-                                                <SelectItem value="Otro">Otro</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                    {/* Seleccionar Tienda */}
+                                    <div className="">
+                                        <span className="text-sm font-semibold">Seleccionar Tienda:</span>
+                                        <SelectStore setStore={setStore} />
+                                    </div>
 
 
-                                {/* Escoger Productos Nuevos */}
-                                <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
+                                    {/* Seleccionar Motivo de Cambio */}
+                                    <div className="my-3">
+                                        <Label htmlFor="selectMotivo" className="text-xs font-semibold">Seleccionar Motivo</Label>
+                                        <Select onValueChange={manejarCambioMotivo}>
+                                            <SelectTrigger className="">
+                                                <SelectValue placeholder="Seleccionar..." />
+                                            </SelectTrigger>
+                                            <SelectContent id="selectMotivo">
+                                                <SelectGroup>
+                                                    <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
+                                                    <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
+                                                    <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
+                                                    <SelectItem value="Otro">Otro</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+
+                                    {/* Escoger Productos Nuevos */}
+                                    <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
+                                </ScrollArea>
+
                             </div>
 
                         </div>
@@ -673,18 +691,35 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                     {/* Drawer Menu Devolucion */}
                     <DropdownMenuContent>
-                        <DropdownMenuLabel>
+                        <DropdownMenuLabel className="flex flex-col gap-4">
                             <div className="flex flex-col mb-2">
                                 <span>¿Realizar Devolución?</span>
                                 <span className="text-xs text-slate-400 font-normal">Copiar Linea Excel y Notificar Discord</span>
                             </div>
+                            <div className="">
+                                <span>Seleccionar Tienda:</span>
+                                <div className="">
+                                    <SelectStore setStore={setStore} />
+                                </div>
 
-                            <span className="text-xs mt-4">Ingresar Nota Cred.:</span>
-                            <div className="flex gap-2">
-
-                                <Input placeholder="B00-123" className="uppercase" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
-                                <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
                             </div>
+                            <div className="">
+                                <span>Comentario:</span>
+                                <div className="">
+                                    <Input placeholder="Comentario" className="" onChange={(e) => setComment(e.target.value)} value={comment} />
+                                </div>
+
+                            </div>
+
+                            {/* <span className="text-xs mt-4">Ingresar Nota Cred.:</span> */}
+                            {/* <div className="flex gap-2"> */}
+
+
+                            <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
+                            {/* <Input placeholder="B00-123" className="uppercase" onChange={(e) => setInvoice(e.target.value)} value={invoice} /> */}
+                            {/* </div> */}
+
+
 
                         </DropdownMenuLabel>
                         {/* <DropdownMenuItem onClick={handleReembolso} className="flex flex-col gap-2"> */}

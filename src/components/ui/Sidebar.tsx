@@ -62,7 +62,7 @@ export const Sidebar = () => {
             icon: <Box />,
             ruta: '/recepcion',
             roles: [1, 2, 6],
-            
+
 
         },
         {
@@ -82,7 +82,7 @@ export const Sidebar = () => {
         // },
         {
             nombre: 'Mantenimiento (Soporte)',
-            icon: <Monitor  />,
+            icon: <Monitor />,
             ruta: '/mantenimiento',
             roles: [1, 2],
             children: [
@@ -132,10 +132,10 @@ export const Sidebar = () => {
         <div>
 
             {/* Background black */}
-            {isSideMenuOpen && (<div className="fixed top-0 left-0 w-screen h-screen z-10 bg-black opacity-30" />)}
+            {isSideMenuOpen && (<div className="fixed top-0 left-0 w-screen h-screen z-20 bg-black opacity-30" />)}
 
             {/* Blur */}
-            {isSideMenuOpen && (<div onClick={closeMenu} className="fade-in fixed top-0 left-0 w-screen h-screen z-10 backdrop-filter backdrop-blur-sm" />)}
+            {isSideMenuOpen && (<div onClick={closeMenu} className="fade-in fixed top-0 left-0 w-screen h-screen z-20 backdrop-filter backdrop-blur-sm" />)}
 
             {/* Sidemenu */}
             <nav
@@ -163,60 +163,59 @@ export const Sidebar = () => {
                     <div className='m-4  bg-gray-100 h-[1px]' />
                 </div>
 
-                {/* <div className='flex flex-col gap-3'>
-                    <div>
-                        <div className='flex flex-col gap-2 my-2'>
-                            {
-                                rutasFiltradas.map(ruta => (
-                                    <Link
-                                        onClick={() => closeMenu()}
-                                        href={ruta.ruta}
-                                        key={ruta.ruta}
-                                        className={clsx('hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl  transition-all', { 'text-blue-500 border': pathname === ruta.ruta })}>
-                                        <div className='flex flex-wrap gap-3'>{ruta.icon} {ruta.nombre}</div>
-                                    </Link>
-                                ))
-                            }
-                        </div>
-                    </div>
-
-                </div> */}
-
-
                 <div className='flex flex-col gap-1'>
                     {rutasFiltradas.map((ruta) => (
                         <div key={ruta.nombre}>
-                            <div
-                                className={clsx(
-                                    'flex items-center justify-between hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
-                                    { 'text-blue-500 border': pathname === ruta.ruta || expandedMenu === ruta.nombre }
-                                )}
-                                onClick={() => ruta.children ? toggleMenu(ruta.nombre) : closeMenu()}
-                            >
-                                <div className='flex items-center gap-3'>
+                            {ruta.children ? (
+                                // Si tiene hijos, se renderiza un contenedor desplegable.
+                                <>
+                                    <div
+                                        className={clsx(
+                                            'flex items-center justify-between hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
+                                            { 'text-blue-500 border': pathname === ruta.ruta || expandedMenu === ruta.nombre }
+                                        )}
+                                        onClick={() => toggleMenu(ruta.nombre)}
+                                    >
+                                        <div className='flex items-center gap-3'>
+                                            {ruta.icon} {ruta.nombre}
+                                        </div>
+                                        <span>{expandedMenu === ruta.nombre ? '-' : '+'}</span>
+                                    </div>
+                                    {expandedMenu === ruta.nombre && (
+                                        <div className='ml-6 flex flex-col gap-2'>
+                                            {ruta.children.map((child) => (
+                                                <Link
+                                                    key={child.ruta}
+                                                    href={child.ruta}
+                                                    onClick={closeMenu}
+                                                    className={clsx(
+                                                        'flex gap-2 hover:bg-gray-200 dark:hover:text-black p-3 rounded-lg transition-all',
+                                                        { 'text-blue-500': pathname === child.ruta }
+                                                    )}
+                                                >
+                                                    {child.icon} {child.nombre}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                // Si no tiene hijos, renderiza un Link directamente.
+                                <Link
+                                    href={ruta.ruta}
+                                    onClick={closeMenu}
+                                    className={clsx(
+                                        'flex items-center gap-3 hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
+                                        { 'text-blue-500 border': pathname === ruta.ruta }
+                                    )}
+                                >
                                     {ruta.icon} {ruta.nombre}
-                                </div>
-                                {ruta.children && (
-                                    <span>{expandedMenu === ruta.nombre ? '-' : '+'}</span>
-                                )}
-                            </div>
-                            {ruta.children && expandedMenu === ruta.nombre && (
-                                <div className='ml-6 flex flex-col gap-2'>
-                                    {ruta.children.map((child) => (
-                                        <Link
-                                            key={child.ruta}
-                                            href={child.ruta}
-                                            onClick={closeMenu}
-                                            className={clsx('flex gap-2 hover:bg-gray-200 dark:hover:text-black p-3 rounded-lg transition-all', { 'text-blue-500': pathname === child.ruta })}
-                                        >
-                                            {child.icon} {child.nombre}
-                                        </Link>
-                                    ))}
-                                </div>
+                                </Link>
                             )}
                         </div>
                     ))}
                 </div>
+
 
                 <div>
 

@@ -146,7 +146,7 @@ export const getAllIncidenceByOrder = async () => {
 
 }
 
-export const getAllIncidenceByInvoice = async (invoice: string) => {
+export const getAllIncidenceByInvoice: any = async (invoice: string) => {
     let result;
 
     try {

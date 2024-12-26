@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trash } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useEffect } from 'react';
 
 interface Product {
@@ -74,6 +75,10 @@ export const ProductToChangeList = ({ newProducts, setNewProducts, setProdChange
                                 <div className="text-xs">Talla: {product.size}</div>
                                 <div className="text-xs">Color: {product.color}</div>
                                 <div className="text-xs">Precio: S/ {product.priceSale}</div>
+                                <Link className="text-sm flex items-center my-2" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${product.codigoEan}&tab=detail&page=1`}>
+                                    {/* <EyeIcon size={20} /> */}
+                                    Ver stock en Tutati
+                                </Link>
                             </div>
                             <div className="flex items-center justify-between gap-2 my-2 w-full">
                                 <div className="flex gap-2 items-center">

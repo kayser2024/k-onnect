@@ -1,11 +1,8 @@
 'use client'
 
 import { getOneOrderLogs } from "@/actions/order/getOneOrder"
-import { Collapsible } from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Users } from "@/types/User"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
 
 interface OrderProps {
     order: string,

@@ -143,6 +143,7 @@ export interface SituacionPago {
     metodo_pago: string;
     mo: string;
     payment_details: PaymentDetails;
+    fecha_cancelacion: string;
 }
 
 export interface PaymentDetails {

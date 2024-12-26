@@ -259,6 +259,8 @@ async function HomeOrden({ params }: Props) {
             <section className="flex flex-col lg:grid grid-cols-[70%_30%] gap-2">
                 {/* COLUMN 1 */}
                 <div className="flex flex-col gap-2">
+
+                    {/* Detalle de Productos */}
                     <Card className="cols">
                         <CardHeader>
                             <div className="flex justify-between">
@@ -270,7 +272,6 @@ async function HomeOrden({ params }: Props) {
 
                         </CardHeader>
                         <CardContent>
-
                             <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} />
                         </CardContent>
                     </Card>
@@ -360,7 +361,7 @@ async function HomeOrden({ params }: Props) {
                             <CardTitle>Seguimiento de Pedido</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <TimeLineHorizontal situacion_envio={situacion_envio} pendiente={created_at} />
+                            <TimeLineHorizontal situacion_envio={situacion_envio} situacion_pagos={situacion_pagos} pendiente={created_at} />
                         </CardContent>
                     </Card>
 

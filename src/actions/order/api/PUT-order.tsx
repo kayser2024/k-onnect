@@ -156,3 +156,44 @@ export const updateShippingInfo = async (data: any) => {
         return error.message
     }
 }
+
+export const updateStatusPayment = async (order: string, status: string) => {
+
+    const BASE_URL = process.env.WIN_WIN_PUT;
+    let result;
+    const currentUTCDate = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "UTC" })
+    ).toISOString();
+
+    const body = {
+        "actualizar": {
+            "situacion_pagos": {
+                "estado_pago": status
+            },
+
+        }
+    };
+
+    try {
+        const response = await fetch(`${BASE_URL}/${order}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `${process.env.SAMISHOP_API_TOKEN}`,
+            },
+            body: JSON.stringify(body),
+        })
+        const dataFetch = await response.json();
+
+        if (dataFetch.sRpta) {
+            revalidatePath(`/pedido/${order}`);
+        }
+        result = await response.json();
+
+    } catch (error: any) {
+        console.log(error.message)
+        result = error.message
+    }
+
+    return result;
+}

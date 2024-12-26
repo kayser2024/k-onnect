@@ -7,6 +7,7 @@ import { SingleValue } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { toast } from 'sonner';
 import { fetchData } from './fetchProduct';
+import Link from 'next/link';
 
 interface Product {
     codigoEan: string;
@@ -59,7 +60,7 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
             if (!alreadyExists) {
                 const newProduct = { ...selectedProduct, quantity: 1 }; // Asignar cantidad inicial
                 const updatedList = [...listProduct, newProduct];
-                
+
                 setListProduct(updatedList); // Actualiza la lista interna
                 setNewProducts(updatedList); // Actualiza el estado global
             } else {
@@ -133,6 +134,13 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
                         <div className="flex gap-2">
                             <p className="text-xs font-bold">Stock:</p>
                             <p className="text-xs">{selectedProduct.quantity}</p>
+
+                        </div>
+                        <div className="flex gap-2">
+                            <Link className="text-sm flex items-center my-2 text-blue-400" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${selectedProduct.codigoEan}&tab=detail&page=1`}>
+                                {/* <EyeIcon size={20} /> */}
+                                Ver stock en Tutati
+                            </Link>
 
                         </div>
 
