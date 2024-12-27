@@ -238,7 +238,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                                                     <TableHead className='text-white w-[350px]'>Prod. Original</TableHead>
                                                                     <TableHead className='text-white w-[350px]'>Prod. Cambiado</TableHead>
                                                                     <TableHead className='text-white w-[350px]'>Motivo</TableHead>
-                                                                    <TableHead className='text-white'>Bol. / Fact. Incidencia</TableHead>
+                                                                    <TableHead className='text-white'>NC</TableHead>
+                                                                    <TableHead className='text-white'>Boleta</TableHead>
                                                                     {/* <TableHead className='text-white w-[100px]'>Total</TableHead> */}
                                                                     <TableHead className='text-white'>Fecha</TableHead>
                                                                     <TableHead className='text-white'>Estado</TableHead>
@@ -286,6 +287,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
                                                                         </TableCell>
                                                                         <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
+                                                                        <TableCell className='text-xs w-[200px]'>{detail.NC}</TableCell>
                                                                         <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
                                                                         {/* <TableCell className='text-xs flex items-center justify-between w-[100px]'><span>S/</span> {JSON.stringify(detail.IncidenceLogs, null, 2)}</TableCell> */}
                                                                         <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>

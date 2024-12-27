@@ -82,7 +82,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [prodOriginSubtotal, setProdOriginSubtotal] = useState(0);
     const [prodChangeSubtotal, setProdChangeSubtotal] = useState(0);
     const [store, setStore] = useState("")
-    const [comment, setComment] = useState("");
+    const [commentDev, setCommentDev] = useState("");
+    const [commentCamb, setCommentCamb] = useState("");
 
 
 
@@ -194,8 +195,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             observacion = "Devolucion Total a pedido del cliente"
             // Actualizar API situación de Pago CANCELADO 🚩
             await updateStatusPayment(nroOrden, "cancelado");
-
-
         }
 
         // navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
@@ -226,6 +225,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             invoiceIncidence: invoice.toUpperCase(),
             product: productSelect,
             typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
+            pickupPoint: store,
             reason: `Devolución ${tipoExtorno}`
         }
 
@@ -238,6 +238,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         } finally {
             setLoading(false);
             setDropdownOpen(false)
+            setStore("")
+            setCommentDev("")
         }
 
         refetch();
@@ -344,10 +346,11 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             return
         }
 
-        if (invoice.trim().length < 5) {
-            toast.warning("Ingresar la Boleta de la Incidencia")
-            return;
-        }
+        // Validar Invoice
+        // if (invoice.trim().length < 5) {
+        //     toast.warning("Ingresar la Boleta de la Incidencia")
+        //     return;
+        // }
 
 
         const pagado = orden.situacion_pagos[0].estado_pago
@@ -456,7 +459,40 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             // const res = await notificacionDiscord.json()
 
             // toast.success('Notificacion Enviada a Discord')
-            setOpenDrawer(false)
+
+
+
+            const productCombined = [
+                ...productsSelect.map((p, index) => ({
+                    codeEan: p.sku,
+                    quantity: p.quantity,
+                    codeSap: prendasOriginalesSAP[index],
+                    subtotal: p.quantity * p.price,
+                    text: "ORIGIN",
+                })),
+                ...newProducts.map(p => ({
+                    codeEan: p.codigoEan,
+                    quantity: p.quantity,
+                    codeSap: p.codigoSap,
+                    subtotal: p.quantity * p.priceSale,
+                    text: "CHANGE",
+                })),
+            ];
+
+            //TODO: guardar en tabla incidencia para la orden 
+            const data = {
+                orden: orden.cabecera_pedido[0].numero_orden,
+                invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
+                invoiceIncidence: invoice.toUpperCase(),
+                product: productCombined,
+                typeIncidence: 3,
+                pickupPoint: store,
+                reason: motivoCambio
+
+            }
+
+            await createIncidence(data)
+
 
         } catch (error) {
             toast.error('Error al actualizar observaciones')
@@ -465,7 +501,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             setMotivoCambio("")
             setRowSelection({})
             setInvoice("")
+            setOpenDrawer(false)
             setNewProducts([])
+            setStore("");
         }
 
 
@@ -486,35 +524,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         });
 
 
-        const productCombined = [
-            ...productsSelect.map((p, index) => ({
-                codeEan: p.sku,
-                quantity: p.quantity,
-                codeSap: prendasOriginalesSAP[index],
-                subtotal: p.quantity * p.price,
-                text: "ORIGIN",
-            })),
-            ...newProducts.map(p => ({
-                codeEan: p.codigoEan,
-                quantity: p.quantity,
-                codeSap: p.codigoSap,
-                subtotal: p.quantity * p.priceSale,
-                text: "CHANGE",
-            })),
-        ];
 
-        //TODO: guardar en tabla incidencia para la orden 
-        const data = {
-            orden: orden.cabecera_pedido[0].numero_orden,
-            invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
-            invoiceIncidence: invoice.toUpperCase(),
-            product: productCombined,
-            typeIncidence: 3,
-            reason: motivoCambio
-
-        }
-
-        await createIncidence(data)
 
         // Descargar Excel
         // handleDescargaCambio()
@@ -706,7 +716,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             <div className="">
                                 <span>Comentario:</span>
                                 <div className="">
-                                    <Input placeholder="Comentario" className="" onChange={(e) => setComment(e.target.value)} value={comment} />
+                                    <Input placeholder="Comentario" className="" onChange={(e) => setCommentDev(e.target.value)} value={commentDev} />
                                 </div>
 
                             </div>

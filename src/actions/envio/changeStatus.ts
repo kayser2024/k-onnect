@@ -89,7 +89,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
     // RECORRER LA LISTA DE LOS ORDENES 
     for (const { order, destino } of orderList) {
         try {
-            let dataEnvio: string;
+            let dataEnvio: string = "";
 
             // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
@@ -112,7 +112,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
                     const tipo_envio = data_envio.tipo_envio;
 
-                    // TODO: ENVIAR  UN JSON LA INFORAMCIÓN DE ENVÍO 🚩
+                    // TODO: Convertir data_envio en JSON para enviar al sp 🚩
                     dataEnvio = JSON.stringify(data_envio)
 
                     // obtener el nombre del destino de la tienda
@@ -129,18 +129,17 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                 } catch (error: any) {
                     failedOrders.push({ order: { order, destino }, error: error.message })
                     continue;
-                } 
+                }
             }
 
             // Actualizar orden en la API
             // await updateOrderInAPI(order, estado);
 
-
             // Ejecutar sp_updateOrders
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, @result);
+                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText},${dataEnvio}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida

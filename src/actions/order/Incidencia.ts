@@ -10,10 +10,12 @@ interface IncidenceProps {
     product: { codeEan: string, quantity: number, codeSap: string, text: string, subtotal: number }[],
     typeIncidence: number,
     reason?: string
+    pickupPoint?: string
 }
 
 
-export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, typeIncidence, reason = '' }: IncidenceProps) => {
+// Función para crear Incidencia
+export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, typeIncidence, pickupPoint, reason = '' }: IncidenceProps) => {
 
     try {
         const user = await auth();
@@ -38,6 +40,16 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             throw new Error(`Orden no encontrada: ${orden}`);
         }
 
+
+        // obtener el ID de la tienda
+        const store = await prisma.pickupPoints.findFirst({
+            where: { Description: pickupPoint },
+            select: { PickupPointID: true },
+        });
+
+        console.log(store, '👀👀')
+
+
         // Insertar en la tabla Incidence
         const incidence = await prisma.incidence.create({
             data: {
@@ -46,8 +58,9 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
                 InvoiceIncidence: invoiceIncidence,
                 UserId: 1, // Asegúrate de que `user.id` sea el ID correcto
                 TypeIncidenceID: typeIncidence,
+                PickupPointID: store?.PickupPointID,
                 IsCompleted: false,
-                Description: reason.trim() || "Sin descripción", // Validar descripción
+                Description: reason.trim() || "Sin descripción",
                 CreatedAt: now,
             },
         });
@@ -59,7 +72,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             CodEan: item.codeEan,
             CodProd: item.codeSap,
             ProdQuantity: item.quantity,
-            ProdSubtotal: item.subtotal, // Cambia según la lógica de tu aplicación
+            ProdSubtotal: item.subtotal,
             InvoiceOriginal: invoiceOrigin,
             InvoiceIncidence: invoiceIncidence,
             Description: item.text || "Sin descripción",
@@ -76,7 +89,6 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
         throw error; // Re-lanza el error para manejarlo en un nivel superior
     }
 };
-
 
 
 // Obtener todas las incidencias por BoletaOriginal
@@ -261,7 +273,12 @@ export const getIncidenceByOrder = async (order: string) => {
         const result = await prisma.incidence.findMany({
             where: { OrdenID: orderData?.OrderID },
             include: {
-                TypesIncidence: true
+                TypesIncidence: true,
+                PickupPoints: {
+                    select: {
+                        Description: true
+                    }
+                }
             }
         })
         return result;

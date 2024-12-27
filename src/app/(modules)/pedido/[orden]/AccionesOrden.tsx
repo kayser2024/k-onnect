@@ -77,8 +77,6 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
     })
 
 
-    console.log({ data }, 'DATA INCIDENCES')
-
     // Funcion para mostrar incidencias del pedido/orden
     const handleShowIncidences = async () => {
         setIsOpen(true)

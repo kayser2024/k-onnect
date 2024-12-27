@@ -30,7 +30,7 @@ interface ModalIncidenceProps {
 }
 export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalIncidenceProps) => {
 
-    console.log({ data }, 'DATA INCIDENCIA BY ORDER')
+    console.log(data, '💀💀💀')
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen} >
@@ -49,8 +49,9 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                                 <TableRow>
                                     <TableHead className="w-[200px]">Motivo</TableHead>
                                     <TableHead className='w-[100px]'>Estado</TableHead>
-                                    <TableHead className="w-[200px]">Boleta Incidencia</TableHead>
+                                    <TableHead className="w-[200px]">N.C.</TableHead>
                                     <TableHead className='w-[150px]'>Usuario</TableHead>
+                                    <TableHead className='w-[250px]'>Lugar Recepción</TableHead>
                                     <TableHead className='w-[250px]'>Fecha</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -60,9 +61,10 @@ export const ModalIncidence = ({ isOpen, setIsOpen, data, isLoading }: ModalInci
                                     {data?.map((p: any) => (
                                         <TableRow key={p.IncidenceID}>
                                             <TableCell >{p.Description}</TableCell>
-                                            <TableCell className='text-right flex items-center justify-between'>{(p.TypeIncidenceID == 3)?(p.IsCompleted ? "Completado" : "Pendiente"):(<>─</>)}</TableCell>
+                                            <TableCell className='text-right flex items-center justify-between'>{(p.TypeIncidenceID == 3) ? (p.IsCompleted ? "Completado" : "Pendiente") : (<>─</>)}</TableCell>
                                             <TableCell className="font-medium w-[200px]">{p.InvoiceIncidence}</TableCell>
                                             <TableCell>Administrador(System)</TableCell>
+                                            <TableCell className='w-[250px]'>{p.PickupPoints?.Description}</TableCell>
                                             <TableCell className='w-[250px]'>{formatDate(new Date(p.CreatedAt).toISOString())}</TableCell>
                                         </TableRow>
                                     ))}
