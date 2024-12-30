@@ -42,7 +42,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         accessorFn: (row) => row.OrderNumber,
         header: "Orden",
         cell: ({ row }) => {
-            console.log({ data: row.original }, 'ORIGINAL')
+            // console.log({ data: row.original }, 'ORIGINAL')
             return <Link href={`/pedido/${row.original.OrderNumber}`} target="_blank" className="text-blue-500 font-semibold hover:bg-slate-300 p-2 rounded-md" title="Abrir enlace">{row.original.OrderNumber}</Link>
         }
     },

@@ -11,6 +11,7 @@ import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
 import { SelectEstablec } from "@/components/SelectEsablec";
 import { getDataOrderByInvoice } from "@/actions/order/api/GET-order";
+import { Trash } from "lucide-react";
 
 function EnvioMasivo() {
     const session = useSession();
@@ -187,7 +188,7 @@ function EnvioMasivo() {
                             value={order}
                             onChange={(e) => {
                                 setOrder(e.target.value);
-                                if (error) setError(false); 
+                                if (error) setError(false);
                             }}
                             className={`border ${error ? "border-red-500" : ""}`}
                         />
@@ -207,7 +208,7 @@ function EnvioMasivo() {
 
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
-                    <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
+                    <Button className="" onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} > <Trash /> <span className="hidden sm:inline">Eliminar Seleccionado(s)</span></Button>
                     <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Enviar Destino"}</Button>
                 </div>
 

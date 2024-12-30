@@ -9,6 +9,7 @@ import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
+import { Trash } from "lucide-react";
 
 function PreparacionOrder() {
     const session = useSession();
@@ -160,7 +161,7 @@ function PreparacionOrder() {
 
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
-                    <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
+                    <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} ><Trash /> <span className="hidden sm:inline">Eliminar Seleccionado(s)</span></Button>
                     <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Enviar a Preparación"}</Button>
                 </div>
 
