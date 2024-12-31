@@ -150,14 +150,17 @@ model tbl_articulo {
 model Incidence {
   IncidenceID      Int             @id @default(autoincrement())
   OrdenID          Int
-  InvoiceOriginal  String?         @db.VarChar(50)
-  InvoiceIncidence String          @db.VarChar(50)
+  InvoiceOriginal  String?         @db.VarChar(20)
+  InvoiceIncidence String          @db.VarChar(20)
+  NCIncidence      String?         @db.VarChar(20)
   UserId           Int
   TypeIncidenceID  Int
   IsCompleted      Boolean?        @default(false)
   Description      String?         @db.Text
   CreatedAt        DateTime?       @default(now()) @db.Timestamp(0)
   PickupPointID    Int?
+  UserUpdater      Int?
+  UpdatedAt        DateTime?       @db.Timestamp(0)
   Orders           Orders          @relation(fields: [OrdenID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_1")
   TypesIncidence   TypesIncidence  @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
   Users            Users           @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
@@ -184,7 +187,7 @@ model IncidenceLogs {
   ProdQuantity     Int?
   ProdSubtotal     Decimal?  @db.Decimal(10, 2)
   InvoiceOriginal  String?   @db.VarChar(25)
-  NC               String?   @db.VarChar(20)
+  NCIncidence      String?   @db.VarChar(20)
   InvoiceIncidence String?   @db.VarChar(25)
   Description      String?   @db.VarChar(255)
   CreatedAt        DateTime? @db.Timestamp(0)

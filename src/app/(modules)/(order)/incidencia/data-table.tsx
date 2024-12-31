@@ -182,15 +182,26 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
   // Funcioón para guardar los Nros doc Ingresados
-  const handleSave = async () => {
+  const handleSave = async (data: any) => {
     setLoading(true)
     try {
 
-    } catch (error) {
+      console.log(data, '👉👉👉')
+      // Isertar la NC y Boleta de la incidencia
+      // await UpdateIncidence
 
+
+      // si es exitoso cerrar el modal
+      // if (!true) {
+      //   setOpenInputModal(false);
+      //   toast.success("Nro de Documento guardado exitosamente");
+      // }
+
+    } catch (error: any) {
+      console.log(error.message)
+      toast.error(error.message)
     } finally {
       setOpenDropdown(null);
-      setOpenInputModal(false);
       setLoading(false)
     }
   }
@@ -210,7 +221,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     setOpenInputModal(false)
     setIsOpen(false)
   }
-  console.log({ openDropdown }, '🖐️🖐️')
+  // console.log({ openDropdown }, '🖐️🖐️')
 
 
   return (

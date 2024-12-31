@@ -328,3 +328,46 @@ export const changStatusIncidence = async (incidenceId: number) => {
 
     return result;
 }
+
+export const updateIncidence = async (data: { Nc: string, Invoice?: string, incidenceId: number }) => {
+    const user = await auth();
+    if (!user) {
+        throw new Error("Usuario no autenticado");
+    }
+
+    const now = new Date();
+    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
+
+    console.log(user);
+    let result;
+
+    try {
+
+        // Actualizar en la Table:Incidence
+        result = await prisma.incidence.update({
+            where: {
+                IncidenceID: data.incidenceId
+            },
+            data: {
+                NCIncidence: data.Nc,
+                InvoiceIncidence: data.Invoice || "",
+                UserUpdater: 1,
+                UpdatedAt: now
+            }
+        })
+
+        // Actualizar en la Table:IncidenceLogs
+        await prisma.incidenceLogs.updateMany({
+            where: {
+                IncidenceID: data.incidenceId
+            },
+            data: {
+                InvoiceIncidence: data.Invoice || ""
+            }
+        })
+    } catch (error: any) {
+        result = error.message
+    }
+
+    return result;
+}
