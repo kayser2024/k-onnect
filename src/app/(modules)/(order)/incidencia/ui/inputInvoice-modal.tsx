@@ -9,10 +9,12 @@ import React, { useState } from 'react'
 interface InputInvoiceModalProps {
     isOpen: boolean
     setIsOpenModal: (isOpen: boolean) => void
+    handleClose: () => void
     handleSave: () => void
-    handleCancel: () => void
+    isLoading: boolean
 }
-export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleSave,handleCancel }: InputInvoiceModalProps) => {
+
+export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleSave, isLoading }: InputInvoiceModalProps) => {
 
 
     const handleAccept = async () => {
@@ -45,8 +47,8 @@ export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleSave,handleCan
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <Button variant="ghost" onClick={handleCancel}>Cancelar</Button>
-                    <Button variant="default" onClick={handleAccept}>Aceptar</Button>
+                    <Button variant="ghost" onClick={handleClose} disabled={isLoading}>Cancelar</Button>
+                    <Button variant="default" onClick={handleAccept} disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar"}</Button>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

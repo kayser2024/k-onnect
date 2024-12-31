@@ -55,7 +55,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [valueSearch, setValueSearch] = useState("")
   const [incidenceId, setIncidenceId] = useState(0);
   const [openInputModal, setOpenInputModal] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
 
   // Obtener el detalle de la orden
@@ -90,7 +90,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       setIsOpen(false)
       refetch()
     }
-
   }
 
   // Función para Descar DetailReport
@@ -184,36 +183,34 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
   // Funcioón para guardar los Nros doc Ingresados
   const handleSave = async () => {
+    setLoading(true)
     try {
 
     } catch (error) {
 
     } finally {
-      setOpenDropdown(true);
+      setOpenDropdown(null);
       setOpenInputModal(false);
+      setLoading(false)
     }
   }
 
 
-
-  // Función para Cancelar el ingreso de Nro Doc.
-  const handleCancel = () => {
-    setOpenInputModal(false)
-    setOpenDropdown(true)
-  }
-
   // Función para Abrir Modal de Ingresar Nro Doc.
   const handleInvoiceModal = () => {
     setOpenInputModal(true)
-    setOpenDropdown(true)
+    setOpenDropdown(null)
   }
 
+  const handleDropdownOpenChange = (isOpen: boolean, id: string) => {
+    setOpenDropdown(isOpen ? id : null);
+  }
 
-
-
-
-
-
+  const handleCloseModal = () => {
+    setOpenInputModal(false)
+    setIsOpen(false)
+  }
+  console.log({ openDropdown }, '🖐️🖐️')
 
 
   return (
@@ -296,7 +293,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                               </li>
                                             )
                                           })}
-
                                       </ul>
 
                                     </TableCell>
@@ -326,14 +322,14 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
                                     <TableCell className='text-xs w-[250px]'>
-                                      <DropdownMenu >
+                                      <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
                                         <DropdownMenuTrigger asChild >
-                                          <Button variant="ghost" aria-label="Opciones" >
+                                          <Button variant="ghost" aria-label="Opciones">
                                             <MoreVertical size={20} />
                                           </Button>
                                         </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent align="end" >
+                                        <DropdownMenuContent align="end">
                                           <DropdownMenuItem>
                                             {
                                               detail.TypeIncidenceID == 3
@@ -351,8 +347,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                                 : <div>─</div>
                                             }
                                           </DropdownMenuItem>
-                                          <DropdownMenuItem>
-                                            <div className="" onClick={handleInvoiceModal}>Ingresar Nro Doc.</div>
+                                          <DropdownMenuItem onClick={handleInvoiceModal}>
+                                            Ingresar Nro Doc.
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
@@ -383,32 +379,36 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         }
       </div>
 
+
+
+      {/* PAGINATION */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          Anterior
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          Siguiente
+        </Button>
+      </div>
+
+
       {/* MODAL INPUT DOCUMENT */}
       <InputInvoiceModal
         isOpen={openInputModal}
         setIsOpenModal={setOpenInputModal}
+        handleClose={handleCloseModal}
         handleSave={handleSave}
-        handleCancel={handleCancel}
+        isLoading={loading}
       />
 
-      {/* PAGINATION */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        {/* <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} de{" "}
-                    {table.getFilteredRowModel().rows.length} Fila(s) Seleccionado(s).
-                </div> */}
-        <div className="space-x-2">
-          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-            Anterior
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-            Siguiente
-          </Button>
-        </div>
-      </div>
-
       {/* Modal para confirmar el Completed */}
-      <ConfirmCompleted isOpen={isOpen} setIsOpen={setIsOpen} handleAccept={handleAccept} isLoading={loading} />
+      <ConfirmCompleted
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        handleClose={handleCloseModal}
+        handleAccept={handleAccept}
+        isLoading={loading}
+      />
     </div >
   )
 }
