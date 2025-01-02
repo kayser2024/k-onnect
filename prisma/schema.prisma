@@ -94,7 +94,7 @@ model PickupPoints {
   Department    String?        @db.VarChar(100)
   LocationCode  String?        @db.VarChar(10)
   Place         String?        @db.VarChar(255)
-  Address       Bytes?         @db.VarBinary(255)
+  Address       String?        @db.VarChar(255)
   Grouped       String?        @db.VarChar(20)
   Incidence     Incidence[]
   InfoShipping  InfoShipping[]

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components";
 import { ThemeProvider } from "@/components/provider/ThemeProvider";
 import { QueryProvider } from "@/components/provider/QueryProvider";
+import NProgress from "@/components/NProgress";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <AuthProvider>
               {children}
+              <NProgress />
               <Toaster richColors />
             </AuthProvider>
           </ThemeProvider>

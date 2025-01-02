@@ -7,4 +7,5 @@ export interface PickupPoint {
   LocationCode: string | null;
   Place: string | null;
   Address: string | null
+  Grouped?: string | null;
 }
