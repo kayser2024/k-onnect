@@ -98,7 +98,7 @@ export const getAllIncidence = async () => {
 
     try {
         const IncidenceGrouped = await prisma.incidence.groupBy({
-            by: ['OrdenID', 'InvoiceOriginal'],
+            by: ['OrdenID'],
             orderBy: {
                 _count: {
                     OrdenID: "desc"
@@ -127,12 +127,16 @@ export const getAllIncidence = async () => {
 
                         },
                     });
+                    
+                    console.log({ orderData, item }, '👀👀')
+
                     if (orderData) {
                         return {
-                            Invoice: item.InvoiceOriginal,
+                            // Invoice: item.InvoiceOriginal,
                             OrderID: item.OrdenID,
                             OrderNumber: orderData.OrderNumber,
                             PickupPoint: orderData.PickupPoint,
+                            Destiny: "",
                             OrderStatusDescription: orderData.OrderStatus?.Description || null,
                             TypeIncidenceCount: item._count.OrdenID,
                         };
@@ -231,9 +235,11 @@ export const detailOrder = async (orden: number) => {
                 OrdenID: true,
                 InvoiceOriginal: true,
                 InvoiceIncidence: true,
+                NCIncidence: true,
                 TypeIncidenceID: true,
                 IsCompleted: true,
                 Description: true,
+                PickupPointID: true,
                 CreatedAt: true,
 
                 IncidenceLogs: {
@@ -330,14 +336,14 @@ export const changStatusIncidence = async (incidenceId: number) => {
     return result;
 }
 
-export const updateIncidence = async (data: { Nc: string, Invoice?: string, incidenceId: number }, path: string) => {
-    const user = await auth();
+export const updateIncidence = async (data: { nc: string, invoice?: string, incidenceId: number }, path: string) => {
+
+    console.log(data, '👀👀')
+    // const user = await auth();
+    const user = 1;
     if (!user) {
         throw new Error("Usuario no autenticado");
     }
-
-    const now = new Date();
-    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
 
     console.log(user);
 
@@ -346,7 +352,7 @@ export const updateIncidence = async (data: { Nc: string, Invoice?: string, inci
         // Utilizar el procedure
         const [result] = await prisma.$transaction(async (tx) => {
             await tx.$executeRaw`
-             CALL sp_UpdateIncidences(${user},${data.incidenceId},${data.Nc},${data.Invoice},@result);
+             CALL sp_UpdateIncidences(${user},${data.incidenceId},${data.nc},${data.invoice},@result);
             `;
 
             const [message] = await tx.$queryRaw<{ message: string }[]>`
@@ -358,8 +364,8 @@ export const updateIncidence = async (data: { Nc: string, Invoice?: string, inci
 
 
         // revalidar path
-        revalidatePath(`${path}`)
-        
+        revalidatePath(`/${path}`)
+
         return result;
 
 

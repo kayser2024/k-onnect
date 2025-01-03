@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,14 +13,14 @@ interface InputInvoiceModalProps {
     handleClose: () => void
     handleSave: (data: any) => void
     isLoading: boolean
+    NcIncidence: string,
+    InvoiceIncidence: string
 }
 
-export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleSave, isLoading }: InputInvoiceModalProps) => {
-
-    const [nc, setNc] = useState('');
-    const [invoice, setInvoice] = useState('');
+export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleSave, isLoading, NcIncidence, InvoiceIncidence }: InputInvoiceModalProps) => {
+    const [nc, setNc] = useState(NcIncidence);
+    const [invoice, setInvoice] = useState(InvoiceIncidence);
     const [message, setMessage] = useState('');
-
 
     const handleAccept = async () => {
         try {
@@ -31,13 +31,16 @@ export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleS
                 handleSave({ nc, invoice });
             }
 
-
-
         } catch (error: any) {
             console.log(error.message)
         }
     }
 
+    // Sincronizar estados locales con las props
+    useEffect(() => {
+        setNc(NcIncidence);
+        setInvoice(InvoiceIncidence);
+    }, [NcIncidence, InvoiceIncidence]);
 
     return (
         <AlertDialog onOpenChange={setIsOpenModal} open={isOpen}>
@@ -48,13 +51,13 @@ export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleS
                     <AlertDialogDescription className='flex flex-col gap-2'>
                         <div className="">
                             <Label className='text-sm text-slate-500 font-semibold'>Ingrese NC:</Label>
-                            <Input placeholder='BW17-0001' className={`${message ? 'border-red-500' : ''}`} required value={nc} onChange={(e) => { setNc(e.target.value); setMessage("") }} />
+                            <Input placeholder='BW17-0001' className={`uppercase ${message ? 'border-red-500' : ''}`} required value={nc} onChange={(e) => { setNc(e.target.value.toUpperCase()); setMessage("") }} />
 
                         </div>
 
                         <div className="">
                             <Label className='text-sm text-slate-500'>Ingrese Boleta:</Label>
-                            <Input placeholder='BW17-0001' value={invoice} onChange={(e) => setInvoice(e.target.value)} />
+                            <Input placeholder='BW17-0001' className='uppercase' value={invoice} onChange={(e) => setInvoice(e.target.value.toUpperCase())} />
                         </div>
                         {message && <div className='text-red-500 text-xs'>{message}</div>}
                     </AlertDialogDescription>

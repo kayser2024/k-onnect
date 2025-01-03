@@ -57,6 +57,10 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [openInputModal, setOpenInputModal] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
+  const [invoice, setInvoice] = useState("")
+  const [nc, setNc] = useState("")
+
+
 
   // Obtener el detalle de la orden
   const { data, refetch, isLoading, isPending } = useQuery({
@@ -188,16 +192,18 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
       console.log(data, '👉👉👉')
       // Isertar la NC y Boleta de la incidencia
-      // const result = await updateIncidence(data, 'incidencia')
-
-      // console.log(result);
+      const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
 
 
       // si es exitoso cerrar el modal
-      // if (!true) {
-      //   setOpenInputModal(false);
-      //   toast.success("Nro de Documento guardado exitosamente");
-      // }
+      if (result?.includes("ERROR:")) {
+        toast.error(result);
+      }
+      if (result?.includes("OK")) {
+        refetch(); // obtener los datos actualizados
+        toast.success(result);
+        setOpenInputModal(false)
+      }
 
     } catch (error: any) {
       console.log(error.message)
@@ -205,14 +211,18 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     } finally {
       setOpenDropdown(null);
       setLoading(false)
+      setIncidenceId(0)
     }
   }
 
 
   // Función para Abrir Modal de Ingresar Nro Doc.
-  const handleInvoiceModal = () => {
+  const handleInvoiceModal = (id: number, nc: string, invoice: string) => {
     setOpenInputModal(true)
     setOpenDropdown(null)
+    setIncidenceId(id)
+    setNc(nc)
+    setInvoice(invoice)
   }
 
   const handleDropdownOpenChange = (isOpen: boolean, id: string) => {
@@ -220,6 +230,9 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
   const handleCloseModal = () => {
+    setIncidenceId(0)
+    setNc("")
+    setInvoice("")
     setOpenInputModal(false)
     setIsOpen(false)
   }
@@ -285,7 +298,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                   <TableHead className='text-white'>N.C.</TableHead>
                                   <TableHead className='text-white'>Boleta</TableHead>
                                   <TableHead className='text-white'>Fecha</TableHead>
-                                  <TableHead className='text-white bg-red-200'>Accion</TableHead>
+                                  <TableHead className='text-white '>Acción</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody className='bg-slate-100 border'>
@@ -328,8 +341,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
                                     </TableCell>
                                     <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>{JSON.stringify(detail, null, 2)}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>B00-1F</TableCell>
+                                    <TableCell className='text-xs w-[200px]'>{detail.NCIncidence}</TableCell>
+                                    <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
                                     <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
 
 
@@ -359,7 +372,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                                 : <div>─</div>
                                             }
                                           </DropdownMenuItem>
-                                          <DropdownMenuItem onClick={handleInvoiceModal}>
+                                          <DropdownMenuItem onClick={() => handleInvoiceModal(detail.IncidenceID, detail.NCIncidence, detail.InvoiceIncidence)}>
                                             Ingresar Nro Doc.
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -411,6 +424,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         handleClose={handleCloseModal}
         handleSave={handleSave}
         isLoading={loading}
+        NcIncidence={nc}
+        InvoiceIncidence={invoice}
       />
 
       {/* Modal para confirmar el Completed */}

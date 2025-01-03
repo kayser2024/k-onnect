@@ -151,7 +151,7 @@ model Incidence {
   IncidenceID      Int             @id @default(autoincrement())
   OrdenID          Int
   InvoiceOriginal  String?         @db.VarChar(20)
-  InvoiceIncidence String          @db.VarChar(20)
+  InvoiceIncidence String?         @db.VarChar(20)
   NCIncidence      String?         @db.VarChar(20)
   UserId           Int
   TypeIncidenceID  Int
