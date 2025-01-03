@@ -7,7 +7,7 @@ export const getOrders = async () => {
 
     try {
         result = await prisma.orders.findMany();
-        console.log(result);
+        // console.log(result);
 
     } catch (error: any) {
         result = error.message;

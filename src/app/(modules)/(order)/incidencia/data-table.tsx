@@ -24,7 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { useQuery } from '@tanstack/react-query'
-import { changStatusIncidence, detailOrder, getAllIncidence, getAllIncidenceByInvoice } from '@/actions/order/Incidencia'
+import { changStatusIncidence, detailOrder, getAllIncidence, getAllIncidenceByInvoice, updateIncidence } from '@/actions/order/Incidencia'
 import { formatDate } from '@/helpers/convertDate'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -188,7 +188,9 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
       console.log(data, '👉👉👉')
       // Isertar la NC y Boleta de la incidencia
-      // await UpdateIncidence
+      // const result = await updateIncidence(data, 'incidencia')
+
+      // console.log(result);
 
 
       // si es exitoso cerrar el modal
@@ -221,7 +223,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     setOpenInputModal(false)
     setIsOpen(false)
   }
-  // console.log({ openDropdown }, '🖐️🖐️')
 
 
   return (
@@ -241,10 +242,10 @@ export const DataTable = ({ incidentList }: OrderProps) => {
             <Table className='w-full'>
               <TableHeader className='bg-slate-500'>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
+                  <TableRow key={`row-${headerGroup.id}`}>
+                    {headerGroup.headers.map((header, index) => {
                       return (
-                        <TableHead key={header.id} className='text-white'>
+                        <TableHead key={`${header.id}-${index}`} className='text-white'>
                           {header.isPlaceholder
                             ? null
                             : flexRender(header.column.columnDef.header, header.getContext())
@@ -257,12 +258,12 @@ export const DataTable = ({ incidentList }: OrderProps) => {
               </TableHeader>
               <TableBody>
                 {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <React.Fragment key={row.id}>
+                  table.getRowModel().rows.map((row, index) => (
+                    <React.Fragment key={`${row.id}-${index}`}>
                       {/* Fila principal */}
                       <TableRow data-state={row.getIsSelected() && "selected"}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
+                        {row.getVisibleCells().map((cell, index) => (
+                          <TableCell key={`cell-${cell.id}-${index}`}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}
@@ -284,20 +285,20 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                   <TableHead className='text-white'>N.C.</TableHead>
                                   <TableHead className='text-white'>Boleta</TableHead>
                                   <TableHead className='text-white'>Fecha</TableHead>
-                                  <TableHead className='text-white'>Accion</TableHead>
+                                  <TableHead className='text-white bg-red-200'>Accion</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody className='bg-slate-100 border'>
                                 {data?.map((detail: any, index: number) => (
-                                  <TableRow key={index} className='hover:bg-slate-200'>
+                                  <TableRow key={`${index}-${new Date()}`} className='hover:bg-slate-200'>
                                     <TableCell className='w-[350px] '>
                                       <ul className='list-disc ml-2'>
                                         {/* LISTAR LOS PRODUCTOS ORIGINALES */}
                                         {detail.IncidenceLogs
                                           .filter((incidence: any) => incidence.Description === 'ORIGIN' || incidence.Description === 'RETURN')
-                                          .map((incidence: any) => {
+                                          .map((incidence: any, index: number) => {
                                             return (
-                                              <li key={incidence.IncidenceLogID}>
+                                              <li key={`${incidence.IncidenceLogID}-${index}`}>
                                                 <span className='text-xs flex'>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
@@ -313,9 +314,9 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                       <ul className='list-disc ml-2'>
                                         {detail.IncidenceLogs
                                           .filter((incidence: any) => incidence.Description === 'CHANGE')
-                                          .map((incidence: any) => {
+                                          .map((incidence: any, index: number) => {
                                             return (
-                                              <li key={incidence.IncidenceLogID}>
+                                              <li key={`${incidence.IncidenceLogID}-${index}`}>
                                                 <span className='text-xs flex'>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
@@ -327,7 +328,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
                                     </TableCell>
                                     <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>NC-001</TableCell>
+                                    <TableCell className='text-xs w-[200px]'>{JSON.stringify(detail, null, 2)}</TableCell>
                                     <TableCell className='text-xs w-[200px]'>B00-1F</TableCell>
                                     <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
 

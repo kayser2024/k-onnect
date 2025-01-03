@@ -24,7 +24,7 @@ export const InputInvoiceModal = ({ isOpen, setIsOpenModal, handleClose, handleS
 
     const handleAccept = async () => {
         try {
-            if (!nc || !invoice) {
+            if (!nc) {
                 setMessage("La N.C. es obligatorio")
                 return;
             } else {

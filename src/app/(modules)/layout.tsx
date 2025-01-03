@@ -20,7 +20,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
             <Sidebar />
 
-            <div className="px-0 sm:px-10">
+            <div className="px-0 sm:px-10 max-w-screen-xl mx-auto">
                 {children}
 
             </div>

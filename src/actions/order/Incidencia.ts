@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma"
+import { revalidatePath } from "next/cache";
 
 interface IncidenceProps {
     orden: string,
@@ -329,7 +330,7 @@ export const changStatusIncidence = async (incidenceId: number) => {
     return result;
 }
 
-export const updateIncidence = async (data: { Nc: string, Invoice?: string, incidenceId: number }) => {
+export const updateIncidence = async (data: { Nc: string, Invoice?: string, incidenceId: number }, path: string) => {
     const user = await auth();
     if (!user) {
         throw new Error("Usuario no autenticado");
@@ -339,35 +340,31 @@ export const updateIncidence = async (data: { Nc: string, Invoice?: string, inci
     now.setHours(now.getHours() - 5); // Ajuste de zona horaria
 
     console.log(user);
-    let result;
 
     try {
 
-        // Actualizar en la Table:Incidence
-        result = await prisma.incidence.update({
-            where: {
-                IncidenceID: data.incidenceId
-            },
-            data: {
-                NCIncidence: data.Nc,
-                InvoiceIncidence: data.Invoice || "",
-                UserUpdater: 1,
-                UpdatedAt: now
-            }
+        // Utilizar el procedure
+        const [result] = await prisma.$transaction(async (tx) => {
+            await tx.$executeRaw`
+             CALL sp_UpdateIncidences(${user},${data.incidenceId},${data.Nc},${data.Invoice},@result);
+            `;
+
+            const [message] = await tx.$queryRaw<{ message: string }[]>`
+                SELECT @result AS message;
+            `;
+
+            return [message.message]
         })
 
-        // Actualizar en la Table:IncidenceLogs
-        await prisma.incidenceLogs.updateMany({
-            where: {
-                IncidenceID: data.incidenceId
-            },
-            data: {
-                InvoiceIncidence: data.Invoice || ""
-            }
-        })
+
+        // revalidar path
+        revalidatePath(`${path}`)
+        
+        return result;
+
+
     } catch (error: any) {
-        result = error.message
+        console.log(error.message);
     }
 
-    return result;
 }
