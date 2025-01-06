@@ -38,10 +38,21 @@ import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/down
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
+import { ValidatorProductModal } from './ui/validatorProduct-modal'
 
 
 interface OrderProps {
   incidentList: [];
+}
+
+
+interface IncidentProduct {
+  CodEan: string,
+  CodProd: string,
+  ProdQuantity: number,
+  ProdSubtotal: number,
+  Description: string,
+  CreatedAt: Date
 }
 
 export const DataTable = ({ incidentList }: OrderProps) => {
@@ -54,12 +65,10 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [loading, setLoading] = useState(false)
   const [valueSearch, setValueSearch] = useState("")
   const [incidenceId, setIncidenceId] = useState(0);
-  const [openInputModal, setOpenInputModal] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [productsIncident, setProductsIncident] = useState<IncidentProduct[]>([])
 
-  const [invoice, setInvoice] = useState("")
-  const [nc, setNc] = useState("")
-
+  const [isOpenModal, setIsOpenModal] = useState(false)
 
 
   // Obtener el detalle de la orden
@@ -85,14 +94,14 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
     try {
       setLoading(true)
-      await changStatusIncidence(incidenceId);
+
+      // Comparar
 
     } catch (error: any) {
       console.log(error.message)
     } finally {
       setLoading(false)
       setIsOpen(false)
-      setOpenDropdown(null)
       refetch()
     }
   }
@@ -173,13 +182,12 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
   // manejador de 
-  const handleChange = (incidenceId: number) => {
-    console.log(incidenceId, '---------Detail select')
-    setIncidenceId(incidenceId)
-    setIsOpen((prev) => !prev)
-    setOpenDropdown(null)
+  // const handleChange = (incidenceId: number) => {
+  //   console.log(incidenceId, '---------Detail select')
+  //   setIncidenceId(incidenceId)
+  //   setIsOpen((prev) => !prev)
 
-  }
+  // }
 
   // Función para Descargar Excel
   const downloadExcel = () => {
@@ -187,61 +195,28 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   };
 
 
-  // Funcioón para guardar los Nros doc Ingresados
-  const handleSave = async (data: any) => {
-    setLoading(true)
-    try {
-
-      console.log(data, '👉👉👉')
-      // Isertar la NC y Boleta de la incidencia
-      const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
-
-
-      // si es exitoso cerrar el modal
-      if (result?.includes("ERROR:")) {
-        toast.error(result);
-      }
-      if (result?.includes("OK")) {
-        refetch(); // obtener los datos actualizados
-        toast.success(result);
-        setOpenInputModal(false)
-      }
-
-    } catch (error: any) {
-      console.log(error.message)
-      toast.error(error.message)
-    } finally {
-      setOpenDropdown(null);
-      setLoading(false)
-      setIncidenceId(0)
-    }
-  }
-
-
-  // Función para Abrir Modal de Ingresar Nro Doc.
-  const handleInvoiceModal = (id: number, nc: string, invoice: string) => {
-    setOpenInputModal(true)
-    setOpenDropdown(null)
-    setIncidenceId(id)
-    setNc(nc)
-    setInvoice(invoice)
-  }
 
   const handleDropdownOpenChange = (isOpen: boolean, id: string) => {
-
-    console.log({ isOpen, id }, '👉👉👉')
     setOpenDropdown(isOpen ? id : null);
   }
 
   const handleCloseModal = () => {
     setIncidenceId(0)
-    setNc("")
-    setInvoice("")
-    setOpenInputModal(false)
     setIsOpen(false)
+    setProductsIncident([])
+    setIsOpenModal(false)
     setOpenDropdown(null)
   }
 
+
+  const validateProduct = (incidenceID: number, products: any) => {
+    setOpenDropdown(null)
+    setIsOpenModal(true)
+    console.log({ incidenceID, products }, '---------')
+
+    // guardar los productos en la productsIncident
+    setProductsIncident(products)
+  }
 
   return (
     <div className="w-full">
@@ -360,29 +335,14 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                         </DropdownMenuTrigger>
 
                                         <DropdownMenuContent align="end">
-                                          <DropdownMenuItem>
-                                            {
-                                              detail.TypeIncidenceID == 3
-                                                ? <div className='flex gap-2 items-center'>
-                                                  <Checkbox
-                                                    onCheckedChange={() => handleChange(Number(detail.IncidenceID))}
-                                                    checked={detail.IsCompleted}
-                                                    disabled={detail.IsCompleted}
-                                                    className={`peer ${detail.IsCompleted ? 'checked:bg-green-500' : ''}`}
-                                                    style={{ backgroundColor: detail.IsCompleted ? 'green' : '' }}
-                                                  />Completado
 
-                                                </div>
-
-                                                : <div>─</div>
-                                            }
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem onClick={() => handleInvoiceModal(detail.IncidenceID, detail.NCIncidence, detail.InvoiceIncidence)}>
-                                            Ingresar Nro Doc.
+                                          <DropdownMenuItem onClick={() => validateProduct(detail.IncidenceID, detail)}>
+                                            Validar Producto.
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
                                     </TableCell>
+
                                   </TableRow>
                                 ))}
 
@@ -410,6 +370,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       </div>
 
 
+
       {/* PAGINATION */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
@@ -421,24 +382,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       </div>
 
 
-      {/* MODAL INPUT DOCUMENT */}
-      <InputInvoiceModal
-        isOpen={openInputModal}
-        setIsOpenModal={setOpenInputModal}
-        handleClose={handleCloseModal}
-        handleSave={handleSave}
-        isLoading={loading}
-        NcIncidence={nc}
-        InvoiceIncidence={invoice}
-      />
-
-      {/* Modal para confirmar el Completed */}
-      <ConfirmCompleted
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        handleClose={handleCloseModal}
+      <ValidatorProductModal
+        setIsOpenModal={setIsOpenModal}
+        isOpen={isOpenModal}
         handleAccept={handleAccept}
-        isLoading={loading}
+        handleClose={handleCloseModal}
+        isLoading={isLoading}
+        productsIncidence={productsIncident}
       />
     </div >
   )

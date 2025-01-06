@@ -73,7 +73,7 @@ export const ProductSelectList = ({ productsSelect, setProductsSelect, setProdOr
                                 <p className="text-xs text-gray-400">{producto.sku}</p>
                                 <p className="text-xs text-gray-400">Talla: {producto.atributo1_valor}</p>
                                 <p className="text-xs text-gray-400">Color: {producto.atributo2_valor}</p>
-                                <p className="text-xs text-gray-400">Precio:S/ {producto.sale_price}</p>
+                                <p className="text-xs text-gray-400">Precio:S/ {producto.sale_price.toFixed(2)}</p>
 
                                 <div className="flex  gap-2 items-center">
 

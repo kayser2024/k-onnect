@@ -22,18 +22,21 @@ model roles {
 }
 
 model usuarios {
-  dni           String  @id @db.VarChar(10)
-  name          String  @db.VarChar(150)
-  lastName      String  @db.VarChar(150)
-  email         String  @unique(map: "email") @db.VarChar(100)
-  emailVerified String  @db.VarChar(100)
-  password      String  @db.VarChar(100)
-  image         String  @db.VarChar(150)
+  dni           String        @id @db.VarChar(10)
+  name          String        @db.VarChar(150)
+  lastName      String        @db.VarChar(150)
+  email         String        @unique(map: "email") @db.VarChar(100)
+  emailVerified String        @db.VarChar(100)
+  password      String        @db.VarChar(100)
+  image         String        @db.VarChar(150)
   rolId         Int
-  status        Boolean @default(true)
-  roles         roles   @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+  status        Boolean       @default(true)
+  pickupPointID Int?
+  roles         roles         @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+  PickupPoints  PickupPoints? @relation(fields: [pickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_2")
 
   @@index([rolId], map: "rolId")
+  @@index([pickupPointID], map: "usuarios_ibfk_2")
 }
 
 model OSF_Product_bk {
@@ -99,6 +102,7 @@ model PickupPoints {
   Incidence     Incidence[]
   InfoShipping  InfoShipping[]
   Orders        Orders[]
+  usuarios      usuarios[]
 }
 
 model Roles {

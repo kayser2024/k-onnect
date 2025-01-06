@@ -24,7 +24,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             throw new Error("Usuario no autenticado");
         }
 
-        console.log(user);
+        // console.log(user);
 
         const now = new Date();
         now.setHours(now.getHours() - 5); // Ajuste de zona horaria
@@ -48,7 +48,6 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             select: { PickupPointID: true },
         });
 
-        console.log(store, '👀👀')
 
 
         // Insertar en la tabla Incidence
@@ -93,12 +92,13 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
 
 
 // Obtener todas las incidencias por BoletaOriginal
-export const getAllIncidence = async () => {
+export const getAllIncidence = async (pickupPickupPointID?: number) => {
     let result;
-
+    console.log({ pickupPickupPointID }, '🚩🚩🚩')
     try {
         const IncidenceGrouped = await prisma.incidence.groupBy({
             by: ['OrdenID'],
+            where: pickupPickupPointID ? { PickupPointID: pickupPickupPointID } : {},
             orderBy: {
                 _count: {
                     OrdenID: "desc"
@@ -127,8 +127,7 @@ export const getAllIncidence = async () => {
 
                         },
                     });
-                    
-                    console.log({ orderData, item }, '👀👀')
+
 
                     if (orderData) {
                         return {
@@ -338,14 +337,13 @@ export const changStatusIncidence = async (incidenceId: number) => {
 
 export const updateIncidence = async (data: { nc: string, invoice?: string, incidenceId: number }, path: string) => {
 
-    console.log(data, '👀👀')
     // const user = await auth();
     const user = 1;
     if (!user) {
         throw new Error("Usuario no autenticado");
     }
 
-    console.log(user);
+    // console.log(user);
 
     try {
 
@@ -371,6 +369,33 @@ export const updateIncidence = async (data: { nc: string, invoice?: string, inci
 
     } catch (error: any) {
         console.log(error.message);
+        return error.message;
     }
+
+}
+
+
+export const getIncidenceByEstablishment = async (establishmentID: number) => {
+
+
+    let result;
+
+    try {
+        result = await prisma.incidence.findMany({
+            where: {
+                PickupPointID: establishmentID
+            }
+        })
+
+
+        console.log({ result }, '💀');
+
+    } catch (error: any) {
+        console.log(error.message);
+        result = error.message
+    }
+
+
+    return result;
 
 }

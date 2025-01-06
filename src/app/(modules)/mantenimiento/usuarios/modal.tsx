@@ -23,6 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from 'sonner'
+import { SelectStore } from '@/components/select/select-store'
 
 interface ModalUserProps {
     action: string,
@@ -39,6 +40,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [rolId, setRolId] = useState<number>(1);
+    const [pickPointID, SetPickPointID] = useState("");
 
     useEffect(() => {
         if (data) {
@@ -87,14 +89,14 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
 
         // enviar data 
-        handleSave(action, { name, lastName, email, rolId, dni })
+        handleSave(action, { name, lastName, email, rolId, dni, pickPointID })
     }
 
     return (
         <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}  >
             <DialogContent className="sm:max-w-[425px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
-                    <DialogTitle>{action === 'create' ? 'Crear' : 'Editar'} Usuario</DialogTitle>
+                    <DialogTitle className='text-center mb-2'>{action === 'create' ? 'Crear' : 'Editar'} Usuario</DialogTitle>
 
                 </DialogHeader>
                 <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
@@ -154,7 +156,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="email" className="text-right">Rol</Label>
                         <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} required>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Seleccionar un rol" />
                             </SelectTrigger>
                             <SelectContent>
@@ -172,8 +174,37 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                     </div>
 
 
+                    {/* Tienda */}
+
+                    {rolId === 3 &&
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="email" className="text-right">Tienda:</Label>
+                            <div className="col-span-3">
+
+                                <SelectStore setStore={SetPickPointID} />
+                            </div>
+                            {/* <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} required>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Seleccionar un rol" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Roles</SelectLabel>
+                                    <SelectItem value="1">ADMIN</SelectItem>
+                                    <SelectItem value="2">ATC</SelectItem>
+                                    <SelectItem value="3">TIENDA</SelectItem>
+                                    <SelectItem value="4">WEB MASTER</SelectItem>
+                                    <SelectItem value="5">ALMACEN</SelectItem>
+                                    <SelectItem value="6">SOPORTE</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select> */}
+                        </div>
+                    }
+
+
                 </form>
-                <DialogFooter>
+                <DialogFooter className='mt-4'>
                     <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>
                     <Button onClick={handleSubmit} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
                 </DialogFooter>

@@ -1,4 +1,3 @@
-import { AlertDialogFooter } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -10,7 +9,6 @@ import { ProductToChangeList } from './product-to-change.list'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { TbStatusChange } from 'react-icons/tb'
 import { SelectProductChange } from './select-product-change'
-import { toast } from 'sonner'
 
 
 interface ProductChangeModalProps {
@@ -25,7 +23,13 @@ interface Product {
     codigoEan: string;
     codigoSap: string;
     url_foto: string;
-    id: number;
+    id: string;
+
+    quantity: number
+    price: number;
+    priceSale: number;
+    size: string;
+    color: string;
 }
 export const ProductChangeModal = ({ openModal, setOpenModal, handleDescargaCambio, handleCambio, table }: ProductChangeModalProps) => {
 
@@ -92,7 +96,7 @@ export const ProductChangeModal = ({ openModal, setOpenModal, handleDescargaCamb
 
                         {/* <TablaRealizarCambio /> */}
                         <h3 className="text-lg mb-2">Lista de Productos</h3>
-                        <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original as ProductoTable)} />
+                        <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row: any) => row.original )} />
                     </div>
                     <div className="grid-cols-1">
                         <h3 className="text-lg mb-2"> Nuevos Productos</h3>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, Settings, TriangleAlert, Truck, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog } from 'lucide-react';
 import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
@@ -58,10 +58,15 @@ export const Sidebar = () => {
 
         },
         {
-            nombre: 'Recepción Orden (tienda)',
+            nombre: 'Orden (tienda)',
             icon: <Box />,
-            ruta: '/recepcion',
+            ruta: '/tienda_orden',
             roles: [1, 2, 6],
+            children: [
+                { nombre: 'Recepción Orden', ruta: 'tienda/recepcion', icon: <Box /> },
+                { nombre: 'Entregar Orden (Tienda)', ruta: 'tienda/entrega', icon: <ClipboardCheck /> },
+                { nombre: 'Incidencias (Tienda)', ruta: '/tienda/incidencia', icon: <FileWarning /> },
+            ]
 
 
         },
@@ -73,13 +78,6 @@ export const Sidebar = () => {
             roles: [1, 2, 6]
 
         },
-        // {
-        //     nombre: 'Reiniciar Orden (Soporte)',
-        //     icon: <ListRestart />,
-        //     ruta: '/reset',
-        //     roles: [1, 2]
-
-        // },
         {
             nombre: 'Mantenimiento (Soporte)',
             icon: <Monitor />,

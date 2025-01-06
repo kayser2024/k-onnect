@@ -6,7 +6,6 @@ import { z } from 'zod';
 import prisma from './lib/prisma';
 
 
-
 export const authConfig: NextAuthConfig = {
   pages: {
     signIn: '/auth/login',
@@ -67,12 +66,12 @@ export const authConfig: NextAuthConfig = {
           },
         })
 
-        const userData = await prisma.users.findUnique({
-          where: {
-            Email: '',
-            Status: true
-          },
-        })
+        // const userData = await prisma.users.findUnique({
+        //   where: {
+        //     Email: '',
+        //     Status: true
+        //   },
+        // })
 
 
         if (!user) return null;

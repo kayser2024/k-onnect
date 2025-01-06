@@ -9,6 +9,7 @@ export interface User {
     image?: string
     rolId: number
     status?: boolean
+    pickupPointID?: string
 }
 
 export interface Users {

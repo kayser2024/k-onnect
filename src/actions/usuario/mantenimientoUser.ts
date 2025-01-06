@@ -42,13 +42,25 @@ export const getUserByDni = async (dni: string) => {
 
 export const createUser = async (data: User) => {
     console.log(data, 'ENTRANDO CREATE PRISMA')
+
+    const { pickPointID, ...rest } = data;
+
     let result;
 
     // encriptar la contraseña
     const passwordHash = await bcryptjs.hash(data.dni, 10);
 
     try {
-        result = await prisma.usuarios.create({ data: { ...data, emailVerified: 'no', image: '', password: passwordHash } });
+        // buscar el ID de la tienda
+        const storeData = await prisma.pickupPoints.findFirst({
+            where: {
+                Description: pickPointID
+            }
+        });
+
+
+        result = await prisma.usuarios.create({ data: { ...rest, emailVerified: 'no', image: '', password: passwordHash, pickupPointID: storeData?.PickupPointID } });
+
     } catch (error: any) {
         console.log(error)
         return error.message

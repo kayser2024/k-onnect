@@ -13,6 +13,7 @@ declare module 'next-auth' {
             password: string
             image: string
             rolId: number
+            pickupPointID: number
         } & DefaultSession
     }
 }
