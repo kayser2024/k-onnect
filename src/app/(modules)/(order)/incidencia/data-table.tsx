@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import {
   Table,
@@ -33,7 +33,6 @@ import { Loader } from '@/components/loader'
 import { toast } from 'sonner'
 import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
-import Papa from 'papaparse';
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreVertical } from 'lucide-react'
@@ -228,8 +227,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
   const handleDropdownOpenChange = (isOpen: boolean, id: string) => {
-
-    console.log({ isOpen, id }, '👉👉👉')
     setOpenDropdown(isOpen ? id : null);
   }
 

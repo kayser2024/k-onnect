@@ -19,7 +19,7 @@ const IncidenciaPage = async () => {
 
             <h2 className='text-2xl'>Lista de Incidencia</h2>
             {/* tabla */}
-            <DataTable incidentList={incidenciaList} />
+            <DataTable incidentList={incidenciaList} EstablishmentID={EstablishmentID}/>
         </div>
     )
 }

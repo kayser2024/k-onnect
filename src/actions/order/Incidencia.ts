@@ -94,7 +94,6 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
 // Obtener todas las incidencias por BoletaOriginal
 export const getAllIncidence = async (pickupPickupPointID?: number) => {
     let result;
-    console.log({ pickupPickupPointID }, '🚩🚩🚩')
     try {
         const IncidenceGrouped = await prisma.incidence.groupBy({
             by: ['OrdenID'],
@@ -335,6 +334,7 @@ export const changStatusIncidence = async (incidenceId: number) => {
     return result;
 }
 
+// Función para ingresar la NC y el Invoice 
 export const updateIncidence = async (data: { nc: string, invoice?: string, incidenceId: number }, path: string) => {
 
     // const user = await auth();

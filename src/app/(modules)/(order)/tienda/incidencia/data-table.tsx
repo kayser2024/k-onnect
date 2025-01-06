@@ -24,25 +24,22 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { useQuery } from '@tanstack/react-query'
-import { changStatusIncidence, detailOrder, getAllIncidence, getAllIncidenceByInvoice, updateIncidence } from '@/actions/order/Incidencia'
+import { detailOrder, getAllIncidence, getAllIncidenceByInvoice } from '@/actions/order/Incidencia'
 import { formatDate } from '@/helpers/convertDate'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { ConfirmCompleted } from './ui/confirm-completed'
 import { Loader } from '@/components/loader'
 import { toast } from 'sonner'
 import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
-import Papa from 'papaparse';
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreVertical } from 'lucide-react'
-import { InputInvoiceModal } from './ui/inputInvoice-modal'
 import { ValidatorProductModal } from './ui/validatorProduct-modal'
 
 
 interface OrderProps {
   incidentList: [];
+  EstablishmentID: number
 }
 
 
@@ -55,21 +52,18 @@ interface IncidentProduct {
   CreatedAt: Date
 }
 
-export const DataTable = ({ incidentList }: OrderProps) => {
+export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const [dataIncidente, setDataIncidente] = useState(incidentList)
   const [sorting, setSorting] = useState<SortingState>([])
   const [expanded, setExpanded] = useState({});
   const [enabled, setEnabled] = useState(false);
   const [order, setOrder] = useState(0);
-  const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [valueSearch, setValueSearch] = useState("")
-  const [incidenceId, setIncidenceId] = useState(0);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [productsIncident, setProductsIncident] = useState<IncidentProduct[]>([])
 
-  const [isOpenModal, setIsOpenModal] = useState(false)
-
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
   // Obtener el detalle de la orden
   const { data, refetch, isLoading, isPending } = useQuery({
@@ -95,13 +89,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     try {
       setLoading(true)
 
-      // Comparar
+      // llamar una acción para actualizar la incidencia a recibido conforme
+      // await updateIncidence(incidentID);
 
     } catch (error: any) {
       console.log(error.message)
     } finally {
       setLoading(false)
-      setIsOpen(false)
       refetch()
     }
   }
@@ -152,7 +146,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       // No hay búsqueda, obtener todas las incidencias
       try {
         setLoading(true);
-        const response = await getAllIncidence();
+        const response = await getAllIncidence(EstablishmentID);
         setDataIncidente(response);
       } catch (error: any) {
         console.error(error.message);
@@ -180,15 +174,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
   }
 
-
-  // manejador de 
-  // const handleChange = (incidenceId: number) => {
-  //   console.log(incidenceId, '---------Detail select')
-  //   setIncidenceId(incidenceId)
-  //   setIsOpen((prev) => !prev)
-
-  // }
-
   // Función para Descargar Excel
   const downloadExcel = () => {
     downloadExcelReport(incidentList)
@@ -201,8 +186,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
   const handleCloseModal = () => {
-    setIncidenceId(0)
-    setIsOpen(false)
     setProductsIncident([])
     setIsOpenModal(false)
     setOpenDropdown(null)
