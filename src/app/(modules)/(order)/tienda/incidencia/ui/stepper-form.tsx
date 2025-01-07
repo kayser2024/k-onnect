@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -55,11 +55,16 @@ interface StepperProps {
 const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, handleCompare, validationStep }: StepperProps) => {
     const [step, setStep] = useState(1);
     const [comments, setComments] = useState("");
+    const [isChecked, setIsChecked] = useState(false);
+
+
     // traer de la bd los datos de la incidencia🚩
 
     console.log({ productsIncidence }, 'OBTENER EL ID')
     const handleNext = async () => {
 
+
+        // ValidationStep==='ORIGIN'
         // si existe discrepancies 
         const discrepancies = handleCompare()
 
@@ -70,7 +75,10 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
 
         console.log({ result }, 'RESULT DEL UPDATE')
-        if (step < 2 && !discrepancies) setStep(step + 1);
+        if (step < 3 && !discrepancies) setStep(step + 1);
+
+
+        //   ValidationStep==='CHANGE'
 
 
     };
@@ -80,6 +88,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
     };
 
 
+    // Función para insertar codProduct en la tabla comparativa
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -134,7 +143,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         console.log("Finalizar step")
 
         // TODO: actualizar en la tabla inciencia  recibidos, fecha, enviar el recibido conforme y comentario 🚩
-        const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, isConfirmed: false, comments: comments })
+        const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, isConfirmed: isChecked, comments: comments })
 
 
 
@@ -148,7 +157,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
             <div className="mb-8">
 
                 <div className="flex items-center justify-between mb-4">
-                    {["Recibir", "Entregar"].map((label, index) => (
+                    {["Recibir", "Entregar", "Finalizar"].map((label, index) => (
                         <div
                             key={index}
                             className={cn(
@@ -165,22 +174,23 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
 
 
                 </div>
-                <div className="flex gap-2 w-full">
 
-                    <form onSubmit={handleSubmit} className='w-full'>
-                        <label htmlFor="orden" className="text-sm font-bold">Cod. Producto</label>
-                        <Input placeholder='Ingresar Cod. Sap o Cod. Ean' value={cod} onChange={e => { setCod(e.target.value); setMessage("") }} className='w-full' />
-                    </form>
-
-                    <Button variant='destructive' className='mt-5' onClick={handleCleanList}>Limpiar Lista</Button>
-                </div>
             </div>
 
             {/* Step Content */}
             {step === 1 && (
                 <div className="space-y-4">
                     {/* Tabla de "Recibir" */}
-                    <TableCompare productsIncidence={productsIncidence} products={products} type={validationStep} />
+                    <TableCompare
+                        productsIncidence={productsIncidence}
+                        products={products}
+                        type={validationStep}
+                        handleSubmit={handleSubmit}
+                        handleCleanList={handleCleanList}
+                        cod={cod}
+                        setCod={setCod}
+                        setMessage={setMessage}
+                    />
                 </div>
             )}
 
@@ -188,34 +198,55 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                 <div className="space-y-4">
                     {/* Tabla de "Entregar Productos" */}
 
-                    <TableCompare productsIncidence={productsIncidence} products={products} type={validationStep} />
+                    <TableCompare
+                        productsIncidence={productsIncidence}
+                        products={products}
+                        type={validationStep}
+                        handleSubmit={handleSubmit}
+                        handleCleanList={handleCleanList}
+                        cod={cod}
+                        setCod={setCod}
+                        setMessage={setMessage}
+                    />
 
 
 
                 </div>
             )}
-            {validationStep === "CHANGE" &&
-                <div className="">
 
-                    <div className="flex items-center space-x-2 mt-4">
-                        <Checkbox id="terms" />
-                        <label
-                            htmlFor="terms"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                            Recibió conforme
-                        </label>
+            {
+                step === 3 && (
+                    <div className="flex flex-col gap-1 mt-4 border p-2 rounded-md bg-slate-100">
+
+                        {/* Formulario para agregar detalles o foto */}
+
+                        <Input placeholder="Agregar comentario" onChange={(e) => setComments(e.target.value)} value={comments} />
+                        <div className="flex items-center space-x-2 mt-4">
+                            <Checkbox
+                                id="terms"
+                                onCheckedChange={(prev) => setIsChecked(!!prev)}
+                                checked={isChecked}
+                            />
+                            <label
+                                htmlFor="terms"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Recibió conforme
+                            </label>
+                        </div>
                     </div>
-                    <Input placeholder="Agregar comentario" onChange={(e) => setComments(e.target.value)} value={comments} />
-                </div>
+                )
             }
+            {/* {validationStep === "CHANGE" &&
+                
+            } */}
             {/* Buttons */}
             <div className="flex items-center justify-between mt-8">
                 <Button variant="outline" onClick={handleBack} disabled={step === 1}>
                     Atrás
                 </Button>
-                {step < 2 ? (
-                    <Button onClick={handleNext} disabled={step === 2}>
+                {step < 3 ? (
+                    <Button onClick={handleNext} disabled={step === 3}>
                         Siguiente
                     </Button>
                 ) : (
