@@ -375,6 +375,41 @@ export const updateIncidence = async (data: { nc: string, invoice?: string, inci
 }
 
 
+// Función para actualizar la fecha de los productos recibidos
+export const updateIncidence_ReceiveDispatch = async (incidenceId: number, data: { type: string, isConfirmed: boolean, comments: string }) => {
+    const now = new Date();
+    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
+
+    let result;
+    try {
+
+        result = await prisma.incidence.update({
+            where: {
+                IncidenceID: incidenceId,
+            },
+            data: {
+
+                ...(data.type === 'ORIGIN' && {
+                    ReceivedDate: now,
+                    Received: true,
+                }),
+                ...(data.type === 'CHANGE' && {
+                    DispatchedDate: now,
+                    Dispatched: true,
+                    Comments: data.comments,
+                    IsConfirmed: data.isConfirmed,
+                }),
+
+            }
+        })
+    } catch (error: any) {
+        result = error.message
+    }
+
+    return result;
+}
+
+
 export const getIncidenceByEstablishment = async (establishmentID: number) => {
 
 

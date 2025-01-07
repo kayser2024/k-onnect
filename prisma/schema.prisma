@@ -165,6 +165,12 @@ model Incidence {
   PickupPointID    Int?
   UserUpdater      Int?
   UpdatedAt        DateTime?       @db.Timestamp(0)
+  DispatchedDate   DateTime?       @db.Timestamp(0)
+  Dispatched       Boolean?        @default(false)
+  Received         Boolean?        @default(false)
+  ReceivedDate     DateTime?       @db.Timestamp(0)
+  IsConfirmed      Boolean?        @default(false)
+  Comments         String?         @db.Text
   Orders           Orders          @relation(fields: [OrdenID], references: [OrderID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_1")
   TypesIncidence   TypesIncidence  @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
   Users            Users           @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")

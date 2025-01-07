@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import React, { FormEvent, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import Stepper from './stepper-form'
+import { Check, X } from 'lucide-react'
 
 interface ValidatorProductModalProps {
     isOpen: boolean
@@ -41,6 +43,8 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
     const [message, setMessage] = useState("");
     const [cod, setCod] = useState("")
     const [products, setProducts] = useState<IncidentProduct[] | []>([]);
+    const [validationStep, setValidationStep] = useState<"ORIGIN" | "CHANGE">("ORIGIN");
+    const [productsChange, setProductsChange] = useState<IncidentProduct[] | []>([]);
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -51,7 +55,7 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
         }
 
         // Buscar el producto en la lista de incidencias
-        const existingIncidenceProduct = productsIncidence.IncidenceLogs.find(
+        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidentProduct) => f.Description !== "CHANGE").find(
             (item: IncidentProduct) => item.CodProd === cod || item.CodEan === cod
         );
 
@@ -82,7 +86,6 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
         }
 
 
-        console.log(products)
         // Limpiar el campo de código después de agregarlo
         setCod("");
         toast.success("Producto agregado correctamente");
@@ -92,47 +95,88 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
 
     const handleSave = () => {
         // Validar que las cantidades ingresadas coincidan con las originales
-        console.log({ products }, 'PRODUCTS');
         const discrepancies = products.filter((product: IncidentProduct) => {
-            const originalProduct = productsIncidence.IncidenceLogs.find(
+
+            const originalProduct = productsIncidence.IncidenceLogs.filter((f: any) => f.Description === validationStep).find(
                 (item: IncidentProduct) => item.CodProd === product.CodProd
             );
+
+            console.log({ originalProduct }, 'filter')
             // Si no encuentra el producto original, lo marca como discrepancia
             if (!originalProduct) {
                 console.error(`Producto original no encontrado para: ${product.CodProd}`);
                 return true;
             }
+
             // Verificar que las cantidades sean iguales
             return product.ProdQuantity !== originalProduct.ProdQuantity;
         });
 
+
         if (discrepancies.length > 0) {
-            setMessage(
-                "Algunas cantidades ingresadas no coinciden con las cantidades originales. Verifique e intente de nuevo."
-            );
+            setMessage("Algunas cantidades ingresadas no coinciden con las cantidades originales. Verifique e intente de nuevo.");
             return;
         }
 
+
+
         // Si todas las cantidades coinciden, proceder con éxito
-        toast.success("Productos validados correctamente.");
-        // handleAccept();
+        toast.success(validationStep === "ORIGIN"
+            ? "Productos 'origin' validados correctamente."
+            : "Productos 'change' validados correctamente.");
+
+        setProducts([]);
+        setMessage("");
+
+        if (validationStep === "ORIGIN") {
+            // Pasar al siguiente paso
+            setValidationStep("CHANGE")
+        } else {
+            // handleAccept();
+
+        }
+        setMessage("");
+
+        return discrepancies.length > 0 ? true : false
     };
 
 
     const handleCleanList = () => {
-        setProducts([]);
+
+        if (validationStep === "ORIGIN") {
+            setProducts([]);
+
+        }
+
+        if (validationStep === "CHANGE") {
+            setProductsChange([])
+        }
         setMessage("");
         setCod("");
     };
+
+
+    // Efecto para limpiar productos y mensajes al abrir/cerrar el modal
+    useEffect(() => {
+        if (!isOpen) {
+            // Limpia el estado cuando el modal se cierra
+            setProducts([]);
+            setProductsChange([]);
+            setMessage("");
+            setCod("");
+            setValidationStep("ORIGIN")
+        }
+    }, [isOpen]);
 
     return (
         <AlertDialog onOpenChange={setIsOpenModal} open={isOpen} >
             <AlertDialogContent className='max-w-screen-md'>
                 <AlertDialogHeader>
                     <AlertDialogTitle className='text-center'>Validar Productos</AlertDialogTitle>
+                    <div className="absolute right-4 top-2 cursor-pointer" onClick={handleClose}><X /></div>
 
                     <AlertDialogDescription className='flex flex-col gap-4'>
-                        <div className="flex gap-2 w-full">
+                        {/* <div className="flex gap-2 w-full">
 
                             <form onSubmit={handleSubmit} className='w-full'>
                                 <label htmlFor="orden" className="text-sm font-bold">Cod. Producto</label>
@@ -140,10 +184,10 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
                             </form>
 
                             <Button variant='destructive' className='mt-5' onClick={handleCleanList}>Limpiar Lista</Button>
-                        </div>
+                        </div> */}
 
                         {/* Mostrar tabla  */}
-                        <div className="flex flex-row gap-2">
+                        {/* <div className="flex flex-row gap-2">
 
                             <Table className='min-h-64'>
                                 <TableCaption>Lista de Productos Originales.</TableCaption>
@@ -193,15 +237,28 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
                                 </TableBody>
 
                             </Table>
-                        </div>
+                        </div> */}
+
+
+                        <Stepper
+                            cod={cod}
+                            setCod={setCod}
+                            setMessage={setMessage}
+                            handleCleanList={handleCleanList}
+                            productsIncidence={productsIncidence}
+                            products={products}
+                            setProducts={setProducts}
+                            handleCompare={handleSave}
+                            validationStep={validationStep}
+                        />
 
                         {message ? <div className='text-red-500 text-xs'>{message}</div> : ""}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
+                {/* <AlertDialogFooter>
                     <Button variant="ghost" onClick={() => { setMessage(""); handleClose() }} disabled={isLoading}>Cancelar</Button>
                     <Button variant="default" onClick={handleSave} disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar"}</Button>
-                </AlertDialogFooter>
+                </AlertDialogFooter> */}
             </AlertDialogContent>
         </AlertDialog >
     )
