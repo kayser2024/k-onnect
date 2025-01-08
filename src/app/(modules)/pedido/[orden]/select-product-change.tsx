@@ -116,8 +116,8 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
                         <div className="flex gap-2">
                             <p className="text-xs font-bold">Precio:</p>
                             <div className="flex gap-3">
-                                <p className="text-xs line-through text-slate-500">S/ {selectedProduct.price}</p>
-                                <p className="text-xs">S/ {selectedProduct.priceSale}</p>
+                                <p className="text-xs line-through text-slate-500">S/ {`${Number(selectedProduct.price).toFixed(2)}`}</p>
+                                <p className="text-xs">S/ {`${Number(selectedProduct.priceSale).toFixed(2)}`}</p>
                             </div>
 
                         </div>

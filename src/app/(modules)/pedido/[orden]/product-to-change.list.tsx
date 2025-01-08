@@ -74,7 +74,7 @@ export const ProductToChangeList = ({ newProducts, setNewProducts, setProdChange
                                 <div className="text-xs">Cod. EAN: {product.codigoEan}</div>
                                 <div className="text-xs">Talla: {product.size}</div>
                                 <div className="text-xs">Color: {product.color}</div>
-                                <div className="text-xs">Precio: S/ {product.priceSale}</div>
+                                <div className="text-xs">Precio: S/ {Number(product.priceSale).toFixed(2)}</div>
                                 <Link className="text-sm flex items-center my-2" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${product.codigoEan}&tab=detail&page=1`}>
                                     {/* <EyeIcon size={20} /> */}
                                     Ver stock en Tutati

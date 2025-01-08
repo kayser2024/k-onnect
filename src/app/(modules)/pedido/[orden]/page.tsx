@@ -172,34 +172,6 @@ async function EmptyCardFacturacion() {
 
 }
 
-// function formatedDetallePedido(detalle_pedido: DetallePedido[]) {
-
-//     const data: ProductoTable[] = detalle_pedido.map(producto => ({
-//         id: producto.sku,
-//         foto: producto.url_imagen_sku,
-//         descripcion: `${producto.categoria},${producto.title},${producto.sku},${producto.atributo1_titulo},${producto.atributo1_valor},${producto.atributo2_titulo},${producto.atributo2_valor}`,
-//         cantidad: producto.quantity_sku,
-//         precio: producto.sale_price,
-//         subTotal: producto.sale_price * producto.quantity_sku
-//     }));
-
-//     const dataReal: ProductoTable[] = []
-
-//     for (let i = 0; i < detalle_pedido.length; i++) {
-//         for (let j = 0; j < detalle_pedido[i].quantity_sku; j++) {
-//             dataReal.push({
-//                 id: detalle_pedido[i].sku,
-//                 foto: detalle_pedido[i].url_imagen_sku,
-//                 descripcion: `${detalle_pedido[i].categoria},${detalle_pedido[i].title},${detalle_pedido[i].sku},${detalle_pedido[i].atributo1_titulo},${detalle_pedido[i].atributo1_valor},${detalle_pedido[i].atributo2_titulo},${detalle_pedido[i].atributo2_valor}`,
-//                 cantidad: 1,
-//                 precio: detalle_pedido[i].sale_price,
-//                 subTotal: detalle_pedido[i].sale_price
-//             })
-//         }
-//     }
-
-//     return dataReal
-// };
 
 async function HomeOrden({ params }: Props) {
 

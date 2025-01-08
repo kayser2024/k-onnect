@@ -22,7 +22,6 @@ interface IncidentProduct {
 }
 
 
-
 interface TableCompareProps {
     productsIncidence: { IncidenceLogs: IncidentProduct[] },
     products: IncidentProduct[]
@@ -40,18 +39,14 @@ export const TableCompare = ({ productsIncidence, products, type, handleSubmit, 
         <div className="flex flex-col gap-2">
 
             <div className="flex gap-2 w-full">
-
-                <form onSubmit={handleSubmit} className='w-full'>
-                    <label htmlFor="orden" className="text-sm font-bold">Cod. Producto</label>
+                <form onSubmit={handleSubmit} className='w-full flex flex-col gap-1'>
+                    <label htmlFor="orden" className="text-sm font-semibold">Cod. Producto</label>
                     <Input placeholder='Ingresar Cod. Sap o Cod. Ean' value={cod} onChange={e => { setCod(e.target.value); setMessage("") }} className='w-full' />
                 </form>
 
-                <Button variant='destructive' className='mt-5' onClick={handleCleanList}>Limpiar Lista</Button>
+                <Button variant='destructive' className='mt-6' onClick={handleCleanList}>Limpiar Lista</Button>
             </div>
-            <div className="flex flex-row gap-2">
-
-
-
+            <div className="flex flex-row gap-2 mt-2">
                 <Table className='min-h-64'>
                     <TableCaption>Lista de Productos Originales.</TableCaption>
                     <TableHeader>

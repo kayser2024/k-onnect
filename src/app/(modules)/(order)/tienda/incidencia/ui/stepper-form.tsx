@@ -2,7 +2,6 @@
 
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { TableCompare } from "./table-compare";
 import { toast } from "sonner";
@@ -10,6 +9,8 @@ import { Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateIncidence_ReceiveDispatch } from "@/actions/order/Incidencia";
 import { IncidenceLogs } from "@prisma/client";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface Product {
     CodProd: string,
@@ -72,9 +73,9 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
             toast.success("Lista de productos son correctos")
         }
         // TODO: actualizar en la tabla inciencia  recibidos, fecha 🚩
-        const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
+        // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
 
-        console.log({ result }, 'RESULT DEL UPDATE')
+        // console.log({ result }, 'RESULT DEL UPDATE')
         if (step < 3 && !discrepancies) setStep(step + 1);
 
 
@@ -219,8 +220,8 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                     <div className="flex flex-col gap-1 mt-4 border p-2 rounded-md bg-slate-100">
 
                         {/* Formulario para agregar detalles o foto */}
-
-                        <Input placeholder="Agregar comentario" onChange={(e) => setComments(e.target.value)} value={comments} />
+                        <Label className="mb-1">Comentario:</Label>
+                        <Textarea placeholder="Agregar comentario" onChange={(e) => setComments(e.target.value)} value={comments} />
                         <div className="flex items-center space-x-2 mt-4">
                             <Checkbox
                                 id="terms"
