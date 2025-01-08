@@ -1,19 +1,15 @@
 'use client'
 
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TableCompare } from "./table-compare";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getIncidenceByID, updateIncidence_ReceiveDispatch } from "@/actions/order/Incidencia";
-import { IncidenceLogs } from "@prisma/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "@/helpers/convertDate";
-import { SelectProductChange } from "@/app/(modules)/pedido/[orden]/select-product-change";
 
 interface Product {
     CodProd: string,
@@ -47,7 +43,7 @@ interface Incident {
     Received: boolean;
     Comments: string;
     IsConfirmed: boolean;
-    IncidenceLogs: IncidentProduct[];
+    IncidenceLogs: IncidentProduct[]
 }
 
 interface StepperProps {
@@ -58,30 +54,36 @@ interface StepperProps {
     productsIncidence: Incident,
     products: IncidentProduct[]
     setProducts: (products: IncidentProduct[]) => void
-    productsChange: IncidentProduct[]
-    setProductsChange: (product: IncidentProduct[]) => void
-    handleCompare: (productsDB: any, productList: any) => boolean | undefined;
+    handleCompare: (productsDb: any, productsList: any) => boolean | undefined;
     validationStep: string
 }
 
-const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, handleCompare, validationStep, productsChange, setProductsChange }: StepperProps) => {
+const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, handleCompare, validationStep }: StepperProps) => {
     const [step, setStep] = useState(1);
     const [comments, setComments] = useState("");
     const [isChecked, setIsChecked] = useState(false);
 
-    console.log({ productsIncidence }, '🖐️🖐️🖐️🖐️')
+    console.log({ productsIncidence }, 'PRODUCTS WITH INCIDENCE RETURN')
 
+    // verificar si la incidencia ya tiene productos recibidos y traer la fecha
 
+    const { data, refetch, isLoading } = useQuery({
+        queryKey: ["IncidenceId", productsIncidence?.IncidenceID],
+        queryFn: () => getIncidenceByID(productsIncidence.IncidenceID),
+        enabled: !!productsIncidence?.IncidenceID
+    });
+    console.log({ data }, 'DATA INCIDENCE BY ID')
 
     const handleNext = async () => {
 
-
         // TODO: Filtrar los productos🚩
-        const productsOrigin = productsIncidence.IncidenceLogs.filter(f => { f.Description === 'ORIGIN' })
+        const productsReturned = productsIncidence.IncidenceLogs.filter(f => { f.Description === 'ORIGIN' })
+
 
         // ValidationStep==='ORIGIN'
         // si existe discrepancies 
-        const discrepancies = handleCompare(productsOrigin, products)
+        const discrepancies = handleCompare(productsReturned, products)
+
         if (!discrepancies) {
             toast.success("Lista de productos son correctos")
         }
@@ -89,7 +91,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
 
         // console.log({ result }, 'RESULT DEL UPDATE')
-        if (step < 3 && !discrepancies) setStep(step + 1);
+        if (step < 2 && !discrepancies) setStep(step + 1);
 
 
         //   ValidationStep==='CHANGE'
@@ -112,7 +114,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         }
 
         // Buscar el producto en la lista de incidencias
-        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidentProduct) => f.Description === validationStep).find(
+        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidentProduct) => f.Description === 'RETURN').find(
             (item: IncidentProduct) => item.CodProd === cod || item.CodEan === cod
         );
 
@@ -130,27 +132,18 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
             // Si ya existe, incrementar la cantidad
             const updatedProducts = [...products];
             updatedProducts[existingProductIndex].ProdQuantity += 1;
-            validationStep === 'ORIGIN'
-                ? setProducts(updatedProducts)
-                : setProductsChange(updatedProducts)
+            setProducts(updatedProducts)
 
         } else {
             // Si no existe, agregar el producto con la cantidad inicial
-            validationStep === 'ORIGIN'
-                ? setProducts([
-                    ...products,
-                    {
-                        ...existingIncidenceProduct,
-                        ProdQuantity: 1,
-                    },
-                ])
-                : setProductsChange([
-                    ...products,
-                    {
-                        ...existingIncidenceProduct,
-                        ProdQuantity: 1,
-                    },
-                ])
+            setProducts([
+                ...products,
+                {
+                    ...existingIncidenceProduct,
+                    ProdQuantity: 1,
+                },
+            ])
+
         }
 
 
@@ -163,6 +156,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
 
     const handleFinish = async () => {
 
+
         // comparar los productos a entregar 
         console.log("Finalizar step")
 
@@ -173,7 +167,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
 
         console.log(result)
     }
-    console.log({ products, productsChange }, '🔴🔴🔴🔴')
+
 
     return (
         <div className="w-full mx-auto">
@@ -181,7 +175,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
             <div className="mb-8">
 
                 <div className="flex items-center justify-between mb-4">
-                    {["Recibir", "Entregar", "Finalizar"].map((label, index) => (
+                    {["Recibir", "Finalizar"].map((label, index) => (
                         <div
                             key={index}
                             className={cn(
@@ -190,7 +184,6 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                             )}
                         >
                             <div className="flex items-center justify-center gap-2">
-
                                 <span>{label}</span>
                             </div>
                         </div>
@@ -208,7 +201,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                     <TableCompare
                         productsIncidence={productsIncidence}
                         products={products}
-                        type={validationStep}
+                        type="RETURN"
                         handleSubmit={handleSubmit}
                         handleCleanList={handleCleanList}
                         cod={cod}
@@ -220,34 +213,23 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                 </div>
             )}
 
-            {step === 2 && (
-                <div className="space-y-4">
-                    {/* Tabla de "Entregar Productos" */}
 
-                    <TableCompare
-                        productsIncidence={productsIncidence}
-                        products={productsChange}
-                        type={validationStep}
-                        handleSubmit={handleSubmit}
-                        handleCleanList={handleCleanList}
-                        cod={cod}
-                        setCod={setCod}
-                        setMessage={setMessage}
-                    />
-
-
-
-                </div>
-            )}
 
             {
-                step === 3 && (
+                step === 2 && (
                     <div className="flex flex-col gap-1 mt-4 border p-2 rounded-md bg-slate-100">
 
                         {/* Formulario para agregar detalles o foto */}
                         <Label className="mb-1">Comentario:</Label>
                         <Textarea placeholder="Agregar comentario" onChange={(e) => setComments(e.target.value)} value={comments} />
-                        <div className="flex items-center space-x-2 mt-4">
+
+
+                        {/* ADJUNTAR IMAGEN PARA OBSERVACIONES */}
+
+
+
+
+                        {/* <div className="flex items-center space-x-2 mt-4">
                             <Checkbox
                                 id="terms"
                                 onCheckedChange={(prev) => setIsChecked(!!prev)}
@@ -259,7 +241,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                             >
                                 Recibió conforme
                             </label>
-                        </div>
+                        </div> */}
                     </div>
                 )
             }
@@ -271,8 +253,8 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                 <Button variant="outline" onClick={handleBack} disabled={step === 1}>
                     Atrás
                 </Button>
-                {step < 3 ? (
-                    <Button onClick={handleNext} disabled={step === 3}>
+                {step < 2 ? (
+                    <Button onClick={handleNext} disabled={step === 2}>
                         Siguiente
                     </Button>
                 ) : (
@@ -283,4 +265,4 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
     );
 };
 
-export default Stepper;
+export default StepperReturn;

@@ -305,7 +305,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                               </TableHeader>
                               <TableBody className='bg-slate-100 border'>
                                 {data?.map((detail: any, index: number) => (
-                                  <TableRow key={`${index}-${new Date()}`} className='hover:bg-slate-200'>
+                                  <TableRow key={`${index}-${new Date()}`} className={`hover:bg-slate-200 ${detail.IsCompleted ? 'bg-green-200 hover:bg-green-100' : 'hover:bg-slate-50'}`}>
                                     <TableCell className='w-[350px] '>
                                       <ul className='list-disc ml-2'>
                                         {/* LISTAR LOS PRODUCTOS ORIGINALES */}

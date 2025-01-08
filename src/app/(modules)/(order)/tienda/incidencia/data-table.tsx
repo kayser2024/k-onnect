@@ -33,7 +33,7 @@ import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreVertical } from 'lucide-react'
+import { Check, MoreVertical } from 'lucide-react'
 import { ValidatorProductModal } from './ui/validatorProduct-modal'
 
 
@@ -51,6 +51,38 @@ interface IncidentProduct {
   Description: string,
   CreatedAt: Date
 }
+
+
+export interface ProductIncidence {
+  IncidenceID: number;
+  OrdenID: number;
+  InvoiceOriginal: string;
+  InvoiceIncidence: string;
+  NCIncidence: string;
+  TypeIncidenceID: number;
+  IsCompleted: boolean;
+  Description: string;
+  PickupPointID: number;
+  CreatedAt: Date;
+  Dispatched: boolean | null;
+  DispatchedDate: Date | null;
+  ReceivedDate: Date | null;
+  Received: boolean | null;
+  Comments: null | string;
+  IsConfirmed: boolean | null;
+  IncidenceLogs: IncidenceLog[];
+}
+
+export interface IncidenceLog {
+  CodEan: string;
+  CodProd: string;
+  ProdQuantity: number;
+  ProdSubtotal: string;
+  Description: string;
+  CreatedAt: Date;
+}
+
+
 
 export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const [dataIncidente, setDataIncidente] = useState(incidentList)
@@ -75,7 +107,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
     enabled: enabled,
   })
 
-
+  console.log({ data }, 'DATAA')
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -195,7 +227,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const validateProduct = (incidenceID: number, products: any) => {
     setOpenDropdown(null)
     setIsOpenModal(true)
-    console.log({ incidenceID, products }, '---------')
+    // console.log({ incidenceID, products }, '---------')
 
     // guardar los productos en la productsIncident
     setProductsIncident(products)
@@ -258,24 +290,26 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                   <TableHead className='text-white w-[350px]'>Prod. Original</TableHead>
                                   <TableHead className='text-white w-[350px]'>Prod. Cambiado</TableHead>
                                   <TableHead className='text-white w-[350px]'>Motivo</TableHead>
-                                  <TableHead className='text-white'>N.C.</TableHead>
-                                  <TableHead className='text-white'>Boleta</TableHead>
-                                  <TableHead className='text-white'>Fecha</TableHead>
+                                  <TableHead className='text-white w-[300px]'>N.C.</TableHead>
+                                  <TableHead className='text-white w-[300px]'>Boleta</TableHead>
+                                  <TableHead className='text-white w-[250px]'>Fec. Creac.</TableHead>
+                                  <TableHead className='text-white w-[250px]'>Fec. Recib.</TableHead>
+                                  <TableHead className='text-white w-[250px]'>Fec. Entr.</TableHead>
                                   <TableHead className='text-white '>Acción</TableHead>
                                 </TableRow>
                               </TableHeader>
-                              <TableBody className='bg-slate-100 border'>
+                              <TableBody className='bg-slate-200 border '>
                                 {data?.map((detail: any, index: number) => (
-                                  <TableRow key={`${index}-${new Date()}`} className='hover:bg-slate-200'>
+                                  <TableRow key={`${index}-${new Date()}`} className={`hover:bg-slate-200 ${detail.IsCompleted ? 'bg-green-200 hover:bg-green-100' : 'hover:bg-slate-50'} border-white`}>
                                     <TableCell className='w-[350px] '>
-                                      <ul className='list-disc ml-2'>
+                                      <ul className='list-disc ml-2 w-[130px]'>
                                         {/* LISTAR LOS PRODUCTOS ORIGINALES */}
                                         {detail.IncidenceLogs
-                                          .filter((incidence: any) => incidence.Description === 'ORIGIN' || incidence.Description === 'RETURN')
-                                          .map((incidence: any, index: number) => {
+                                          .filter((incidence: IncidenceLog) => incidence.Description !== 'CHANGE')
+                                          .map((incidence: IncidenceLog, index: number) => {
                                             return (
-                                              <li key={`${incidence.IncidenceLogID}-${index}`}>
-                                                <span className='text-xs flex'>
+                                              <li key={`${index}`}>
+                                                <span className='text-xs flex '>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
                                               </li>
@@ -287,7 +321,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                     <TableCell className='text-center w-[350px]'>
 
                                       {/* LISTAR LOS PRODUCTOS A CAMBIAR */}
-                                      <ul className='list-disc ml-2'>
+                                      <ul className='list-disc ml-2 w-[130px]'>
                                         {detail.IncidenceLogs
                                           .filter((incidence: any) => incidence.Description === 'CHANGE')
                                           .map((incidence: any, index: number) => {
@@ -306,24 +340,28 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                     <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
                                     <TableCell className='text-xs w-[200px]'>{detail.NCIncidence}</TableCell>
                                     <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
+                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.CreatedAt)}</TableCell>
+                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.ReceivedDate)}</TableCell>
+                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.DispatchedDate)}</TableCell>
 
 
-                                    <TableCell className='text-xs w-[250px]'>
-                                      <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
-                                        <DropdownMenuTrigger asChild >
-                                          <Button variant="ghost" aria-label="Opciones">
-                                            <MoreVertical size={20} />
-                                          </Button>
-                                        </DropdownMenuTrigger>
+                                    <TableCell className='text-xs w-[150px]'>
+                                      {detail.IsCompleted ? <Check className="text-white rounded-full p-[1px] font-bold text-center bg-green-500 m-auto" size={15} /> :
+                                        <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
+                                          <DropdownMenuTrigger asChild >
+                                            <Button variant="ghost" aria-label="Opciones">
+                                              <MoreVertical size={20} />
+                                            </Button>
+                                          </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent align="end">
+                                          <DropdownMenuContent align="end">
 
-                                          <DropdownMenuItem onClick={() => validateProduct(detail.IncidenceID, detail)}>
-                                            Validar Producto.
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
+                                            <DropdownMenuItem onClick={() => validateProduct(detail.IncidenceID, detail)}>
+                                              Validar Producto.
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      }
                                     </TableCell>
 
                                   </TableRow>
@@ -351,7 +389,6 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
 
         }
       </div>
-
 
 
       {/* PAGINATION */}

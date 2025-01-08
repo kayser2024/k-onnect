@@ -239,6 +239,12 @@ export const detailOrder = async (orden: number) => {
                 Description: true,
                 PickupPointID: true,
                 CreatedAt: true,
+                Dispatched: true,
+                DispatchedDate: true,
+                ReceivedDate: true,
+                Received: true,
+                Comments: true,
+                IsConfirmed: true,
 
                 IncidenceLogs: {
 
@@ -294,6 +300,24 @@ export const getIncidenceByOrder = async (order: string) => {
     }
 
 
+}
+
+export const getIncidenceByID = async (incidenceID: number) => {
+
+    let result;
+    try {
+
+        result = await prisma.incidence.findUnique({
+            where: { IncidenceID: incidenceID }
+
+        })
+
+    } catch (error: any) {
+
+        result = error.message;
+    }
+
+    return result;
 }
 
 export const getProductListTotalRefund = async (invoice: string) => {

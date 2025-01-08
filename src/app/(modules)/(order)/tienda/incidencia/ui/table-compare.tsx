@@ -22,8 +22,39 @@ interface IncidentProduct {
 }
 
 
+
+export interface ProductIncidence {
+    IncidenceID: number;
+    OrdenID: number;
+    InvoiceOriginal: string;
+    InvoiceIncidence: string;
+    NCIncidence: string;
+    TypeIncidenceID: number;
+    IsCompleted: boolean;
+    Description: string;
+    PickupPointID: number;
+    CreatedAt: Date;
+    Dispatched: boolean;
+    DispatchedDate: Date;
+    ReceivedDate: Date;
+    Received: boolean;
+    Comments: string;
+    IsConfirmed: boolean;
+    IncidenceLogs: IncidenceLog[];
+}
+
+export interface IncidenceLog {
+    CodEan: string;
+    CodProd: string;
+    ProdQuantity: number;
+    ProdSubtotal: number;
+    Description: string;
+    CreatedAt: Date;
+}
+
+
 interface TableCompareProps {
-    productsIncidence: { IncidenceLogs: IncidentProduct[] },
+    productsIncidence: ProductIncidence,
     products: IncidentProduct[]
     type: string
     handleSubmit: (e: FormEvent<HTMLFormElement>) => void
@@ -33,8 +64,7 @@ interface TableCompareProps {
     setMessage: (message: string) => void
 }
 export const TableCompare = ({ productsIncidence, products, type, handleSubmit, handleCleanList, cod, setCod, setMessage }: TableCompareProps) => {
-
-
+  
     return (
         <div className="flex flex-col gap-2">
 

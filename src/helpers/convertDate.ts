@@ -1,13 +1,17 @@
 export const formatDate = (isoDate: string): string => {
+
+    if (isoDate == null) {
+        return '';
+    }
     const date = new Date(isoDate);
 
     // Opciones de formato en español y UTC
     const options: Intl.DateTimeFormatOptions = {
-        year: '2-digit', 
-        month: 'short', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit', 
+        year: '2-digit',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
         // second: '2-digit', 
         hour12: true,
         timeZone: 'UTC'  // Asegurarse de que la fecha esté en UTC
