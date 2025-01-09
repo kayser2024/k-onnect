@@ -80,8 +80,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
   // Función para actulizar el estado de la orden a Completado
-  // verificar si es DEVOLUCIÓN TOTAL|PARCIAL => NC!
-  // verificar si es CAMBIO  => NC! y BOLETA!
+
   const handleAccept = async () => {
     setLoading(true)
 
@@ -173,14 +172,51 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
 
-  // manejador de 
+  // Función para "activar" checkboks a "COMPLETAR" incidencia 
   const handleChange = (incidenceId: number, detail: any) => {
+    const { TypeIncidenceID, Received, Dispatched, NCIncidence, InvoiceIncidence } = detail
 
     console.log({ incidenceId, detail }, '---------Detail select')
-    
-    setIncidenceId(incidenceId)
-    setIsOpen((prev) => !prev)
-    setOpenDropdown(null)
+    // verificar si es DEVOLUCIÓN TOTAL|PARCIAL => NC!
+    // verificar si es CAMBIO  => NC! y BOLETA!
+    // typeIncide=1 => RETURN
+    // typeIncide=2 => RETURN
+    // typeIncide=3 => CHANGE
+
+
+    if (TypeIncidenceID === 3) {
+      // CAMBIO
+      if (NCIncidence && InvoiceIncidence.trim().length > 0) {
+        setIncidenceId(incidenceId)
+        setIsOpen((prev) => !prev)  //abrir modal
+        setOpenDropdown(null)  //cerrar drowpDown
+      } else {
+        const message =
+          "Falta" +
+          (!NCIncidence ? " la NC" : "") +
+          (!NCIncidence && InvoiceIncidence.trim().length === 0 ? " y" : "") +
+          (InvoiceIncidence.trim().length === 0 ? " la Nueva Boleta" : "") +
+          " para completar esta incidencia!";
+        toast.warning(message)
+        return
+      }
+    } else {
+      // DEVOLUCION
+      if (NCIncidence) {
+        setIncidenceId(incidenceId)
+        setIsOpen((prev) => !prev)  //abrir modal
+        setOpenDropdown(null)  //cerrar drowpDown
+      } else {
+        toast.warning("Falta Ingresar la NC para completar esta incidencia")
+        return
+      }
+
+    }
+
+
+    // setIncidenceId(incidenceId)
+    // setIsOpen((prev) => !prev)  //abrir modal
+    // setOpenDropdown(null)  //cerrar drowpDown
 
   }
 
@@ -355,7 +391,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                     <TableCell className='text-xs w-[250px]'>
                                       {detail.IsCompleted
                                         ? <Check className="text-white rounded-full p-[1px] font-bold text-center bg-green-500 m-auto" size={15} />
-
                                         : <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
                                           <DropdownMenuTrigger asChild >
                                             <Button variant="ghost" aria-label="Opciones">

@@ -40,7 +40,7 @@ export const ConfirmCompleted = ({ isOpen, setIsOpen, handleAccept, isLoading, h
                 </AlertDialogHeader>
                 <div className='flex gap-2 items-center justify-end'>
                     <Button onClick={handleClose} disabled={isLoading} variant="outline">Cancel</Button>
-                    <Button onClick={handleAccept} disabled={isLoading} variant="default">{isLoading ? "Guardando..." : "Guardar"}</Button>
+                    <Button onClick={handleAccept} disabled={isLoading} variant="default">{isLoading ? "Espere..." : "Aceptar"}</Button>
                 </div>
             </AlertDialogContent>
         </AlertDialog>
