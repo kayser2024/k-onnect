@@ -1,19 +1,20 @@
 
+import { ResponseAllIncidence } from "@/types/IncidenceDB";
 import { ColumnDef } from "@tanstack/react-table"
 import { Download } from "lucide-react";
 import Link from "next/link";
 
 
 interface RowData {
+    OrderID: number;
     OrderNumber: string;
     Invoice: string;
     TypeIncidenceCount: number;
     TotalRefundSum: number;
     PickupPoint: string;
-    OrderID: number;
 }
 
-export const columns = (getDetailOrder: (OrderProps: number) => void, handleDownLoadDetail:(id: number) => void): ColumnDef < RowData, any > [] => [
+export const columns = (getDetailOrder: (OrderProps: number) => void, handleDownLoadDetail: (id: number) => void): ColumnDef<ResponseAllIncidence, any>[] => [
     {
         id: 'expander',
         header: () => null, // No encabezado para la columna del expander
@@ -72,7 +73,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
     },
     {
         id: 'TotalRefundSum',
-        accessorFn: (row) => row.TotalRefundSum,
+        // accessorFn: (row) => row.TotalRefundSum,
         header: "",
         cell: ({ row }) => {
             const id = Number(row.original.OrderID);

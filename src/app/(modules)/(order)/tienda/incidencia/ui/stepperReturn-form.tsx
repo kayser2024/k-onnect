@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TableCompare } from "./table-compare";
 import { toast } from "sonner";
-import { Checkbox } from "@/components/ui/checkbox";
 import { getIncidenceByID, updateIncidence_ReceiveDispatch } from "@/actions/order/Incidencia";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
+import { Incidence, IncidenceLog } from "@/types/IncidenceDB";
+import { handleCompareTableProducts } from "@/helpers/compareTableProducts";
 
 interface Product {
     CodProd: string,
@@ -17,86 +18,40 @@ interface Product {
     ProdQuantity: number,
 }
 
-interface IncidentProduct {
-    CodEan: string,
-    CodProd: string,
-    ProdQuantity: number,
-    ProdSubtotal: number,
-    Description: string,
-    CreatedAt: Date
-}
-
-interface Incident {
-    IncidenceID: number;
-    OrdenID: number;
-    InvoiceOriginal: string;
-    InvoiceIncidence: string;
-    NCIncidence: string;
-    TypeIncidenceID: number;
-    IsCompleted: boolean;
-    Description: string;
-    PickupPointID: number;
-    CreatedAt: Date;
-    Dispatched: boolean;
-    DispatchedDate: Date;
-    ReceivedDate: Date;
-    Received: boolean;
-    Comments: string;
-    IsConfirmed: boolean;
-    IncidenceLogs: IncidentProduct[]
-}
 
 interface StepperProps {
     handleCleanList: () => void;
     cod: string
     setCod: (cod: string) => void;
     setMessage: (message: string) => void;
-    productsIncidence: Incident,
-    products: IncidentProduct[]
-    setProducts: (products: IncidentProduct[]) => void
-    handleCompare: (productsDb: any, productsList: any) => boolean | undefined;
+    productsIncidence: Incidence,
+    products: IncidenceLog[]
+    setProducts: (products: IncidenceLog[]) => void
     validationStep: string
+    setIsOpenModal: (value: boolean) => void;
+    fnRefetch: () => void
 }
 
-const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, handleCompare, validationStep }: StepperProps) => {
+const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, validationStep, setIsOpenModal, fnRefetch }: StepperProps) => {
     const [step, setStep] = useState(1);
     const [comments, setComments] = useState("");
-    const [isChecked, setIsChecked] = useState(false);
+    const [loading, setLoading] = useState(false)
+    // const [isChecked, setIsChecked] = useState(false);
 
-    console.log({ productsIncidence }, 'PRODUCTS WITH INCIDENCE RETURN')
-
-    // verificar si la incidencia ya tiene productos recibidos y traer la fecha
-
-    const { data, refetch, isLoading } = useQuery({
-        queryKey: ["IncidenceId", productsIncidence?.IncidenceID],
-        queryFn: () => getIncidenceByID(productsIncidence.IncidenceID),
-        enabled: !!productsIncidence?.IncidenceID
-    });
-    console.log({ data }, 'DATA INCIDENCE BY ID')
 
     const handleNext = async () => {
 
-        // TODO: Filtrar los productos🚩
-        const productsReturned = productsIncidence.IncidenceLogs.filter(f => { f.Description === 'ORIGIN' })
+        // const discrepancies = handleCompare(productsReturned, products, "RETURN")
+        const discrepancies = handleCompareTableProducts(productsIncidence, products, "RETURN")
 
-
-        // ValidationStep==='ORIGIN'
-        // si existe discrepancies 
-        const discrepancies = handleCompare(productsReturned, products)
-
-        if (!discrepancies) {
-            toast.success("Lista de productos son correctos")
+        if (discrepancies.error) {
+            toast.warning(discrepancies.message)
+        } else {
+            // TODO: actualizar en la tabla inciencia  recibidos, fecha 🚩
+            // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
+            console.log("ENTRANDO AL SIGUIENTE PASO")
+            if (step < 2) setStep(step + 1);
         }
-        // TODO: actualizar en la tabla inciencia  recibidos, fecha 🚩
-        // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
-
-        // console.log({ result }, 'RESULT DEL UPDATE')
-        if (step < 2 && !discrepancies) setStep(step + 1);
-
-
-        //   ValidationStep==='CHANGE'
-
-
     };
 
     const handleBack = () => {
@@ -114,8 +69,8 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
         }
 
         // Buscar el producto en la lista de incidencias
-        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidentProduct) => f.Description === 'RETURN').find(
-            (item: IncidentProduct) => item.CodProd === cod || item.CodEan === cod
+        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidenceLog) => f.Description === 'RETURN').find(
+            (item: IncidenceLog) => item.CodProd === cod || item.CodEan === cod
         );
 
         if (!existingIncidenceProduct) {
@@ -146,26 +101,36 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
 
         }
 
-
-        console.log(products)
+        // console.log(products)
         // Limpiar el campo de código después de agregarlo
         setCod("");
-        toast.success("Producto agregado correctamente");
+        // toast.success("Producto agregado correctamente");
     };
 
 
     const handleFinish = async () => {
-
+        setLoading(true);
 
         // comparar los productos a entregar 
         console.log("Finalizar step")
+        try {
+            // TODO: actualizar en la tabla inciencia  recibidos, fecha, enviar el recibido conforme y comentario 🚩
+            const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, isConfirmed: false, comments: comments })
+            toast.success("Incidencia Actualizado");
+            // enviar una notificación a ATC para indicarle sobre la incidencia fué actualizada
 
-        // TODO: actualizar en la tabla inciencia  recibidos, fecha, enviar el recibido conforme y comentario 🚩
-        const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, isConfirmed: isChecked, comments: comments })
+
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsOpenModal(false)
+            setLoading(false)
+            fnRefetch()
+        }
 
 
 
-        console.log(result)
+
     }
 
 
@@ -250,7 +215,7 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
             } */}
             {/* Buttons */}
             <div className="flex items-center justify-between mt-8">
-                <Button variant="outline" onClick={handleBack} disabled={step === 1}>
+                <Button variant="outline" onClick={handleBack} disabled={step === 1} >
                     Atrás
                 </Button>
                 {step < 2 ? (
@@ -258,7 +223,7 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
                         Siguiente
                     </Button>
                 ) : (
-                    <Button onClick={handleFinish}>Guardar</Button>
+                    <Button onClick={handleFinish} disabled={loading}>{loading ? "Guardando..." : "Guardar"}</Button>
                 )}
             </div>
         </div>

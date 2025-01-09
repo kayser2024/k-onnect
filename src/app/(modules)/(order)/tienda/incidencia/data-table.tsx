@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import {
   Table,
@@ -35,53 +35,13 @@ import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/down
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Check, MoreVertical } from 'lucide-react'
 import { ValidatorProductModal } from './ui/validatorProduct-modal'
+import { Incidence, IncidenceLog, ResponseAllIncidence } from '@/types/IncidenceDB'
 
 
 interface OrderProps {
-  incidentList: [];
+  incidentList: ResponseAllIncidence[];
   EstablishmentID: number
 }
-
-
-interface IncidentProduct {
-  CodEan: string,
-  CodProd: string,
-  ProdQuantity: number,
-  ProdSubtotal: number,
-  Description: string,
-  CreatedAt: Date
-}
-
-
-export interface ProductIncidence {
-  IncidenceID: number;
-  OrdenID: number;
-  InvoiceOriginal: string;
-  InvoiceIncidence: string;
-  NCIncidence: string;
-  TypeIncidenceID: number;
-  IsCompleted: boolean;
-  Description: string;
-  PickupPointID: number;
-  CreatedAt: Date;
-  Dispatched: boolean | null;
-  DispatchedDate: Date | null;
-  ReceivedDate: Date | null;
-  Received: boolean | null;
-  Comments: null | string;
-  IsConfirmed: boolean | null;
-  IncidenceLogs: IncidenceLog[];
-}
-
-export interface IncidenceLog {
-  CodEan: string;
-  CodProd: string;
-  ProdQuantity: number;
-  ProdSubtotal: string;
-  Description: string;
-  CreatedAt: Date;
-}
-
 
 
 export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
@@ -93,7 +53,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const [loading, setLoading] = useState(false)
   const [valueSearch, setValueSearch] = useState("")
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const [productsIncident, setProductsIncident] = useState<IncidentProduct[]>([])
+  const [productsIncident, setProductsIncident] = useState<Incidence | []>([])
 
   const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -107,7 +67,6 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
     enabled: enabled,
   })
 
-  console.log({ data }, 'DATAA')
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -346,8 +305,9 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
 
 
                                     <TableCell className='text-xs w-[150px]'>
-                                      {detail.IsCompleted ? <Check className="text-white rounded-full p-[1px] font-bold text-center bg-green-500 m-auto" size={15} /> :
-                                        <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
+                                      {detail.IsCompleted
+                                        ? <Check className="text-white rounded-full p-[1px] font-bold text-center bg-green-500 m-auto" size={15} />
+                                        : <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
                                           <DropdownMenuTrigger asChild >
                                             <Button variant="ghost" aria-label="Opciones">
                                               <MoreVertical size={20} />
@@ -409,6 +369,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
         handleClose={handleCloseModal}
         isLoading={isLoading}
         productsIncidence={productsIncident}
+        fnRefetch={refetch}
       />
     </div >
   )

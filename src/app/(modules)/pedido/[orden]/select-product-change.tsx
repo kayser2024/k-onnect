@@ -46,8 +46,11 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
         }
     };
 
+    console.log({ newProducts }, '👀👀')
+
     // Manejar cambios en la selección
     const handleChange = (newValue: SingleValue<Option>) => {
+        console.log({ newValue }, '🟡🟡')
         setSelectedProduct(newValue?.product || null);
     };
 
@@ -105,7 +108,7 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
                     />
                     <div className="flex flex-col w-full gap-1">
                         <div className="flex gap-2">
-                            <p className="text-xs font-bold">Cód. Padre: </p>
+                            <p className="text-xs font-bold">Cod. Prod.: </p>
                             <p className="text-xs">{selectedProduct.codigoSap}</p>
                         </div>
                         <div className="flex gap-2">

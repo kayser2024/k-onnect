@@ -430,6 +430,7 @@ export const updateIncidence_ReceiveDispatch = async (incidenceId: number, data:
         result = error.message
     }
 
+    revalidatePath(`/tienda/incidencia`)
     return result;
 }
 

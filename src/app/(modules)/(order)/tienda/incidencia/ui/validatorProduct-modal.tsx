@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import Stepper from './stepper-form'
 import { X } from 'lucide-react'
 import StepperReturn from './stepperReturn-form'
+import { Incidence, IncidenceLog } from '@/types/IncidenceDB'
 
 interface ValidatorProductModalProps {
     isOpen: boolean
@@ -14,77 +15,18 @@ interface ValidatorProductModalProps {
     handleClose: () => void
     isLoading: boolean
     productsIncidence: any
+    fnRefetch: () => void
 }
 
-interface IncidentProduct {
-    CodEan: string,
-    CodProd: string,
-    ProdQuantity: number,
-    ProdSubtotal: number,
-    Description: string,
-    CreatedAt: Date
-}
-
-export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, handleClose, isLoading, productsIncidence }: ValidatorProductModalProps) => {
+export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, handleClose, isLoading, productsIncidence,fnRefetch }: ValidatorProductModalProps) => {
 
     const [message, setMessage] = useState("");
     const [cod, setCod] = useState("");
-    const [products, setProducts] = useState<IncidentProduct[] | []>([]);
+    const [products, setProducts] = useState<IncidenceLog[] | []>([]);
     const [validationStep, setValidationStep] = useState<"ORIGIN" | "CHANGE" | "RETURN">("ORIGIN");
-    const [productsChange, setProductsChange] = useState<IncidentProduct[] | []>([]);
-
-    // TypeIncidenceID=
-    // 1->Devolución Parcial
-    // 2->Devolución Total
-    // 3->Cambio Producto
-
-    console.log({ id: productsIncidence.TypeIncidenceID }, 'productsIncidence')
-
-    const handleCompareProducts = (productsDB: any, productsList: any) => {
-        // Validar que las cantidades ingresadas coincidan con las originales
-        const discrepancies = products.filter((product: IncidentProduct) => {
-
-            const originalProduct = productsIncidence.IncidenceLogs.filter((f: any) => f.Description === validationStep).find(
-                (item: IncidentProduct) => item.CodProd === product.CodProd
-            );
-
-            console.log({ originalProduct }, 'filter')
-            // Si no encuentra el producto original, lo marca como discrepancia
-            if (!originalProduct) {
-                console.error(`Producto original no encontrado para: ${product.CodProd}`);
-                return true;
-            }
-
-            // Verificar que las cantidades sean iguales
-            return product.ProdQuantity !== originalProduct.ProdQuantity;
-        });
+    const [productsChange, setProductsChange] = useState<IncidenceLog[]>([]);
 
 
-        if (discrepancies.length > 0) {
-            setMessage("Algunas cantidades ingresadas no coinciden con las cantidades originales. Verifique e intente de nuevo.");
-            return;
-        }
-
-
-        // Si todas las cantidades coinciden, proceder con éxito
-        toast.success(validationStep === "ORIGIN"
-            ? "Productos 'origin' validados correctamente."
-            : "Productos 'change' validados correctamente.");
-
-        setProducts([]);
-        setMessage("");
-
-        if (validationStep === "ORIGIN") {
-            // Pasar al siguiente paso
-            setValidationStep("CHANGE")
-        } else {
-            // handleAccept();
-
-        }
-        setMessage("");
-
-        return discrepancies.length > 0 ? true : false
-    };
 
 
     const handleCleanList = () => {
@@ -136,8 +78,10 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
                                     setProducts={setProducts}
                                     productsChange={productsChange}
                                     setProductsChange={setProductsChange}
-                                    handleCompare={handleCompareProducts}
                                     validationStep={validationStep}
+                                    setValidationStep={setValidationStep}
+                                    setIsOpenModal={setIsOpenModal}
+                                    fnRefetch={fnRefetch}
                                 />
                                 : <StepperReturn
                                     cod={cod}
@@ -147,8 +91,9 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
                                     productsIncidence={productsIncidence}
                                     products={products}
                                     setProducts={setProducts}
-                                    handleCompare={handleCompareProducts}
                                     validationStep={validationStep}
+                                    setIsOpenModal={setIsOpenModal}
+                                    fnRefetch={fnRefetch}
                                 />
                         }
 

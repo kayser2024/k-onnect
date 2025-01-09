@@ -143,10 +143,10 @@ export const fetchData = async (search: string): Promise<Option[]> => {
 
     return data.map((product) => ({
         label: `${product.EAN} - ${product.ProductCode}`,
-        value: product.Model,
+        value: product.ProductCode,
         product: {
             codigoEan: product.EAN,
-            codigoSap: product.Model,
+            codigoSap: product.ProductCode,
             url_foto: product.images[0],
             id: product.EAN,
             quantity: product.Stock[0].OnHand,

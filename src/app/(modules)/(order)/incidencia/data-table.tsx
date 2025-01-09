@@ -35,7 +35,7 @@ import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreVertical } from 'lucide-react'
+import { Check, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
 
 
@@ -59,7 +59,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [invoice, setInvoice] = useState("")
   const [nc, setNc] = useState("")
 
-
+  console.log({ incidentList }, '👀👀')
 
   // Obtener el detalle de la orden
   const { data, refetch, isLoading, isPending } = useQuery({
@@ -71,7 +71,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     enabled: enabled,
   })
 
-
+  console.log({ data }, "DATA")
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -79,11 +79,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     refetch();
   }
 
-  // AFunción para actulizar el estado de la orden a Completado
+  // Función para actulizar el estado de la orden a Completado
+  // verificar si es DEVOLUCIÓN TOTAL|PARCIAL => NC!
+  // verificar si es CAMBIO  => NC! y BOLETA!
   const handleAccept = async () => {
+    setLoading(true)
 
     try {
-      setLoading(true)
       await changStatusIncidence(incidenceId);
 
     } catch (error: any) {
@@ -172,8 +174,10 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
   // manejador de 
-  const handleChange = (incidenceId: number) => {
-    console.log(incidenceId, '---------Detail select')
+  const handleChange = (incidenceId: number, detail: any) => {
+
+    console.log({ incidenceId, detail }, '---------Detail select')
+    
     setIncidenceId(incidenceId)
     setIsOpen((prev) => !prev)
     setOpenDropdown(null)
@@ -307,7 +311,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                 {data?.map((detail: any, index: number) => (
                                   <TableRow key={`${index}-${new Date()}`} className={`hover:bg-slate-200 ${detail.IsCompleted ? 'bg-green-200 hover:bg-green-100' : 'hover:bg-slate-50'}`}>
                                     <TableCell className='w-[350px] '>
-                                      <ul className='list-disc ml-2'>
+                                      <ul className='list-disc ml-2 w-[125px]'>
                                         {/* LISTAR LOS PRODUCTOS ORIGINALES */}
                                         {detail.IncidenceLogs
                                           .filter((incidence: any) => incidence.Description === 'ORIGIN' || incidence.Description === 'RETURN')
@@ -326,7 +330,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                     <TableCell className='text-center w-[350px]'>
 
                                       {/* LISTAR LOS PRODUCTOS A CAMBIAR */}
-                                      <ul className='list-disc ml-2'>
+                                      <ul className='list-disc ml-2 w-[125px]'>
                                         {detail.IncidenceLogs
                                           .filter((incidence: any) => incidence.Description === 'CHANGE')
                                           .map((incidence: any, index: number) => {
@@ -349,20 +353,23 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
                                     <TableCell className='text-xs w-[250px]'>
-                                      <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
-                                        <DropdownMenuTrigger asChild >
-                                          <Button variant="ghost" aria-label="Opciones">
-                                            <MoreVertical size={20} />
-                                          </Button>
-                                        </DropdownMenuTrigger>
+                                      {detail.IsCompleted
+                                        ? <Check className="text-white rounded-full p-[1px] font-bold text-center bg-green-500 m-auto" size={15} />
 
-                                        <DropdownMenuContent align="end">
-                                          <DropdownMenuItem>
-                                            {
-                                              detail.TypeIncidenceID == 3
-                                                ? <div className='flex gap-2 items-center'>
+                                        : <DropdownMenu open={openDropdown === `${row.id}-${index}`} onOpenChange={(isOpen) => handleDropdownOpenChange(isOpen, `${row.id}-${index}`)}>
+                                          <DropdownMenuTrigger asChild >
+                                            <Button variant="ghost" aria-label="Opciones">
+                                              <MoreVertical size={20} />
+                                            </Button>
+                                          </DropdownMenuTrigger>
+
+                                          <DropdownMenuContent align="end">
+                                            <DropdownMenuItem>
+                                              {
+                                                detail.TypeIncidenceID == 3
+                                                && <div className='flex gap-2 items-center'>
                                                   <Checkbox
-                                                    onCheckedChange={() => handleChange(Number(detail.IncidenceID))}
+                                                    onCheckedChange={() => handleChange(Number(detail.IncidenceID), detail)}
                                                     checked={detail.IsCompleted}
                                                     disabled={detail.IsCompleted}
                                                     className={`peer ${detail.IsCompleted ? 'checked:bg-green-500' : ''}`}
@@ -371,14 +378,15 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
                                                 </div>
 
-                                                : <div>─</div>
-                                            }
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem onClick={() => handleInvoiceModal(detail.IncidenceID, detail.NCIncidence, detail.InvoiceIncidence)}>
-                                            Ingresar Nro Doc.
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
+
+                                              }
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleInvoiceModal(detail.IncidenceID, detail.NCIncidence, detail.InvoiceIncidence)}>
+                                              Ingresar Nro Doc.
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      }
                                     </TableCell>
                                   </TableRow>
                                 ))}

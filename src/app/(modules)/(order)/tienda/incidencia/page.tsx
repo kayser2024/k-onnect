@@ -2,6 +2,7 @@ import React from 'react'
 import { DataTable } from './data-table'
 import { getAllIncidence, getIncidenceByEstablishment } from '@/actions/order/Incidencia';
 import { auth } from '@/auth.config';
+import { ResponseAllIncidence } from '@/types/IncidenceDB';
 
 
 const IncidenciaPage = async () => {
@@ -10,16 +11,15 @@ const IncidenciaPage = async () => {
     const data = session?.user
 
     const EstablishmentID = data!.pickupPointID;
-    console.log({ data, EstablishmentID }, '🟢🟢🟢')
 
-    const incidenciaList = await getAllIncidence(EstablishmentID);
+    const incidenciaList: ResponseAllIncidence[] = await getAllIncidence(EstablishmentID);
 
     return (
         <div className=''>
 
             <h2 className='text-2xl'>Lista de Incidencia</h2>
             {/* tabla */}
-            <DataTable incidentList={incidenciaList} EstablishmentID={EstablishmentID}/>
+            <DataTable incidentList={incidenciaList} EstablishmentID={EstablishmentID} />
         </div>
     )
 }

@@ -1,14 +1,11 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import prisma from "@/lib/prisma"
 import { DetallePedido, OrdenResponse } from "@/types/Orden"
-import { ChevronsUpDown, ExternalLink, Eye, MapPin, MessageCircleDashedIcon, MessageSquareQuote } from "lucide-react"
+import {  ExternalLink, Eye, MapPin, MessageCircleDashedIcon } from "lucide-react"
 import { Metadata } from "next"
 import AccionCopiar from "@/components/Pedido/AccionCopiar"
 import AccionesOrden from "./AccionesOrden"
 import { DataTableProductos } from "./DataTableProductos"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { Suspense } from "react"
 import ActualizarEnvio from "./ActualizarEnvio"
@@ -20,10 +17,7 @@ import { format, setDefaultOptions } from "date-fns"
 import { es } from 'date-fns/locale'
 import { TimeLine } from "./TimeLine"
 import { TimeLineHorizontal } from "./TimeLineHorizontal"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Button } from "@/components/ui/button"
 import { Collapisble } from "./ui/Collapisble"
-import { LiaUserEditSolid } from "react-icons/lia";
 import { ModalEditEnvio } from "./ui/modal-edit-envio"
 
 setDefaultOptions({ locale: es })

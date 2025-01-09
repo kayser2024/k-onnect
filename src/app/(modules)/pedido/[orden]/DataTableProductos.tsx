@@ -627,12 +627,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             <div className=" flex flex-col gap-3">
                                 <ScrollArea className="max-h-72 flex flex-col gap-4 px-2">
 
-                                    {/* Ingresar Incidencia */}
-                                    {/* <div className="">
-                                        <Label htmlFor="invoice" className="text-right">#Boleta Incidencia</Label>
-                                        <Input id="invoice" className=" uppercase" placeholder="B001-123" onChange={(e) => setInvoice(e.target.value)} value={invoice} />
-                                    </div> */}
-
                                     {/* Seleccionar Tienda */}
                                     <div className="">
                                         <span className="text-sm font-semibold">Seleccionar Tienda:</span>
