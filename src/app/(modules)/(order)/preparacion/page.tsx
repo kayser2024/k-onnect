@@ -28,10 +28,10 @@ function PreparacionOrder() {
         event.preventDefault();
 
         // Validar si el input está vacío o no cumple con el formato
-        if (!order.trim() || order.length < 10 || !order.toLowerCase().startsWith("ss")) {
-            toast.error("Ingresar una orden válida");
-            return;
-        }
+        // if (!order.trim() || order.length < 10 || !order.toLowerCase().startsWith("ss")) {
+        //     toast.error("Ingresar una orden válida");
+        //     return;
+        // }
 
         // Procesar bloques de órdenes si contienen saltos de línea
         if (order.trim().includes(" ")) {
@@ -71,7 +71,6 @@ function PreparacionOrder() {
         // Limpiar el campo de entrada
         setOrder("");
     };
-
 
 
     // Cambiar estado de las ordenes
@@ -143,8 +142,6 @@ function PreparacionOrder() {
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
 
-
-
     return (
         <>
             <main>
@@ -152,7 +149,7 @@ function PreparacionOrder() {
                     <div className="w-full">
 
                         <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
-                        <Input placeholder="ss1234567890asdc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
+                        <Input placeholder="ss1234567890abc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
 
                 </form>

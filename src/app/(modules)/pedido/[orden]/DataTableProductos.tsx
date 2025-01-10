@@ -716,14 +716,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                             </div>
 
-                            {/* <span className="text-xs mt-4">Ingresar Nota Cred.:</span> */}
-                            {/* <div className="flex gap-2"> */}
-
 
                             <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
-                            {/* <Input placeholder="B00-123" className="uppercase" onChange={(e) => setInvoice(e.target.value)} value={invoice} /> */}
-                            {/* </div> */}
-
+                        
 
 
                         </DropdownMenuLabel>

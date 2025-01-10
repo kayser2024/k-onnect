@@ -90,6 +90,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
     for (const { order, destino } of orderList) {
         try {
             let dataEnvio: string = "";
+            let dataFacturacion: string = "";
 
             // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
@@ -109,11 +110,13 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                         throw new Error('# de ORDEN no Existe en WINWIN')
                     }
                     const data_envio = dataOrder.obj.ordenes[0].datos_envio[0]
+                    const data_facturacion=dataOrder.obj.ordenes[0].datos_facturacion[0]
 
                     const tipo_envio = data_envio.tipo_envio;
 
                     // TODO: Convertir data_envio en JSON para enviar al sp 🚩
                     dataEnvio = JSON.stringify(data_envio)
+                    dataFacturacion=JSON.stringify(data_facturacion)
 
                     // obtener el nombre del destino de la tienda
                     if (tipo_envio === 'recojo en tienda') {
@@ -139,7 +142,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText},${dataEnvio}, @result);
+                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText},${dataEnvio},${dataFacturacion}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida
