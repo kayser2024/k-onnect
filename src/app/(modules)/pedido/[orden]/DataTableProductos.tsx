@@ -338,13 +338,15 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     // Función para Realizar camnbios
     const handleCambio = async () => {
 
-        setLoading(true)
-
-
         if (!motivoCambio.trim()) {
             toast.warning("Debe ingresar un motivo de cambio")
             return
         }
+        if (!store.trim()) {
+            toast.warning("Debe seleccionar un destino para el cambio")
+            return;
+        }
+        setLoading(true)
 
         // Validar Invoice
         // if (invoice.trim().length < 5) {
@@ -459,7 +461,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             // const res = await notificacionDiscord.json()
 
             // toast.success('Notificacion Enviada a Discord')
-
 
 
             const productCombined = [

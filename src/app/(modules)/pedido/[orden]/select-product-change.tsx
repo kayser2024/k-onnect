@@ -46,11 +46,9 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
         }
     };
 
-    console.log({ newProducts }, '👀👀')
 
     // Manejar cambios en la selección
     const handleChange = (newValue: SingleValue<Option>) => {
-        console.log({ newValue }, '🟡🟡')
         setSelectedProduct(newValue?.product || null);
     };
 
