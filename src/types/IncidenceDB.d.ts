@@ -31,6 +31,7 @@ export interface IncidenceLog {
 export interface ResponseAllIncidence {
     OrderID: number,
     OrderNumber: string,
+    Invoice: string,
     PickupPoint: string,
     Destiny: string,
     OrderStatusDescription: string,

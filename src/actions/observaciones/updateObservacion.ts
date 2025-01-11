@@ -1,9 +1,13 @@
 "use server"
 import { revalidatePath } from "next/cache"
 import { insertComment } from "../order/insertComent"
+import { auth } from "@/auth.config";
 
 
 export const onUpdateObservaciones = async (orden: string, comentario: string, selectedValue: string, observaciones: string) => {
+    const session = await auth();
+    const userId = session!.user.UserID
+    console.log({ session, id: session?.user.UserID }, '🖐️🖐️')
 
 
     if (!comentario) {
@@ -39,7 +43,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
 
     try {
 
-        await insertComment(`${selectedValue}-${comentario}`, orden, 1)
+        await insertComment(`${selectedValue}-${comentario}`, orden, userId)
     } catch (error: any) {
         console.log(error.message)
         return error.message

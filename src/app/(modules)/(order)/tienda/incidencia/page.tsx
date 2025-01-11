@@ -8,9 +8,10 @@ import { ResponseAllIncidence } from '@/types/IncidenceDB';
 const IncidenciaPage = async () => {
 
     const session = await auth()
-    const data = session?.user
+    const data = session!.user
+    console.log(data)
 
-    const EstablishmentID = data!.pickupPointID;
+    const EstablishmentID = data!.PickupPointID || 0;
 
     const incidenciaList: ResponseAllIncidence[] = await getAllIncidence(EstablishmentID);
 

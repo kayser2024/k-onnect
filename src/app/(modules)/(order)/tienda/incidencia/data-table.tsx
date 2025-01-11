@@ -250,7 +250,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                   <TableHead className='text-white w-[350px]'>Prod. Cambiado</TableHead>
                                   <TableHead className='text-white w-[350px]'>Motivo</TableHead>
                                   <TableHead className='text-white w-[300px]'>N.C.</TableHead>
-                                  <TableHead className='text-white w-[300px]'>Boleta</TableHead>
+                                  <TableHead className='text-white w-[300px]'>Nva. Boleta</TableHead>
                                   <TableHead className='text-white w-[250px]'>Fec. Creac.</TableHead>
                                   <TableHead className='text-white w-[250px]'>Fec. Recib.</TableHead>
                                   <TableHead className='text-white w-[250px]'>Fec. Entr.</TableHead>

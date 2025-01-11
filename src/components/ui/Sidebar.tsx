@@ -70,14 +70,14 @@ export const Sidebar = () => {
 
 
         },
-        {
-            nombre: 'Entrega Final (tienda)',
-            icon: <ClipboardCheck />,
-            ruta: '/entrega',
-            // roles: ['admin', 'web_master', 'almacen', 'soporte']
-            roles: [1, 2, 6]
+        // {
+        //     nombre: 'Entrega Final (tienda)',
+        //     icon: <ClipboardCheck />,
+        //     ruta: '/entrega',
+        //     // roles: ['admin', 'web_master', 'almacen', 'soporte']
+        //     roles: [1, 2, 6]
 
-        },
+        // },
         {
             nombre: 'Mantenimiento (Soporte)',
             icon: <Monitor />,
@@ -104,10 +104,7 @@ export const Sidebar = () => {
     const sesion = useSession()
     const userRole = sesion.data?.user.RoleID;
 
-    console.log(userRole);
-
-
-    const usuarioInfo = { nombre: sesion.data?.user?.Name || 'No Conectado' }
+    const usuarioInfo = { nombre: `${sesion.data?.user?.Name} ${sesion.data?.user?.LastName} ` || 'No Conectado' }
 
 
     // Filtrar rutas según el rol del usuario
@@ -145,7 +142,7 @@ export const Sidebar = () => {
                 <div>
                     <div className='flex items-center '>
 
-                        {usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.slice(0, 2).toUpperCase()}</div>}
+                        {usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()}</div>}
 
                         <div className='flex-grow text-center'>
                             <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>

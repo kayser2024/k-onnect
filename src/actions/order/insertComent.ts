@@ -1,11 +1,19 @@
 'use server'
 
+import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma"
 
-export const insertComment = async (comment: string, orden: string, userId: number) => {
+export const insertComment = async (comment: string, orden: string, userID: number) => {
 
     const now = new Date();
     now.setHours(now.getHours() - 5);
+
+    const session = await auth();
+    const userId = session!.user.UserID
+
+    if (!session) {
+        throw new Error("Usuario no autenticado");
+    }
     let result;
     try {
         // obtener el StatusCurrent

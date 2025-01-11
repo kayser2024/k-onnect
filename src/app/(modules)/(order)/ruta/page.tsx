@@ -86,7 +86,6 @@ function RutaOrder() {
 
             // Obtén las órdenes fallidas
             const failedOrdersResult = await onChangeStatusSend(orderList, 'en_ruta', '/recepcion');
-            console.log(failedOrdersResult, '🔴🟡🟢');
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
 

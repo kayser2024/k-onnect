@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
-import { DatosEnvio } from "@/types/Orden";
 import { revalidatePath } from "next/cache";
 
 interface Option {
@@ -13,7 +12,7 @@ interface Option {
 export const onChangeStatusSend = async (orderList: { order: string; destino: Option }[], estado: string, path: string) => {
 
     const session = await auth();
-    const userId = 1;
+    const userId = session?.user.UserID;
 
     const failedOrders: { order: { order: string; destino: Option }; error: string }[] = [];
     const fecha = new Date();
@@ -169,13 +168,12 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
             // Actualizar orden en la API
             await updateOrderInAPI(orderNumber, estado);
-            console.log({ orderNumber, invoice, estadoId, userId, destion: destino.label, estado, CommentText, dataEnvio, dataFacturacion }, 'DATOS ENVIADOS EN EL SP🟢🟢')
 
             // Ejecutar sp_updateOrders
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${orderNumber}, ${invoice}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio||{}}, ${dataFacturacion||{}}, @result);
+                    CALL sp_UpdateOrders(${orderNumber}, ${invoice}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio || {}}, ${dataFacturacion || {}}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida

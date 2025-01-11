@@ -88,8 +88,11 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
     // obtener incidencias "Devoluciones"
-    const { data: listDevoluciones, isLoading, refetch } = useQuery({ queryKey: ['listDevoluciones'], queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion) })
-    console.log({ listDevoluciones }, '-----------DEVOLUCIONES----------')
+    const { data: listDevoluciones, isLoading, refetch } = useQuery({
+        queryKey: ['listDevoluciones'],
+        queryFn: async () => getProductListTotalRefund(orden.situacion_facturacion[0].estado_facturacion)
+    })
+    // console.log({ listDevoluciones }, '-----------DEVOLUCIONES----------')
 
     const docActual = comprobante ? comprobante.estado_facturacion : orden.cabecera_pedido[0].numero_orden
 
@@ -718,7 +721,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
                             <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
-                        
+
 
 
                         </DropdownMenuLabel>

@@ -100,7 +100,6 @@ export const updateUser = async (data: User) => {
 
 export const resetPassword = async (userID: number, dni: string) => {
     let result;
-    console.log({ userID, dni }, '💀ENtrando consulta RESET PRISMA')
 
     try {
         const passwordHash = await bcryptjs.hash(dni, 10);

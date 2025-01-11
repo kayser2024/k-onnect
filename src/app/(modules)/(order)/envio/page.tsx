@@ -84,7 +84,6 @@ function EnvioMasivo() {
             }
 
 
-            console.log(order, establecSelect)
             // agregar solo si corresponde a la tienda seleccionada
             const isOrderValid = await verifyOrderEstablec(order, establecSelect)
 

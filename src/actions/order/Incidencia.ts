@@ -19,8 +19,12 @@ interface IncidenceProps {
 export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, typeIncidence, pickupPoint, reason = '' }: IncidenceProps) => {
 
     try {
-        const user = await auth();
-        if (!user) {
+        const session = await auth();
+        const userId = session!.user.UserID
+
+        // console.log({ session, id: session?.user.UserID }, '🖐️🖐️')
+
+        if (!session) {
             throw new Error("Usuario no autenticado");
         }
 
@@ -56,7 +60,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
                 OrdenID: OrderId,
                 InvoiceOriginal: invoiceOrigin,
                 InvoiceIncidence: invoiceIncidence,
-                UserId: 1, // Asegúrate de que `user.id` sea el ID correcto
+                UserId: userId,
                 TypeIncidenceID: typeIncidence,
                 PickupPointID: store?.PickupPointID,
                 IsCompleted: false,
@@ -96,7 +100,7 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
     let result;
     try {
         const IncidenceGrouped = await prisma.incidence.groupBy({
-            by: ['OrdenID'],
+            by: ['OrdenID', 'InvoiceOriginal'],
             where: pickupPickupPointID ? { PickupPointID: pickupPickupPointID } : {},
             orderBy: {
                 _count: {
@@ -134,6 +138,7 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
                             OrderID: item.OrdenID,
                             OrderNumber: orderData.OrderNumber,
                             PickupPoint: orderData.PickupPoint,
+                            Invoice: item.InvoiceOriginal,
                             Destiny: "",
                             OrderStatusDescription: orderData.OrderStatus?.Description || null,
                             TypeIncidenceCount: item._count.OrdenID,
@@ -285,11 +290,23 @@ export const getIncidenceByOrder = async (order: string) => {
             where: { OrdenID: orderData?.OrderID },
             include: {
                 TypesIncidence: true,
+                Users: {
+                    select: {
+                        Name: true,
+                        LastName: true,
+                        Roles: {
+                            select: {
+                                Description: true
+                            }
+                        }
+                    },
+                },
                 PickupPoints: {
                     select: {
                         Description: true
                     }
-                }
+                },
+
             }
         })
         return result;
@@ -339,6 +356,12 @@ export const getProductListTotalRefund = async (invoice: string) => {
 export const changStatusIncidence = async (incidenceId: number) => {
     let result;
 
+    const session = await auth();
+    const userId = session!.user.UserID;
+
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
+
     try {
         result = await prisma.incidence.update({
             where: {
@@ -346,6 +369,8 @@ export const changStatusIncidence = async (incidenceId: number) => {
             },
             data: {
                 IsCompleted: true,
+                UserUpdater: userId,
+                CompletedDate: now,
             }
 
         })
@@ -361,9 +386,10 @@ export const changStatusIncidence = async (incidenceId: number) => {
 // Función para ingresar la NC y el Invoice 
 export const updateIncidence = async (data: { nc: string, invoice?: string, incidenceId: number }, path: string) => {
 
-    // const user = await auth();
-    const user = 1;
-    if (!user) {
+    const session = await auth();
+    const userId = session!.user.UserID
+
+    if (!session) {
         throw new Error("Usuario no autenticado");
     }
 
@@ -374,7 +400,7 @@ export const updateIncidence = async (data: { nc: string, invoice?: string, inci
         // Utilizar el procedure
         const [result] = await prisma.$transaction(async (tx) => {
             await tx.$executeRaw`
-             CALL sp_UpdateIncidences(${user},${data.incidenceId},${data.nc},${data.invoice},@result);
+             CALL sp_UpdateIncidences(${userId},${data.incidenceId},${data.nc},${data.invoice},@result);
             `;
 
             const [message] = await tx.$queryRaw<{ message: string }[]>`
@@ -403,6 +429,9 @@ export const updateIncidence = async (data: { nc: string, invoice?: string, inci
 export const updateIncidence_ReceiveDispatch = async (incidenceId: number, data: { type: string, isConfirmed: boolean, comments: string }) => {
     const now = new Date();
     now.setHours(now.getHours() - 5); // Ajuste de zona horaria
+
+    const session = await auth();
+    const userId = session!.user.UserID
 
     let result;
     try {

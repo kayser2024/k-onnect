@@ -47,14 +47,15 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
             return <Link href={`/pedido/${row.original.OrderNumber}`} target="_blank" className="text-blue-500 font-semibold hover:bg-slate-300 p-2 rounded-md" title="Abrir enlace">{row.original.OrderNumber}</Link>
         }
     },
-    // {
-    //     id: 'Invoice',
-    //     accessorFn: (row) => row.Invoice,
-    //     header: "Bol. / Fact. Original",
-    //     cell: ({ row }) => {
-    //         return <div className="text-center w-[100px]">{row.original.Invoice}</div>
-    //     }
-    // },
+    {
+        id: 'Invoice',
+        accessorFn: (row) => row.Invoice,
+        header: "Bol. / Fact. Original",
+        cell: ({ row }) => {
+            console.log(row.original)
+            return <div className="text-center w-[100px]">{row.original.Invoice}</div>
+        }
+    },
     {
         id: 'TypeIncidenceCount',
         accessorFn: (row) => row.TypeIncidenceCount,

@@ -167,6 +167,7 @@ model Incidence {
   UserId           Int
   TypeIncidenceID  Int
   IsCompleted      Boolean?        @default(false)
+  CompletedDate    DateTime?       @db.Timestamp(0)
   Description      String?         @db.Text
   CreatedAt        DateTime?       @default(now()) @db.Timestamp(0)
   PickupPointID    Int?
