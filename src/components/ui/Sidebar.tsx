@@ -63,8 +63,8 @@ export const Sidebar = () => {
             ruta: '/tienda_orden',
             roles: [1, 2, 6],
             children: [
-                { nombre: 'Recepción Orden', ruta: 'tienda/recepcion', icon: <Box /> },
-                { nombre: 'Entregar Orden (Tienda)', ruta: 'tienda/entrega', icon: <ClipboardCheck /> },
+                { nombre: 'Recepción Orden', ruta: '/tienda/recepcion', icon: <Box /> },
+                { nombre: 'Entregar Orden (Tienda)', ruta: '/tienda/entrega', icon: <ClipboardCheck /> },
                 { nombre: 'Incidencias (Tienda)', ruta: '/tienda/incidencia', icon: <FileWarning /> },
             ]
 
@@ -102,10 +102,12 @@ export const Sidebar = () => {
     ]
 
     const sesion = useSession()
-    const userRole = sesion.data?.user.rolId;
-    // console.log(sesion.data?.user.rolId)
+    const userRole = sesion.data?.user.RoleID;
 
-    const usuarioInfo = { nombre: sesion.data?.user?.name || 'No Conectado', image: sesion.data?.user?.image || '/personIcon.png' }
+    console.log(userRole);
+
+
+    const usuarioInfo = { nombre: sesion.data?.user?.Name || 'No Conectado' }
 
 
     // Filtrar rutas según el rol del usuario

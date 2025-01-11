@@ -8,7 +8,7 @@ export const getAllUsers = async () => {
     let result;
     try {
 
-        result = await prisma.usuarios.findMany()
+        result = await prisma.users.findMany()
 
     } catch (error: any) {
         console.log(error)
@@ -17,20 +17,20 @@ export const getAllUsers = async () => {
     return result
 }
 
-export const getUserByDni = async (dni: string) => {
+export const getUserByID = async (userID: number) => {
 
     let result;
     try {
-        result = await prisma.usuarios.findUnique({
-            where: { dni },
+        result = await prisma.users.findUnique({
+            where: { UserID: userID },
             select: {
-                dni: true,
-                name: true,
-                lastName: true,
-                email: true,
-                rolId: true,
-                status: true,
-                image: true
+                UserID: true,
+                NroDoc: true,
+                Name: true,
+                LastName: true,
+                Email: true,
+                RoleID: true,
+                Status: true,
             }
         });
 
@@ -42,47 +42,52 @@ export const getUserByDni = async (dni: string) => {
 
 export const createUser = async (data: User) => {
     console.log(data, 'ENTRANDO CREATE PRISMA')
+    const now = new Date();
+    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
 
-    const { pickPointID, ...rest } = data;
 
     let result;
 
     // encriptar la contraseña
-    const passwordHash = await bcryptjs.hash(data.dni, 10);
+    const passwordHash = await bcryptjs.hash(data.NroDoc, 10);
 
     try {
-        // buscar el ID de la tienda
-        const storeData = await prisma.pickupPoints.findFirst({
-            where: {
-                Description: pickPointID
+        result = await prisma.users.create({
+            data: {
+                Email: data.Email,
+                Name: data.Name,
+                LastName: data.LastName,
+                TypeDocID: data.TypeDocID,
+                NroDoc: data.NroDoc,
+                RoleID: data.RoleID,
+                Password: passwordHash,
+                PickupPointID: data.PickupPointID,
+                CreatedAt: now,
             }
         });
-
-
-        result = await prisma.usuarios.create({ data: { ...rest, emailVerified: 'no', image: '', password: passwordHash, pickupPointID: storeData?.PickupPointID } });
 
     } catch (error: any) {
         console.log(error)
         return error.message
     }
 
-
     return result;
-
-
 }
 
 export const updateUser = async (data: User) => {
     let result;
+    const now = new Date();
+    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
     try {
-        result = await prisma.usuarios.update({
-            where: { dni: data.dni },
+        result = await prisma.users.update({
+            where: { UserID: data.UserID },
             data: {
-                name: data.name,
-                lastName: data.lastName,
-                email: data.email,
-                rolId: Number(data.rolId),
-                status: data.status,
+                Name: data.Name,
+                LastName: data.LastName,
+                Email: data.Email,
+                RoleID: Number(data.RoleID),
+                Status: data.Status,
+                UpdatedAt: now,
             },
         })
 
@@ -93,16 +98,16 @@ export const updateUser = async (data: User) => {
     return result;
 }
 
-export const resetPassword = async (id: string) => {
+export const resetPassword = async (userID: number, dni: string) => {
     let result;
-    console.log({ id }, '💀ENtrando consulta RESET PRISMA')
+    console.log({ userID, dni }, '💀ENtrando consulta RESET PRISMA')
 
     try {
-        const passwordHash = await bcryptjs.hash(id, 10);
+        const passwordHash = await bcryptjs.hash(dni, 10);
 
-        result = await prisma.usuarios.update({
-            where: { dni: id },
-            data: { password: passwordHash },
+        result = await prisma.users.update({
+            where: { UserID: userID },
+            data: { Password: passwordHash },
         });
 
     } catch (error: any) {
@@ -114,12 +119,18 @@ export const resetPassword = async (id: string) => {
     return result;
 }
 
-export const changeStatusUser = async (id: string, status: boolean) => {
+export const changeStatusUser = async (userID: number, status: boolean) => {
     let result;
+    const now = new Date();
+    now.setHours(now.getHours() - 5); // Ajuste de zona horaria
+
     try {
-        result = await prisma.usuarios.update({
-            where: { dni: id },
-            data: { status },
+        result = await prisma.users.update({
+            where: { UserID: userID },
+            data: {
+                Status: status,
+                UpdatedAt: now,
+            },
         });
 
     } catch (error: any) {

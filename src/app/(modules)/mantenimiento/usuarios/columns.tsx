@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { User } from '@/types/User';
+import type { User } from '@/types/User';
 import { LiaUserEditSolid } from 'react-icons/lia';
 import { RiLockPasswordLine } from "react-icons/ri";
 import { Switch } from '@/components/ui/switch';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 
 
 // Define las columnas como una constante, esperando directamente la función handleOpenModal como parámetro
-export const columns = (handleOpenModal: (action: string, id: string, currentStatus?: boolean) => void): ColumnDef<User>[] => [
+export const columns = (handleOpenModal: (action: string, userID: number, currentStatus?: boolean, dni?: string) => void): ColumnDef<User>[] => [
     {
         accessorKey: "index",
         header: "#",
@@ -19,12 +19,12 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         // accessorFn: (row) => row.name,
         header: "Nombre",
         cell: ({ row }) => {
-            const nombre = row.original.name;
-            const apellido = row.original.lastName;
-            return <>{nombre}</>;
+            const nombre = row.original.Name;
+            const apellido = row.original.LastName;
+            return <>{nombre} {apellido}</>;
         },
         filterFn: (row, id, value) => {
-            const estado = row.original.name; 
+            const estado = row.original.Name;
             return estado
                 ? estado.toLowerCase().includes(value.toLowerCase())
                 : false;
@@ -35,7 +35,7 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         accessorKey: "email_user",
         header: "Usuario",
         cell: ({ row }) => {
-            const email = row.original.email;
+            const email = row.original.Email;
             return <>{email}</>;
         }
     },
@@ -43,11 +43,14 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         accessorKey: "id_rol",
         header: "Rol",
         cell: ({ row }: any) => {
-            const rol = row.original.rolId;
+            const rol = row.original.RoleID;
             let result;
-            if (rol == 1) result = 'Admin';
-            if (rol == 2) result = 'ATC';
-            if (rol == 3) result = 'Tienda';
+            if (rol == 1) result = 'ADMIN';
+            if (rol == 2) result = 'SOPORTE';
+            if (rol == 3) result = 'WEB MASTER';
+            if (rol == 4) result = 'ATC';
+            if (rol == 5) result = 'ALMACEN';
+            if (rol == 6) result = 'TIENDA';
             return <Badge variant='outline'>{result}</Badge>;
         }
     },
@@ -55,13 +58,13 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         accessorKey: "status",
         header: "Estado",
         cell: ({ row }) => {
-            const id = row.original.dni;
-            const currentStatus = row.original.status;
+            const userID = row.original.UserID;
+            const currentStatus = row.original.Status;
 
             return (
                 <div className="form-control">
                     <label className="label cursor-pointer">
-                        <Switch onCheckedChange={() => handleOpenModal('delete', id, !currentStatus)} checked={currentStatus} />
+                        <Switch onCheckedChange={() => handleOpenModal('delete', userID, !currentStatus)} checked={currentStatus} />
                     </label>
                 </div>
             );
@@ -71,7 +74,8 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
         id: "actions",
         header: "Acción",
         cell: ({ row }) => {
-            const id = row.original.dni;
+            const userID = row.original.UserID;
+            const dni = row.original.NroDoc;
 
             return (
                 <div className="flex gap-2 justify-center items-center">
@@ -79,13 +83,13 @@ export const columns = (handleOpenModal: (action: string, id: string, currentSta
                         size={20}
                         className="text-blue-600 cursor-pointer"
                         title="Editar"
-                        onClick={() => handleOpenModal("edit", id)}
+                        onClick={() => handleOpenModal("edit", userID)}
                     />
                     <RiLockPasswordLine
                         size={20}
                         className="text-orange-300 cursor-pointer"
                         title="Resetear Contraseña"
-                        onClick={() => handleOpenModal("reset", id)}
+                        onClick={() => handleOpenModal("reset", userID, false, dni)}
                     />
                 </div>
             );

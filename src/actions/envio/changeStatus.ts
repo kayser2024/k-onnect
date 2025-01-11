@@ -37,7 +37,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
         "actualizar": {
             "situacion_envio": {
                 "estado_envio": estadoAPI,
-                [estadoAPI]: fecha.toISOString(),
+                [estadoAPI]: fecha.toISOString(),//TODO Verificar la timezone antes de guardar el nro de orden🚩
             },
         },
     };
@@ -57,13 +57,13 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
 
     // Función para actualizar una orden en la API
-    const updateOrderInAPI = async (order: string, estado: string) => {
-
+    const updateOrderInAPI = async (orderNumber: string, estado: string) => {
+        console.log(orderNumber, estado);
 
         if (estado === 'en_preparacion' || estado === 'en_ruta' || estado === 'entregado_cliente') {
 
             try {
-                const response = await fetch(`${base_url}/${order}`, configuration);
+                const response = await fetch(`${base_url}/${orderNumber}`, configuration);
                 const data = await response.json();
                 if (data.sRpta !== "Actualizado correctamente en la base de datos") {
                     throw new Error(data.sRpta);
@@ -91,12 +91,14 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
         try {
             let dataEnvio: string = "";
             let dataFacturacion: string = "";
+            let invoice: string = "";
+            let orderNumber: string = "";
 
             // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
                 try {
                     // OBTENER EL DESTINO
-                    const response = await fetch(`https://sami3-external.winwinafi.com/orders/kayser.pe/filters?orderNumber=${order}`, {
+                    const response = await fetch(`https://sami3-external.winwinafi.com/orders/kayser.pe/filters?estado_facturacion=${order}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -109,14 +111,17 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     if (!dataOrder.bEstado) {
                         throw new Error('# de ORDEN no Existe en WINWIN')
                     }
-                    const data_envio = dataOrder.obj.ordenes[0].datos_envio[0]
-                    const data_facturacion=dataOrder.obj.ordenes[0].datos_facturacion[0]
+
+                    const data_envio = dataOrder.obj.ordenes[0].datos_envio[0];
+                    const data_facturacion = dataOrder.obj.ordenes[0].datos_facturacion[0];
+                    invoice = dataOrder.obj.ordenes[0].situacion_facturacion[0].estado_facturacion;
+                    orderNumber = dataOrder.obj.ordenes[0].order_number;
 
                     const tipo_envio = data_envio.tipo_envio;
 
                     // TODO: Convertir data_envio en JSON para enviar al sp 🚩
                     dataEnvio = JSON.stringify(data_envio)
-                    dataFacturacion=JSON.stringify(data_facturacion)
+                    dataFacturacion = JSON.stringify(data_facturacion)
 
                     // obtener el nombre del destino de la tienda
                     if (tipo_envio === 'recojo en tienda') {
@@ -135,14 +140,42 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                 }
             }
 
+            // obtener los datos necesarios para enviarle al spUpdateOrders
+            if (estado === 'en_ruta') {
+                try {
+                    const data = await prisma.orders.findFirst({
+                        where: {
+                            Invoice: order,
+                        },
+                        select: {
+                            OrderNumber: true,
+                            Invoice: true,
+
+                        },
+                    });
+
+                    if (!data) {
+                        throw new Error("Orden no encontrada en la base de datos.");
+                    }
+
+                    invoice = data.Invoice;
+                    orderNumber = data.OrderNumber;
+                    // dataEnvio = JSON.stringify(data.DatosEnvio as DatosEnvio);
+                } catch (error: any) {
+                    failedOrders.push({ order: { order, destino }, error: error.message });
+                    continue;
+                }
+            }
+
             // Actualizar orden en la API
-            // await updateOrderInAPI(order, estado);
+            await updateOrderInAPI(orderNumber, estado);
+            console.log({ orderNumber, invoice, estadoId, userId, destion: destino.label, estado, CommentText, dataEnvio, dataFacturacion }, 'DATOS ENVIADOS EN EL SP🟢🟢')
 
             // Ejecutar sp_updateOrders
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${order}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText},${dataEnvio},${dataFacturacion}, @result);
+                    CALL sp_UpdateOrders(${orderNumber}, ${invoice}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio||{}}, ${dataFacturacion||{}}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida
@@ -154,8 +187,8 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             });
 
             if (result.includes("ERROR:")) {
-                console.error(`Error en la base de datos: ${result} ${order}`);
-                throw new Error(`Error en la base de datos: ${result}`);
+                console.error(`Mensaje: ${result} ${order}`);
+                throw new Error(`Mensaje: ${result}`);
             }
 
         } catch (error: any) {

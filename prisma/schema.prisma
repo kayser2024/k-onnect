@@ -22,7 +22,8 @@ model roles {
 }
 
 model usuarios {
-  dni           String        @id @db.VarChar(10)
+  UserID        Int           @id @default(autoincrement())
+  dni           String        @db.VarChar(10)
   name          String        @db.VarChar(150)
   lastName      String        @db.VarChar(150)
   email         String        @unique(map: "email") @db.VarChar(100)
@@ -69,20 +70,22 @@ model OrderStatus {
 }
 
 model Orders {
-  OrderID        Int           @id @default(autoincrement())
-  OrderNumber    String        @unique(map: "OrderNumber") @db.VarChar(50)
-  StatusID       Int
-  UserID         Int
-  PickupPointID  Int?
-  PickupPoint    String?       @db.VarChar(100)
-  InfoShippingID Int?
-  UserUpdaterID  Int?
-  CreatedAt      DateTime      @default(now()) @db.Timestamp(0)
-  UpdatedAt      DateTime?     @default(now()) @db.Timestamp(0)
-  Incidence      Incidence[]
-  OrderStatus    OrderStatus   @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
-  Users          Users         @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
-  PickupPoints   PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
+  OrderID           Int           @id @default(autoincrement())
+  OrderNumber       String        @unique(map: "OrderNumber") @db.VarChar(50)
+  Invoice           String        @db.VarChar(20)
+  StatusID          Int
+  UserID            Int
+  PickupPointID     Int?
+  PickupPoint       String?       @db.VarChar(100)
+  InfoShippingID    Int?
+  DataFacturationID Int
+  UserUpdaterID     Int?
+  CreatedAt         DateTime      @default(now()) @db.Timestamp(0)
+  UpdatedAt         DateTime?     @default(now()) @db.Timestamp(0)
+  Incidence         Incidence[]
+  OrderStatus       OrderStatus   @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
+  Users             Users         @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+  PickupPoints      PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_3")
 
   @@index([PickupPointID], map: "PickupPointID")
   @@index([StatusID], map: "StatusID")
@@ -102,6 +105,7 @@ model PickupPoints {
   Incidence     Incidence[]
   InfoShipping  InfoShipping[]
   Orders        Orders[]
+  Users         Users[]
   usuarios      usuarios[]
 }
 
@@ -118,25 +122,28 @@ model TypesDoc {
 }
 
 model Users {
-  UserID    Int         @id @default(autoincrement())
-  Email     String      @unique(map: "Email") @db.VarChar(255)
-  Password  String      @db.VarChar(255)
-  Name      String      @db.VarChar(100)
-  Status    Boolean
-  TypeDocID Int
-  NroDoc    String      @unique(map: "NroDoc") @db.VarChar(16)
-  RoleID    Int
-  LastName  String?     @db.VarChar(255)
-  CreatedAt DateTime?   @default(now()) @db.Timestamp(0)
-  UpdatedAt DateTime?   @default(now()) @db.Timestamp(0)
-  Incidence Incidence[]
-  OrderLogs OrderLogs[]
-  Orders    Orders[]
-  TypesDoc  TypesDoc    @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
-  Roles     Roles       @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
+  UserID        Int           @id @default(autoincrement())
+  Email         String        @unique(map: "Email") @db.VarChar(255)
+  Password      String        @db.VarChar(255)
+  Name          String        @db.VarChar(100)
+  Status        Boolean       @default(true)
+  TypeDocID     Int
+  NroDoc        String        @unique(map: "NroDoc") @db.VarChar(16)
+  RoleID        Int
+  LastName      String?       @db.VarChar(255)
+  PickupPointID Int?
+  CreatedAt     DateTime?     @default(now()) @db.Timestamp(0)
+  UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
+  Incidence     Incidence[]
+  OrderLogs     OrderLogs[]
+  Orders        Orders[]
+  TypesDoc      TypesDoc      @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
+  Roles         Roles         @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
+  PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_3")
 
   @@index([RoleID], map: "RoleID")
   @@index([TypeDocID], map: "TypeDocID")
+  @@index([PickupPointID], map: "Users_ibfk_3")
 }
 
 model tbl_EAN {
@@ -241,4 +248,17 @@ model tbl_inventary {
   url_6      String?  @db.VarChar(255)
   price      Decimal? @db.Decimal(10, 2)
   price_sale Decimal? @db.Decimal(10, 2)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model DataFacturation {
+  DataFacturationID     Int     @id @default(autoincrement())
+  OrderNumber           String? @db.VarChar(50)
+  TypeDoc               String? @db.VarChar(20)
+  IdClient              String? @db.VarChar(20)
+  TypeDocIdentification String? @db.VarChar(20)
+  NameFacturation       String? @db.VarChar(100)
+  EmailFacturation      String? @db.VarChar(100)
+  PhoneFacturation      String? @db.VarChar(20)
+  Currency              String? @db.VarChar(5)
 }

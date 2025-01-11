@@ -1,15 +1,15 @@
 
 export interface User {
-    dni: string
-    name: string
-    lastName: string
-    email: string
-    emailVerified?: string
-    password?: string
-    image?: string
-    rolId: number
-    status?: boolean
-    pickupPointID?: string
+    UserID: number;
+    Email: string
+    Password?: string
+    Name: string
+    LastName: string
+    Status?: boolean
+    TypeDocID: number;
+    NroDoc: string
+    RoleID: number
+    PickupPointID?: number
 }
 
 export interface Users {

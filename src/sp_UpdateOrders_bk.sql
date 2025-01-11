@@ -3,13 +3,14 @@ DELIMITER $$
 
 DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 		IN p_OrderNumber VARCHAR ( 50 ),
+		IN p_Invoice VARCHAR(20),
 		IN p_StatusID INT,
 		IN p_UserID INT,
 		IN p_PickupPoint VARCHAR ( 100 ),
 		IN p_status VARCHAR ( 20 ),
 		IN p_CommentText TEXT,
 		IN p_InfoShipping JSON, 
-		IN p_DataFacturation JSON,
+		IN p_DataFacturation JSON,		
 		OUT p_Result VARCHAR ( 255 ) 
 ) 
 	BEGIN
@@ -127,8 +128,8 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 							
 							
 								-- Insertar la orden si no existe en la tabla "Orders"
-								INSERT INTO Orders ( OrderNumber,  StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, DataFacturationID, CreatedAt, UpdatedAt)
-								VALUES (p_OrderNumber, 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, d_dataFacturationID, NOW(), null);
+								INSERT INTO Orders ( OrderNumber,  StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, DataFacturationID, Invoice ,CreatedAt, UpdatedAt)
+								VALUES (p_OrderNumber, 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, d_dataFacturationID, p_Invoice, NOW(), null);
 							
 							
 								-- Insertar en OrderLogs

@@ -3,12 +3,14 @@ DELIMITER $$
 
 DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 		IN p_OrderNumber VARCHAR ( 50 ),
+		IN p_Invoice VARCHAR(20),
 		IN p_StatusID INT,
 		IN p_UserID INT,
 		IN p_PickupPoint VARCHAR ( 100 ),
 		IN p_status VARCHAR ( 20 ),
 		IN p_CommentText TEXT,
 		IN p_InfoShipping JSON, 
+		IN p_DataFacturation JSON,		
 		OUT p_Result VARCHAR ( 255 ) 
 ) 
 	BEGIN
@@ -18,9 +20,10 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 	DECLARE findStoreID INT;
 	DECLARE currentStatusDescription VARCHAR ( 50 );
 	DECLARE d_infoShippingID INT;
+	DECLARE d_dataFacturationID INT;
 	DECLARE d_orderID INT;
 	
-	
+	-- Declarar varibales para InfoShipping
 	DECLARE v_Name VARCHAR(100);
 	DECLARE v_LastName VARCHAR(100);
 	DECLARE v_Address TEXT;
@@ -36,6 +39,21 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 	DECLARE v_TypeShipping VARCHAR(50);
 	
 	
+	-- DECLARAR VARIABLES PARA DataFacturation
+	DECLARE v_TypeDoc VARCHAR(20);
+	DECLARE v_TypeDocIdentif VARCHAR(20);
+	DECLARE v_IdClient VARCHAR(20);
+	DECLARE v_NameFacturation VARCHAR(100);
+	DECLARE v_EmailFacturation VARCHAR(100);
+	DECLARE v_PhoneFacturation VARCHAR(20);
+	DECLARE v_Currency VARCHAR(5);
+	
+	
+	 
+    -- Asignar valores predeterminados si los parámetros JSON son NULL
+    SET p_InfoShipping = IFNULL(p_InfoShipping, '{}');
+    SET p_DataFacturation = IFNULL(p_DataFacturation, '{}');
+    
 	
 		-- Extraer datos_envio de JSON
 	 SET v_Name = JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.nombres_envio'));
@@ -51,6 +69,15 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 	 SET v_Service = JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.servicio_envio'));
 	 SET v_LocationCode = JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.ubigeo'));
 	 SET v_TypeShipping = JSON_UNQUOTE(JSON_EXTRACT(p_InfoShipping,'$.tipo_envio'));
+	
+	-- Extraer datos_facturacion de JSON
+	SET v_TypeDoc = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.tipo_de_doc'));
+	SET v_TypeDocIdentif = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.tipo_doc_identidad'));
+	SET v_IdClient = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.id_cliente'));
+	SET v_NameFacturation = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.nombres_facturacion'));
+	SET v_EmailFacturation = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.email_facturacion'));
+	SET v_PhoneFacturation = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.telefono_facturacion'));
+	SET v_Currency = JSON_UNQUOTE(JSON_EXTRACT(p_DataFacturation, '$.moneda'));
 	
 	
 	
@@ -90,17 +117,25 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 								SELECT PickupPointID INTO findStoreID FROM PickupPoints WHERE Description = p_PickupPoint;
 							
 							
-								-- Insertar los datos en InfoShipping
+								-- Insertar los datos en la TABLA InfoShipping
 								INSERT INTO InfoShipping (OrderNumber,Nombre,LastName,Address,Reference,Phone,Country,Department,Province,District,Dni,Service,LocationCode,TypeShipping,PickupPointID)
 								VALUES (p_OrderNumber, v_Name, v_LastName, v_Address, v_Reference, v_Phone, v_Country, v_Department, v_Province, v_District, v_Dni, v_Service, v_LocationCode, v_TypeShipping, findStoreID) ;
 							
 								-- Obtener el ID del shipping
-								SELECT InfoShippingID into d_infoShippingID FROM InfoShipping WHERE orderNumber = p_OrderNumber;
+								SELECT InfoShippingID into d_infoShippingID FROM InfoShipping WHERE orderNumber = p_OrderNumber;		
+								
+						
+								-- Insertar los datos en la TABLA DataFacturation
+								INSERT INTO DataFacturation (OrderNumber, TypeDoc, IdClient, TypeDocIdentification, NameFacturation, EmailFacturation, PhoneFacturation, Currency )
+								VALUES (p_OrderNumber, v_TypeDoc, v_IdClient, v_TypeDocIdentif, v_NameFacturation, v_EmailFacturation, v_PhoneFacturation, v_Currency );
+								
+								-- Obtener el DataFacturationID de la tabla DataFacturation
+								SELECT DataFacturationID into d_dataFacturationID FROM DataFacturation WHERE orderNumber = p_OrderNumber;
 							
 							
 								-- Insertar la orden si no existe en la tabla "Orders"
-								INSERT INTO Orders ( OrderNumber,  StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, CreatedAt, UpdatedAt)
-								VALUES (p_OrderNumber, 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, NOW(), null);
+								INSERT INTO Orders ( OrderNumber,  StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, DataFacturationID, Invoice ,CreatedAt, UpdatedAt)
+								VALUES (p_OrderNumber, 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, d_dataFacturationID, p_Invoice, NOW(), null);
 							
 							
 								-- Insertar en OrderLogs
@@ -134,11 +169,11 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 			-- Obtener el estado Actual
 			SELECT StatusID INTO currentStatusID FROM Orders WHERE OrderNumber = p_OrderNumber;
 			UPDATE Orders 
-			SET StatusID = 2, UserUpdaterID = p_UserID, UpdatedAt = NOW(); 
+			SET StatusID = 2, UserUpdaterID = p_UserID, UpdatedAt = NOW()
 			WHERE OrderNumber = p_OrderNumber;
 			-- Insertar el log del estado
 			INSERT INTO OrderLogs ( OrderNumber, StatusOld, StatusID, UserID, CommentText, CreatedAt )
-			VALUES (p_OrderNumber,currentStatusID,1,p_UserID,p_CommentText,NOW());
+			VALUES (p_OrderNumber, currentStatusID, 1, p_UserID, p_CommentText, NOW());
 			
 			SET p_Result = 'OK: Estado de la orden reseteado correctamente';
 			

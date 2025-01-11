@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { changeStatusUser, createUser, getAllUsers, getUserByDni, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
+import { changeStatusUser, createUser, getAllUsers, getUserByID, resetPassword, updateUser } from '@/actions/usuario/mantenimientoUser';
 import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -15,22 +15,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 // import { columns } from './usuarios/columns'
 // import { AlertConfirm } from './usuarios/alert-confirm';
 // import { ModalUser } from './modal';
-import { User } from '@/types/User';
+import type { User } from '@/types/User';
 import { columns } from './columns';
 import { ModalUser } from './modal';
 import { AlertConfirm } from './alert-confirm';
 
 
 let initialDataUsuer = {
-    dni: '',
-    name: '',
-    lastName: '',
-    email: '',
-    emailVerified: '',
-    password: '',
-    image: '',
-    rolId: 1,
-    status: false,
+    UserID: 0,
+    NroDoc: '',
+    Name: '',
+    LastName: '',
+    Email: '',
+    Password: '',
+    RoleID: 1,
+    Status: false,
+    PickupPointID: 0,
+    TypeDocID: 0
 }
 
 export const DataTable = () => {
@@ -51,25 +52,25 @@ export const DataTable = () => {
     })
 
 
-    const handleOpenModal = (action: string, id?: string, currentStatus?: boolean) => {
+    const handleOpenModal = (action: string, userID?: number, currentStatus?: boolean, dni?: string) => {
         setAction(action);
 
-        console.log(action, id, currentStatus)
+        // console.log(action, userID, currentStatus)
         switch (action) {
 
             case 'create':
                 handleCreate()
                 break
             case 'edit':
-                if (id) handleEdit(id)
+                if (userID) handleEdit(userID)
                 break
             case 'delete':
-                if (id && typeof currentStatus === "boolean") {
-                    handleDelete(action, id, currentStatus);
+                if (userID && typeof currentStatus === "boolean") {
+                    handleDelete(action, userID, currentStatus);
                 }
                 break
             case 'reset':
-                if (id) handleReset(id)
+                if (userID && dni) handleReset(userID, dni)
                 break
             default:
                 break
@@ -84,36 +85,35 @@ export const DataTable = () => {
     }
 
     // FUNCIÓN PARA EDITAR DATOS DEL USUARIO
-    const handleEdit = async (id: string) => {
-        if (!id) return;
+    const handleEdit = async (userID: number) => {
+        if (!userID) return;
         try {
-            const user = await getUserByDni(id);
+            const user = await getUserByID(userID);
             setDataUser(user)
             setIsOpenModal(true);
         } catch (error: any) {
-            console.log(error.message)
             toast.error(error.message)
         }
     }
 
     // FUNCION PARA CAMBIAR ESTADO DEL USUARIO
-    const handleDelete = (action: string, id: string, currentStatus: boolean) => {
-        if (!id) return;
+    const handleDelete = (action: string, userID: number, currentStatus: boolean) => {
+        if (!userID) return;
 
         // abrir alert
         setIsOpenAlert(true);
-        setDataUser(prevState => ({ ...prevState, dni: id, status: currentStatus }));
-        console.log(action, id)
+        setDataUser(prevState => ({ ...prevState, UserID: userID, Status: currentStatus }));
+        // console.log(action, userID, currentStatus)
 
     }
 
     //  FUNCION PARA RESETEAR LA CONTRASEÑA
-    const handleReset = (id: string) => {
-        if (!id) return;
+    const handleReset = (userID: number, dni: string) => {
+        if (!userID) return;
         // Abrir alert
         setIsOpenAlert(true);
-        setDataUser(prevState => ({ ...prevState, dni: id }))
-        console.log("reset password", id)
+        setDataUser(prevState => ({ ...prevState, UserID: userID, NroDoc: dni }))
+        // console.log("reset password", userID)
     }
 
 
@@ -142,8 +142,8 @@ export const DataTable = () => {
 
         setIsSaving(true)
         try {
-            if (action === 'reset') await resetPassword(dataUser.dni)
-            if (action === 'delete') await changeStatusUser(dataUser.dni, dataUser.status)
+            if (action === 'reset') await resetPassword(dataUser.UserID, dataUser.NroDoc)
+            if (action === 'delete') await changeStatusUser(dataUser.UserID, dataUser.Status)
             toast.success("Operación exitosa");
         } catch (error: any) {
             toast.error(error.message)
@@ -172,7 +172,7 @@ export const DataTable = () => {
         },
         initialState: {
             pagination: {
-                pageSize: 5,
+                pageSize: 10,
             },
         },
     })

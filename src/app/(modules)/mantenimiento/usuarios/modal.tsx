@@ -34,21 +34,20 @@ interface ModalUserProps {
     isSaving: boolean
 }
 export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalUserProps) => {
-
     const [dni, setDni] = useState("");
     const [name, setName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [rolId, setRolId] = useState<number>(1);
-    const [pickPointID, SetPickPointID] = useState("");
+    const [pickupPointID, SetPickupPointID] = useState("");
 
     useEffect(() => {
         if (data) {
-            setDni(data.dni || "");
-            setName(data.name || "");
-            setLastName(data.lastName || "");
-            setEmail(data.email || "");
-            setRolId(data.rolId || 1);
+            setDni(data.NroDoc || "");
+            setName(data.Name || "");
+            setLastName(data.LastName || "");
+            setEmail(data.Email || "");
+            setRolId(data.RoleID || 1);
         }
     }, [data]);
 
@@ -89,7 +88,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
 
         // enviar data 
-        handleSave(action, { name, lastName, email, rolId, dni, pickPointID })
+        handleSave(action, { Name: name, LastName: lastName, Email: email, RoleID: rolId, NroDoc: dni, TypeDocID: 1, PickupPointID: Number(pickupPointID), UserID: data.UserID })
     }
 
     return (
@@ -152,7 +151,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                         />
                     </div>
 
-                    {/* Rol */}
+                    {/* Rol SELECT */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="email" className="text-right">Rol</Label>
                         <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} required>
@@ -163,42 +162,25 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                                 <SelectGroup>
                                     <SelectLabel>Roles</SelectLabel>
                                     <SelectItem value="1">ADMIN</SelectItem>
-                                    <SelectItem value="2">ATC</SelectItem>
-                                    <SelectItem value="3">TIENDA</SelectItem>
-                                    <SelectItem value="4">WEB MASTER</SelectItem>
+                                    <SelectItem value="2">SOPORTE</SelectItem>
+                                    <SelectItem value="3">WEB MASTER</SelectItem>
+                                    <SelectItem value="4">ATC</SelectItem>
                                     <SelectItem value="5">ALMACEN</SelectItem>
-                                    <SelectItem value="6">SOPORTE</SelectItem>
+                                    <SelectItem value="6">TIENDA</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
 
 
-                    {/* Tienda */}
-
+                    {/* Tienda SELECT */}
                     {rolId === 3 &&
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="email" className="text-right">Tienda:</Label>
                             <div className="col-span-3">
-
-                                <SelectStore setStore={SetPickPointID} />
+                                <SelectStore setStore={SetPickupPointID} />
                             </div>
-                            {/* <Select onValueChange={(value) => setRolId(Number(value))} value={String(rolId)} required>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Seleccionar un rol" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Roles</SelectLabel>
-                                    <SelectItem value="1">ADMIN</SelectItem>
-                                    <SelectItem value="2">ATC</SelectItem>
-                                    <SelectItem value="3">TIENDA</SelectItem>
-                                    <SelectItem value="4">WEB MASTER</SelectItem>
-                                    <SelectItem value="5">ALMACEN</SelectItem>
-                                    <SelectItem value="6">SOPORTE</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select> */}
+
                         </div>
                     }
 

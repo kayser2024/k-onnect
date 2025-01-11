@@ -44,15 +44,7 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
     const [order, setOrder] = useState("")
 
 
-
-
-
-
-
     const handleAccept = async (coment: string) => {
-        console.log("RESETEAR A PREPARACION")
-
-        console.log(coment)
 
         setIsSaving(true)
         try {
@@ -77,10 +69,7 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
 
         setIsOpenAlert(true)
         setOrder(orderNumber)
-        console.log("OPEN ALERT", { orderId, orderNumber })
     }
-
-
 
 
     const table = useReactTable({
@@ -152,10 +141,14 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
             </div>
 
             {/* PAGINATION */}
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between space-x-2 py-4 ">
+                <div className="text-sm text-muted-foreground">
                     {/* {table.getFilteredSelectedRowModel().rows.length} de{" "} */}
                     Total: {table.getFilteredRowModel().rows.length} Orden(es)
+                </div>
+
+                <div>
+                    Pág. {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
                 </div>
                 <div className="space-x-2">
                     <Button
@@ -166,6 +159,7 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
                     >
                         Anterior
                     </Button>
+
                     <Button
                         variant="outline"
                         size="sm"

@@ -3,8 +3,6 @@
 
 import { signIn } from '@/auth.config';
 
-// ...
-
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
