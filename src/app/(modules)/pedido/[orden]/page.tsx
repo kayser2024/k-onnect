@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { DetallePedido, OrdenResponse } from "@/types/Orden"
-import {  ExternalLink, Eye, MapPin, MessageCircleDashedIcon } from "lucide-react"
+import { ExternalLink, Eye, MapPin, MessageCircleDashedIcon } from "lucide-react"
 import { Metadata } from "next"
 import AccionCopiar from "@/components/Pedido/AccionCopiar"
 import AccionesOrden from "./AccionesOrden"
@@ -238,7 +238,7 @@ async function HomeOrden({ params }: Props) {
 
                         </CardHeader>
                         <CardContent>
-                            <DataTableProductos persona={user.user?.name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} />
+                            <DataTableProductos persona={user.user?.Name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} />
                         </CardContent>
                     </Card>
 
