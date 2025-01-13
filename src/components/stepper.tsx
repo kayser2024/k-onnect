@@ -3,9 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+
+type FormDataType = {
+  step1: { name: string };
+  step2: { email: string };
+  step3: { password: string };
+};
+
 const Stepper = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     step1: { name: "" },
     step2: { email: "" },
     step3: { password: "" },
@@ -19,7 +26,7 @@ const Stepper = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, stepKey: string) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, stepKey: keyof FormDataType) => {
     setFormData((prev) => ({
       ...prev,
       [stepKey]: { ...prev[stepKey], [e.target.name]: e.target.value },

@@ -227,8 +227,25 @@ export const getAllIncidenceByInvoice: any = async (invoice: string) => {
 
 
 // FUnción para buscar la incidencia por el texto ingresado
-export const searchIncidence = (value: string) => {
+export const searchIncidence = async (value: string) => {
 
+    let result;
+
+    try {
+        result = await prisma.incidence.findMany({
+            where: {
+                OR: [
+                    { Description: { contains: value } },
+                    { InvoiceOriginal: { contains: value } },
+                    { InvoiceIncidence: { contains: value } },
+                    { NCIncidence: { contains: value } },
+                ],
+            },
+        })
+    } catch (error: any) {
+        result = error.message
+    }
+    return result;
 }
 
 
