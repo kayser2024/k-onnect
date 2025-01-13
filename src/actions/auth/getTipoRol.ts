@@ -11,9 +11,9 @@ export const getTipoRol = async () => {
 
         if (!session) return { ok: false, message: 'No se encontro la sesion' }
 
-        const usuario = await prisma.usuarios.findUnique({
-            where: { dni: session.user.dni },
-            include: { roles: true }
+        const usuario = await prisma.users.findUnique({
+            where: { NroDoc: session.user.NroDoc },
+            include: { Roles: true }
 
         })
 
@@ -21,7 +21,7 @@ export const getTipoRol = async () => {
 
         return {
             ok: true,
-            data: usuario.roles.name,
+            data: usuario.Roles.Description,
             message: 'Rol encontrado'
         }
 
