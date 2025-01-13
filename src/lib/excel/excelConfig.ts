@@ -22,10 +22,15 @@ export const createWorksheet = (workbook: ExcelJS.Workbook, sheetName: string) =
 // Helper para ajustar automáticamente el ancho de las columnas
 export const autoFitColumns = (sheet: ExcelJS.Worksheet) => {
   sheet.columns.forEach((column) => {
-    const maxLength = column.values!.reduce((max, val) => {
-      const length = val?.toString().length || 0;
-      return Math.max(max, length);
-    }, 10);
+    if (!column.values) return; // Manejo de undefined en column.values
+
+    const maxLength = column.values
+      .filter((val): val is string | number => val !== null && val !== undefined) // Filtrar valores válidos
+      .reduce((max: number, val) => {
+        const length = val?.toString().length || 0;
+        return Math.max(max, length);
+      }, 10);
+
     column.width = maxLength + 2;
   });
 };
