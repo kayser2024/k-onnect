@@ -163,6 +163,8 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
 
       // realizar busqueda NroDOC, Invoice, DNI
 
+      
+
     } else {
       // Formato inválido
       toast.warning("Ingresar una Boleta válida");

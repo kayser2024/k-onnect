@@ -27,7 +27,7 @@ function Sign() {
 
         return (
             <div className="w-[50px] h-15 ">
-                <Image width={50} height={50} className="rounded-full " src={sesion.data.user?.image as string} alt="?" />
+                {/* <Image width={50} height={50} className="rounded-full " src={sesion.data.user?.image as string} alt="?" /> */}
             </div>
         )
     }

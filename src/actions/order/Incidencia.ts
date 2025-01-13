@@ -225,6 +225,13 @@ export const getAllIncidenceByInvoice: any = async (invoice: string) => {
     return result
 };
 
+
+// FUnción para buscar la incidencia por el texto ingresado
+export const searchIncidence = (value: string) => {
+
+}
+
+
 export const detailOrder = async (orden: number) => {
     let result;
     try {
