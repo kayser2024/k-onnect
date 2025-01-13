@@ -86,7 +86,7 @@ export const Sidebar = () => {
             children: [
                 { nombre: 'Usuarios', ruta: '/mantenimiento/usuarios', icon: <UserCog /> },
                 { nombre: 'Tiendas', ruta: '/mantenimiento/tiendas', icon: <Building /> },
-                { nombre: 'Orden', ruta: '/reset', icon: <FileBox /> },
+                { nombre: 'Orden', ruta: '/mantenimiento/ordenes', icon: <FileBox /> },
             ],
 
         },
