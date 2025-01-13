@@ -34,6 +34,7 @@
         ".next/types/**/*.ts"
 , "pruebas.js"    ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+
     ]
 }
