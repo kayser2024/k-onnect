@@ -108,7 +108,7 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
                 }
             },
             _count: {
-                OrdenID: true
+                OrdenID: true,
             },
             take: 30
         })
@@ -117,6 +117,15 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
             IncidenceGrouped
                 .filter((item) => item.OrdenID != null) // Filtra entradas donde OrdenID no sea nulo
                 .map(async (item) => {
+
+                    const incompleteCount = await prisma.incidence.count({
+                        where: {
+                            OrdenID: item.OrdenID!,
+                            IsCompleted: false,
+                            PickupPointID: pickupPickupPointID,
+                        },
+                    });
+
                     const orderData = await prisma.orders.findUnique({
                         where: { OrderID: item.OrdenID! },
                         select: {
@@ -141,7 +150,7 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
                             Invoice: item.InvoiceOriginal,
                             Destiny: "",
                             OrderStatusDescription: orderData.OrderStatus?.Description || null,
-                            TypeIncidenceCount: item._count.OrdenID,
+                            TypeIncidenceCount: incompleteCount,
                         };
                     }
                     return null; // Si no hay datos relacionados, retorna null
@@ -156,15 +165,6 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
     return result
 };
 
-
-// Obtener todas las incidencias por Nro Orden
-export const getAllIncidenceByOrder = async () => {
-
-    let result;
-
-
-
-}
 
 export const getAllIncidenceByInvoice: any = async (invoice: string) => {
     let result;
@@ -226,38 +226,96 @@ export const getAllIncidenceByInvoice: any = async (invoice: string) => {
 };
 
 
-// FUnción para buscar la incidencia por el texto ingresado
 export const searchIncidence = async (value: string) => {
-
     let result;
 
+    const session = await auth();
+    const userId = session!.user.UserID;
+    const user_pickupPickupPointID = session!.user.PickupPointID;
+
     try {
-        result = await prisma.incidence.findMany({
+        // Buscar órdenes que coincidan con el valor y estén asociadas a incidencias
+        result = await prisma.orders.findMany({
             where: {
-                OR: [
-                    { Description: { contains: value } },
-                    { InvoiceOriginal: { contains: value } },
-                    { InvoiceIncidence: { contains: value } },
-                    { NCIncidence: { contains: value } },
+                AND: [
+                    {
+                        // Filtrar por el valor de búsqueda (por ejemplo, número de orden o factura)
+                        OR: [
+                            { OrderNumber: { contains: value } },
+                            { Invoice: { contains: value } },
+                            { DataFacturation: { NameFacturation: { contains: value } } },
+                            { DataFacturation: { IdClient: { contains: value } } },
+                        ],
+                    },
                 ],
             },
-        })
+            select: {
+                Invoice: true,
+                OrderID: true,
+                OrderNumber: true,
+                PickupPoint: true,
+                QtyIncidence: true,
+                OrderStatus: {
+                    select: {
+                        Description: true,
+                    },
+                },
+                // Relacionar las incidencias
+                Incidence: {
+                    where: {
+                        PickupPointID: user_pickupPickupPointID, // Filtrar las incidencias por PickupPointID
+                    },
+                    select: {
+                        IncidenceID: true,
+                        InvoiceOriginal: true,
+                        InvoiceIncidence: true,
+                        NCIncidence: true,
+                        TypeIncidenceID: true,
+                        IsCompleted: true,
+                        Description: true,
+                        Dispatched: true,
+                    },
+                },
+            },
+        });
+
+        // Mapear el resultado para agregar el número de incidencias de tipo específico
+        result = result.map(order => ({
+            Invoice: order.Invoice,
+            OrderID: order.OrderID,
+            OrderNumber: order.OrderNumber,
+            PickupPoint: order.PickupPoint,
+            OrderStatusDescription: order.OrderStatus.Description,
+            TypeIncidenceCount: order.Incidence.length, // Contar las incidencias
+        }));
     } catch (error: any) {
-        result = error.message
+        result = error.message;
     }
+
     return result;
-}
+};
 
 
-export const detailOrder = async (orden: number) => {
+export const detailOrder = async (orden: number, isStore: boolean = false) => {
+
+    const session = await auth();
+    const userId = session!.user.UserID
+    const user_pickupPickupPointID = session!.user.PickupPointID;
+
     let result;
     try {
-        const incidences = await prisma.incidence.findMany({
-            where: {
-                OrdenID: orden
-            },
-            select: {
+        const whereCondition: any = {
+            OrdenID: orden,
+        };
 
+        // Solo añadir PickupPointID al filtro si tiene un valor
+        if (user_pickupPickupPointID !== null && user_pickupPickupPointID !== undefined && isStore) {
+            whereCondition.PickupPointID = user_pickupPickupPointID;
+        }
+
+        const incidences = await prisma.incidence.findMany({
+            where: whereCondition,
+            select: {
                 IncidenceID: true,
                 OrdenID: true,
                 InvoiceOriginal: true,
@@ -276,7 +334,6 @@ export const detailOrder = async (orden: number) => {
                 IsConfirmed: true,
 
                 IncidenceLogs: {
-
                     select: {
                         CodEan: true,
                         CodProd: true,
@@ -284,6 +341,12 @@ export const detailOrder = async (orden: number) => {
                         ProdSubtotal: true,
                         Description: true,
                         CreatedAt: true
+                    }
+                },
+
+                PickupPoints: {
+                    select: {
+                        Description: true
                     }
                 }
             }
@@ -293,9 +356,8 @@ export const detailOrder = async (orden: number) => {
     } catch (error: any) {
         result = error.message;
     }
-    console.log({ result: result.IncidenceLogs });
     return result;
-}
+};
 
 export const getIncidenceByOrder = async (order: string) => {
 
@@ -378,6 +440,7 @@ export const getProductListTotalRefund = async (invoice: string) => {
 }
 
 export const changStatusIncidence = async (incidenceId: number) => {
+
     let result;
 
     const session = await auth();
@@ -403,6 +466,8 @@ export const changStatusIncidence = async (incidenceId: number) => {
     } catch (error: any) {
         result = error.message
     }
+
+    revalidatePath("/incidencia");
 
     return result;
 }

@@ -24,7 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { useQuery } from '@tanstack/react-query'
-import { detailOrder, getAllIncidence, getAllIncidenceByInvoice } from '@/actions/order/Incidencia'
+import { detailOrder, getAllIncidence, searchIncidence } from '@/actions/order/Incidencia'
 import { formatDate } from '@/helpers/convertDate'
 import { Input } from '@/components/ui/input'
 import { Loader } from '@/components/loader'
@@ -62,7 +62,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
     queryKey: ["OrderDetail", order],
     queryFn: async ({ queryKey }) => {
       const orden = queryKey[1];
-      return await detailOrder(Number(orden))
+      return await detailOrder(Number(orden), true)
     },
     enabled: enabled,
   })
@@ -95,7 +95,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const handleDownLoadDetail = async (orden: number) => {
     try {
       // obtener la data
-      const dataDetails = await detailOrder(orden)
+      const dataDetails = await detailOrder(orden, true)
 
       // Si los datos existen, realiza la descarga
       await downloadExcelReportDetail(dataDetails);
@@ -147,11 +147,12 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
       return;
     }
 
-    if (/^[BF].{4,}$/.test(trimmedValue)) {
+    if (trimmedValue.length > 6) {
       // Buscar por boleta válida
       try {
         setLoading(true);
-        const response = await getAllIncidenceByInvoice(trimmedValue);
+        const response = await searchIncidence(trimmedValue);
+
         setDataIncidente(response);
       } catch (error: any) {
         console.error(error.message);
@@ -163,11 +164,11 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
 
       // realizar busqueda NroDOC, Invoice, DNI
 
-      
+
 
     } else {
-      // Formato inválido
-      toast.warning("Ingresar una Boleta válida");
+      //   // Formato inválido
+      toast.warning("Por favor ingresar al menos 6 carácteres.");
     }
 
   }
@@ -233,9 +234,10 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row, index) => (
+
                     <React.Fragment key={`${row.id}-${index}`}>
                       {/* Fila principal */}
-                      <TableRow data-state={row.getIsSelected() && "selected"}>
+                      <TableRow data-state={row.getIsSelected() && "selected"} className={`${row.original.TypeIncidenceCount === 0 ? 'bg-green-100 hover:bg-green-200' : 'bg-slate-100'}`}>
                         {row.getVisibleCells().map((cell, index) => (
                           <TableCell key={`cell-${cell.id}-${index}`}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

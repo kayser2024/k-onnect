@@ -59,7 +59,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [invoice, setInvoice] = useState("")
   const [nc, setNc] = useState("")
 
-  console.log({ incidentList }, '👀👀')
 
   // Obtener el detalle de la orden
   const { data, refetch, isLoading, isPending } = useQuery({
@@ -71,7 +70,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     enabled: enabled,
   })
 
-  console.log({ data }, "DATA")
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -80,7 +78,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   }
 
   // Función para actulizar el estado de la orden a Completado
-
   const handleAccept = async () => {
     setLoading(true)
 
@@ -89,11 +86,13 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
     } catch (error: any) {
       console.log(error.message)
+      toast.error("Ocurrió un error al actualizar el estado de la incidencia");
     } finally {
       setLoading(false)
       setIsOpen(false)
       setOpenDropdown(null)
-      refetch()
+      //refetch Incidence
+      refetch()//refetch incidencedetail
     }
   }
 
@@ -175,13 +174,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   // Función para "activar" checkboks a "COMPLETAR" incidencia 
   const handleChange = (incidenceId: number, detail: any) => {
     const { TypeIncidenceID, Received, Dispatched, NCIncidence, InvoiceIncidence } = detail
-
-    console.log({ incidenceId, detail }, '---------Detail select')
-    // verificar si es DEVOLUCIÓN TOTAL|PARCIAL => NC!
-    // verificar si es CAMBIO  => NC! y BOLETA!
-    // typeIncide=1 => RETURN
-    // typeIncide=2 => RETURN
-    // typeIncide=3 => CHANGE
 
 
     if (TypeIncidenceID === 3) {
@@ -316,7 +308,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                   table.getRowModel().rows.map((row, index) => (
                     <React.Fragment key={`${row.id}-${index}`}>
                       {/* Fila principal */}
-                      <TableRow data-state={row.getIsSelected() && "selected"}>
+                      <TableRow data-state={row.getIsSelected() && "selected"} className={`${row.original.TypeIncidenceCount === 0 ? 'bg-green-100 hover:bg-green-200' : 'bg-slate-100'}`}>
                         {row.getVisibleCells().map((cell, index) => (
                           <TableCell key={`cell-${cell.id}-${index}`}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -340,6 +332,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                   <TableHead className='text-white'>N.C.</TableHead>
                                   <TableHead className='text-white'>Boleta</TableHead>
                                   <TableHead className='text-white'>Fecha</TableHead>
+                                  <TableHead className='text-white'>Tienda</TableHead>
                                   <TableHead className='text-white '>Acción</TableHead>
                                 </TableRow>
                               </TableHeader>
@@ -386,6 +379,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                     <TableCell className='text-xs w-[200px]'>{detail.NCIncidence}</TableCell>
                                     <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
                                     <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
+                                    <TableCell className='text-xs w-[250px]'>{detail.PickupPoints.Description}</TableCell>
 
 
                                     <TableCell className='text-xs w-[250px]'>
