@@ -25,10 +25,6 @@ interface ConfirmCompletedProps {
 
 }
 export const ConfirmCompleted = ({ isOpen, setIsOpen, handleAccept, isLoading, handleClose }: ConfirmCompletedProps) => {
-
-
-
-
     return (
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogContent>

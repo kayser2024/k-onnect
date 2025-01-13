@@ -1,10 +1,26 @@
-import NextAuth, { type NextAuthConfig } from 'next-auth';
+import NextAuth, { type NextAuthConfig, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcryptjs from 'bcryptjs';
 import { z } from 'zod';
 
 import prisma from './lib/prisma';
 
+
+declare module 'next-auth' {
+  interface User {
+    UserID: number;
+    Email: string;
+    Name: string;
+    Status: boolean;
+    TypeDocID: number;
+    NroDoc: string;
+    RoleID: number;
+    LastName: string | null;
+    PickupPointID: number | null;
+    CreatedAt: Date | null;
+    UpdatedAt: Date | null;
+  }
+}
 
 export const authConfig: NextAuthConfig = {
   pages: {
@@ -57,22 +73,13 @@ export const authConfig: NextAuthConfig = {
 
         console.log(email, password)
 
-        // Buscar el correo
-
+        // Encontrar el usuario por el correo activo
         const user = await prisma.users.findUnique({
           where: {
             Email: email,
             Status: true
           },
         })
-
-        // const userData = await prisma.users.findUnique({
-        //   where: {
-        //     Email: '',
-        //     Status: true
-        //   },
-        // })
-
 
         if (!user) return null;
 

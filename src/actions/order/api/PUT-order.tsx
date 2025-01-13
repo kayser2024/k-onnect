@@ -67,7 +67,6 @@ export const updateShippingInfo = async (data: any) => {
 
     // obtener el usuario
     const user = await auth()
-    console.log({ session: user?.user.name }, '👍👍👍👍')
 
 
     const url = `https://sami3-external.winwinafi.com/orders/kayser.pe/${orden}`;
