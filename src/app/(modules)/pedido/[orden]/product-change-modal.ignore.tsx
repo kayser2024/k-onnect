@@ -96,11 +96,11 @@ export const ProductChangeModal = ({ openModal, setOpenModal, handleDescargaCamb
 
                         {/* <TablaRealizarCambio /> */}
                         <h3 className="text-lg mb-2">Lista de Productos</h3>
-                        <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row: any) => row.original )} />
+                        <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row: any) => row.original)} setProdOriginSubtotal={() => { }} setProductsSelect={() => { }} />
                     </div>
                     <div className="grid-cols-1">
                         <h3 className="text-lg mb-2"> Nuevos Productos</h3>
-                        <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} />
+                        <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} setProdChangeSubtotal={() => { }} />
                     </div>
                 </div>
 
