@@ -8,7 +8,7 @@ const IncidenciaPage = async () => {
     const incidenciaList = await getAllIncidence();
 
     return (
-        <div className=''>
+        <div className='px-2 m-auto'>
 
             <h2 className='text-2xl'>Lista de Incidencia</h2>
             {/* tabla */}

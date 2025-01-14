@@ -43,7 +43,7 @@ export const columns = (handleOpenAlert: (oderId: number, orderNumber: string) =
         header: "Destino",
         cell: ({ row }) => {
             const destino = row.original.PickupPoint;
-            return <>{destino}</>
+            return <div className="text-xs md:text-sm w-[200px]  md:w-[300px] truncate">{destino}</div>
         }
     },
     // {
@@ -65,7 +65,7 @@ export const columns = (handleOpenAlert: (oderId: number, orderNumber: string) =
             const date = new Date(row.original.UpdatedAt); // Crear un objeto Date
             const formattedDate = date.toISOString(); // Convertirla a una cadena ISO nuevamente
             const fecha = formatDate(formattedDate)
-            return <>{fecha}</>
+            return <div className="text-xs md:text-sm w-[150px] truncate md:w-[200px]">{fecha}</div>
         }
     },
     {

@@ -93,16 +93,17 @@ export default function SearchMain({
 
     return (
         <div className="flex flex-col  justify-center gap-2 border p-4 bg-blue-50 rounded-md">
-            <div className="flex gap-2">
-                <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-2">
+                <div className="flex flex-col gap-4 md:flex md:flex-row ">
                     <div className="flex items-center space-x-2">
                         <Select
                             defaultValue="pagado"
                             value={statusPayment}
                             onValueChange={setStatusPayment}
                             disabled={loading || isExact}
+
                         >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full md:w-[180px]">
                                 <SelectValue placeholder="Seleccionar estado de Pago" />
                             </SelectTrigger>
                             <SelectContent>
@@ -121,7 +122,10 @@ export default function SearchMain({
                         setEndDate={setEndDate}
                         isExact={isExact}
                         loading={loading}
+                        className="w-full"
                     />
+
+                    {/* Button Cargar Datos */}
                     <Button
                         variant="default"
                         onClick={onLoadData}
@@ -130,7 +134,8 @@ export default function SearchMain({
                         {loading ? (<><Loader2 className="animate-spin" /> Cargando ...</>) : ("Cargar Datos")}
                     </Button>
                 </div>
-                <div className="flex items-center space-x-2">
+                {/* SWITCH Busqueda Exacta */}
+                <div className="flex items-center space-x-2 mt-4 md:mt-0">
                     <Switch
                         id="airplane-mode"
                         checked={isExact}
@@ -141,7 +146,9 @@ export default function SearchMain({
             </div>
 
             <hr className="divide-x-2"></hr>
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+
+                {/* Input Boleta */}
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                     <Label htmlFor="boleta">Boleta :</Label>
                     <Input
@@ -153,6 +160,8 @@ export default function SearchMain({
                         disabled={!isExact}
                     />
                 </div>
+
+                {/* Input Nro Orden */}
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                     <Label htmlFor="orden">Orden :</Label>
                     <Input
@@ -166,6 +175,7 @@ export default function SearchMain({
                 </div>
                 {/* <Input className="" value={orden} onChange={(e) => setOrden(e.target.value)} placeholder="# Orden ..." disabled={!isExact} /> */}
 
+                {/* Input DNI */}
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                     <Label htmlFor="dni">DNI :</Label>
                     <Input
@@ -178,6 +188,7 @@ export default function SearchMain({
                     />
                 </div>
 
+                {/* Button Buscar */}
                 <Button
                     className="mt-5"
                     variant="default"

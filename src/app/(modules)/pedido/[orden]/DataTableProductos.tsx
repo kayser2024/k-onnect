@@ -31,7 +31,7 @@ import { onUpdateObservaciones } from '@/actions/observaciones/updateObservacion
 import { insertComment } from "@/actions/order/insertComent"
 import { createIncidence, getProductListTotalRefund } from "@/actions/order/Incidencia"
 import { useQuery } from "@tanstack/react-query"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { RiFileExcel2Line } from "react-icons/ri"
 import { TbStatusChange } from "react-icons/tb";
@@ -532,11 +532,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     }
 
 
-    console.log({ option })
-
     return (
         <div >
-            <ScrollArea className="h-[500px]">
+            <ScrollArea className="h-[350px] md:h-[500px]">
                 <Table >
                     {/* <TableCaption>Tabla de Productos</TableCaption> */}
                     <TableHeader>
@@ -604,7 +602,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                         </DialogHeader>
 
                         {/* Header Modal Cambiar Producto */}
-                        <div className="mb-4 grid grid-cols-2 gap-3 ">
+                        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 ">
 
                             {/* RESUMEN Orden */}
                             <div className="w-full rounded-lg border p-4">
@@ -619,6 +617,13 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                                     <span className="">S/ {prodChangeSubtotal.toFixed(2)}</span>
                                 </div>
 
+                            </div>
+
+                            <div className="md:hidden col-span-2">
+
+                                {/* <TablaRealizarCambio /> */}
+                                <h3 className="text-lg mb-2">Lista de Productos</h3>
+                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
                             </div>
 
                             <div className=" flex flex-col gap-3">
@@ -662,24 +667,32 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                         {/* Tabla de Productos a Cambiar */}
                         <ScrollArea className="max-h-[500px]">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="grid-cols-1">
-
-                                    {/* <TablaRealizarCambio /> */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                                {/* Lista de Productos */}
+                                <div className="hidden md:block ">
                                     <h3 className="text-lg mb-2">Lista de Productos</h3>
-                                    <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
+                                    <ProductSelectList
+                                        productsSelect={table?.getSelectedRowModel().rows.map((row) => row.original) || []}
+                                        setProductsSelect={setProductsSelect}
+                                        setProdOriginSubtotal={setProdOriginSubtotal}
+                                    />
                                 </div>
-                                <div className="grid-cols-1">
-                                    <h3 className="text-lg mb-2"> Nuevos Productos</h3>
-                                    <ProductToChangeList newProducts={newProducts} setNewProducts={setNewProducts} setProdChangeSubtotal={setProdChangeSubtotal} />
 
+                                {/* Nuevos Productos */}
+                                <div className="col-span-1 md:col-span-1 ">
+                                    <h3 className="text-lg mb-2">Nuevos Productos</h3>
+                                    <ProductToChangeList
+                                        newProducts={newProducts}
+                                        setNewProducts={setNewProducts}
+                                        setProdChangeSubtotal={setProdChangeSubtotal}
+                                    />
                                 </div>
-
                             </div>
                         </ScrollArea>
 
+
                         <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
-                            <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button>
+                            {/* <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button> */}
 
                             <Button onClick={handleCambio} disabled={loading || (prodOriginSubtotal >= prodChangeSubtotal)} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
 

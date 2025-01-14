@@ -24,7 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { useQuery } from '@tanstack/react-query'
-import { changStatusIncidence, detailOrder, getAllIncidence, getAllIncidenceByInvoice, updateIncidence } from '@/actions/order/Incidencia'
+import { changStatusIncidence, detailOrder, getAllIncidence, getAllIncidenceByInvoice, searchIncidence, updateIncidence } from '@/actions/order/Incidencia'
 import { formatDate } from '@/helpers/convertDate'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -35,7 +35,7 @@ import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Check, MoreVertical } from 'lucide-react'
+import { Check, MonitorDown, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
 
 
@@ -152,11 +152,12 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       return;
     }
 
-    if (/^[BF].{4,}$/.test(trimmedValue)) {
+    if (trimmedValue.length > 5) {
       // Buscar por boleta válida
       try {
         setLoading(true);
-        const response = await getAllIncidenceByInvoice(trimmedValue);
+        // const response = await getAllIncidenceByInvoice(trimmedValue);
+        const response = await searchIncidence(trimmedValue)
         setDataIncidente(response);
       } catch (error: any) {
         console.error(error.message);
@@ -164,7 +165,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         setLoading(false);
       }
     } else {
-      // Formato inválido
+      //   // Formato inválido
       toast.warning("Ingresar una Boleta válida");
     }
 
@@ -175,7 +176,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const handleChange = (incidenceId: number, detail: any) => {
     const { TypeIncidenceID, Received, Dispatched, NCIncidence, InvoiceIncidence } = detail
 
-    
+
     if (TypeIncidenceID === 3) {
       // CAMBIO
       if (NCIncidence && InvoiceIncidence.trim().length > 0) {
@@ -274,10 +275,20 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
   return (
     <div className="w-full">
-      <div className='flex gap-2 py-4'>
-        <Input placeholder='Buscar # Orden' onChange={e => setValueSearch(e.target.value)} value={valueSearch} />
-        <Button onClick={handleSearch} disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</Button>
-        <Button variant="outline" title='Descargar Reporte' onClick={downloadExcel}><RiFileExcel2Line color='green' size={25} />Descargar</Button>
+      <div className='flex flex-col md:flex-row gap-2 py-4'>
+        <Input placeholder='Buscar por Nombre, DNI, # Orden, # Invoice' onChange={e => setValueSearch(e.target.value)} value={valueSearch} />
+        <div className="flex gap-2 items-center justify-center">
+          <Button onClick={handleSearch} disabled={loading} className='w-full md:w-20'>{loading ? 'Buscando...' : 'Buscar'}</Button>
+          <Button
+            variant="outline"
+            title="Descargar Reporte"
+            onClick={downloadExcel}
+            className="bg-green-500 md:flex items-center gap-2"
+          >
+            <RiFileExcel2Line color="white" size={20} />
+            <span className="hidden md:inline text-white">Descargar</span>
+          </Button>
+        </div>
 
       </div>
 
@@ -323,17 +334,17 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                         <TableRow className=' bg-slate-50 '>
                           <TableCell className="p-0"></TableCell>
                           <TableCell colSpan={row.getVisibleCells().length - 1} className="p-4 ">
-                            <Table className='bg-slate-50 border'>
+                            <Table className='bg-slate-50 border w-full'>
                               <TableHeader className='bg-slate-400 '>
                                 <TableRow className='text-white hover:bg-slate-400'>
                                   <TableHead className='text-white w-[350px]'>Prod. Original</TableHead>
                                   <TableHead className='text-white w-[350px]'>Prod. Cambiado</TableHead>
-                                  <TableHead className='text-white w-[350px]'>Motivo</TableHead>
+                                  <TableHead className='text-white w-[200px]'>Motivo</TableHead>
                                   <TableHead className='text-white'>N.C.</TableHead>
                                   <TableHead className='text-white'>Nva. Boleta</TableHead>
                                   <TableHead className='text-white'>Fecha</TableHead>
-                                  <TableHead className='text-white'>Tienda</TableHead>
-                                  <TableHead className='text-white '>Acción</TableHead>
+                                  <TableHead className='text-white w-[200px] truncate'>Tienda</TableHead>
+                                  <TableHead className='text-white'>Acción</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody className='bg-slate-100 border'>
@@ -375,11 +386,11 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                       </ul>
 
                                     </TableCell>
-                                    <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>{detail.NCIncidence}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{formatDate(new Date(detail.CreatedAt).toISOString())}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{detail.PickupPoints.Description}</TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[150px] truncate'>{detail.Description || "─"}</span></TableCell>
+                                    <TableCell className='text-xs w-[200px] truncate'>{detail.NCIncidence || "─"} </TableCell>
+                                    <TableCell className='text-xs w-[200px] truncate'>{detail.InvoiceIncidence || "─"}</TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[150px] truncate'>{formatDate(new Date(detail.CreatedAt).toISOString())}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[200px] truncate'>{detail.PickupPoints.Description}</span> </TableCell>
 
 
                                     <TableCell className='text-xs w-[250px]'>

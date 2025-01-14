@@ -31,6 +31,7 @@ import { Order } from '@/types/OrderDb'
 import { AlertConfirm } from './ui/alert-confirm'
 import { toast } from 'sonner'
 import { resetOrder } from '@/actions/order/resetOrder'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 
 interface OrderProps {
@@ -142,23 +143,23 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
 
             {/* PAGINATION */}
             <div className="flex items-center justify-between space-x-2 py-4 ">
-                <div className="text-sm text-muted-foreground">
-                    {/* {table.getFilteredSelectedRowModel().rows.length} de{" "} */}
+                <div className="text-xs md:tx-sm text-muted-foreground">
                     Total: {table.getFilteredRowModel().rows.length} Orden(es)
                 </div>
 
-                <div>
-                    Pág. {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-                </div>
-                <div className="space-x-2">
+                <div className="space-x-2 flex items-center justify-center">
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Anterior
+                        <ChevronLeft />
                     </Button>
+
+                    <div className='text-xs md:text-sm'>
+                        {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                    </div>
 
                     <Button
                         variant="outline"
@@ -166,7 +167,7 @@ export const DataTable = ({ orders, refetch }: OrderProps) => {
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Siguiente
+                        <ChevronRight />
                     </Button>
                 </div>
             </div>

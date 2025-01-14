@@ -147,7 +147,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
       return;
     }
 
-    if (trimmedValue.length > 6) {
+    if (trimmedValue.length > 4) {
       // Buscar por boleta válida
       try {
         setLoading(true);
@@ -160,15 +160,9 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
         setLoading(false);
       }
 
-
-
-      // realizar busqueda NroDOC, Invoice, DNI
-
-
-
     } else {
       //   // Formato inválido
-      toast.warning("Por favor ingresar al menos 6 carácteres.");
+      toast.warning("Por favor ingresar al menos 5 carácteres.");
     }
 
   }
@@ -203,9 +197,21 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   return (
     <div className="w-full">
       <div className='flex gap-2 py-4'>
-        <Input placeholder='Buscar # Orden' onChange={e => setValueSearch(e.target.value)} value={valueSearch} />
-        <Button onClick={handleSearch} disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</Button>
-        <Button variant="outline" title='Descargar Reporte' onClick={downloadExcel}><RiFileExcel2Line color='green' size={25} />Descargar</Button>
+        <Input placeholder='Buscar por Nombre, DNI, # Orden, # Invoice' onChange={e => setValueSearch(e.target.value)} value={valueSearch} />
+        <div className="flex gap-2 items-center justify-center">
+          <Button onClick={handleSearch} disabled={loading} className='w-full md:w-20'>{loading ? 'Buscando...' : 'Buscar'}</Button>
+          <Button
+            variant="outline"
+            title="Descargar Reporte"
+            onClick={downloadExcel}
+            className="bg-green-500 md:flex items-center gap-2"
+          >
+            <RiFileExcel2Line color="white" size={20} />
+            <span className="hidden md:inline text-white">Descargar</span>
+          </Button>
+        </div>
+        {/* <Button onClick={handleSearch} disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</Button> */}
+        {/* <Button variant="outline" title='Descargar Reporte' onClick={downloadExcel}><RiFileExcel2Line color='green' size={25} />Descargar</Button> */}
 
       </div>
 

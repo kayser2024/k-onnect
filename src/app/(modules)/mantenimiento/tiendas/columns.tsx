@@ -14,7 +14,7 @@ export const columns = (handleOpenModal: (action: string, id: number) => void): 
         header: "Nombre Tienda",
         cell: ({ row }) => {
             const nombre = row.original.Description;
-            return <>{nombre}</>;
+            return <div className='text-xs md:text-sm w-[300px] md:[350px] truncate'>{nombre}</div>;
         },
         filterFn: (row, id, value) => {
             const estado = row.original.Description;
@@ -29,7 +29,7 @@ export const columns = (handleOpenModal: (action: string, id: number) => void): 
         header: "Dirección",
         cell: ({ row }) => {
             const email = row.original.Address;
-            return <>{email}</>;
+            return <div className='w-[300px] truncate md:w-[500px]'>{email}</div>;
         }
     },
     {

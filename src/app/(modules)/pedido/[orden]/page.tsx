@@ -209,17 +209,17 @@ async function HomeOrden({ params }: Props) {
 
 
     return (
-        <main className="p-2" >
+        <main className="p-2 mx-auto" >
             <section>
                 <div className="flex flex-col sm:flex-row  sm:justify-between">
-                    <div className="flex flex-wrap sm:flex-row  gap-5">
-                        <h1 className="font-bold text-xl">Orden ID: {cabecera_pedido?.numero_orden}</h1>
+                    <div className="flex items-center gap-5">
+                        <h1 className="font-bold text-xl md:text-2xl">{cabecera_pedido?.numero_orden}</h1>
+                        <Badge >{cabecera_pedido?.estado_pedido}</Badge>
                     </div>
-                    <div className="w-full flex justify-around sm:w-auto sm:justify-normal gap-5">
-                        <Badge >Estado: {cabecera_pedido?.estado_pedido}</Badge>
-                    </div>
+                    {/* <div className="w-full flex justify-around sm:w-auto sm:justify-normal gap-5 bg-red-300">
+                    </div> */}
                 </div>
-                <span>{new Date(ordenes.created_at).toLocaleString()}</span>
+                <span className="text-xs md:text-lg">{new Date(ordenes.created_at).toLocaleString()}</span>
             </section>
 
             <section className="flex flex-col lg:grid grid-cols-[70%_30%] gap-2">
@@ -230,10 +230,13 @@ async function HomeOrden({ params }: Props) {
                     <Card className="cols">
                         <CardHeader>
                             <div className="flex justify-between">
-                                <CardTitle>Detalle de Productos</CardTitle>
+                                <CardTitle className="text-xl flex items-center justify-center gap-2">
+                                    Detalle de Productos
+
+                                    <span className={`rounded-2xl p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
+                                </CardTitle>
                                 <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
                             </div>
-                            <span className={`rounded-2xl p-2 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-300'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                             <CardDescription>Detalles de la orden</CardDescription>
 
                         </CardHeader>

@@ -144,12 +144,12 @@ function PreparacionOrder() {
 
     return (
         <>
-            <main>
+            <main className="px-2 m-auto">
                 <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
                     <div className="w-full">
 
-                        <label htmlFor="orden" className="text-sm font-bold">Orden pedido</label>
-                        <Input placeholder="ss1234567890abc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
+                        <label htmlFor="orden" className="text-sm font-bold">Ingresar Nro. Invoice.</label>
+                        <Input placeholder="BW17-123 / FW17-123" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
                     </div>
 
                 </form>

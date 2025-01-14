@@ -15,7 +15,7 @@ const IncidenciaPage = async () => {
     const incidenciaList: ResponseAllIncidence[] = await getAllIncidence(EstablishmentID);
 
     return (
-        <div className=''>
+        <div className='px-2 mx-auto'>
 
             <h2 className='text-2xl'>Lista de Incidencia</h2>
             {/* tabla */}

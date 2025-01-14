@@ -19,6 +19,7 @@ import type { User } from '@/types/User';
 import { columns } from './columns';
 import { ModalUser } from './modal';
 import { AlertConfirm } from './alert-confirm';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 
 let initialDataUsuer = {
@@ -252,26 +253,27 @@ export const DataTable = () => {
                         Total de registros: {totalRegistros}
                     </div>
 
-                    <div className="text-sm text-muted-foreground">
-                        Página {table.getState().pagination.pageIndex + 1} de{" "}
-                        {table.getPageCount()}
-                    </div>
-                    <div className="space-x-2">
+
+                    <div className="space-x-2 flex justify-center items-center">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()}
                         >
-                            Anterior
+                            <ChevronLeft />
                         </Button>
+                        <div className="text-sm text-muted-foreground">
+                            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                        </div>
+
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => table.nextPage()}
                             disabled={!table.getCanNextPage()}
                         >
-                            Siguiente
+                            <ChevronRight />
                         </Button>
                     </div>
                 </div>

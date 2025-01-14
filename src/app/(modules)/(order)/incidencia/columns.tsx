@@ -43,7 +43,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         header: "Orden",
         cell: ({ row }) => {
             // console.log({ data: row.original }, 'ORIGINAL')
-            return <Link href={`/pedido/${row.original.OrderNumber}`} target="_blank" className="text-blue-500 font-semibold hover:bg-slate-300 p-2 rounded-md" title="Abrir enlace">{row.original.OrderNumber}</Link>
+            return <Link href={`/pedido/${row.original.OrderNumber}`} target="_blank" className="text-blue-500  truncate w-[100px] font-semibold hover:bg-slate-300 p-2 rounded-md" title="Abrir enlace">{row.original.OrderNumber}</Link>
         }
     },
     {
@@ -51,7 +51,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         accessorFn: (row) => row.Invoice,
         header: "Bol. / Fact. Original",
         cell: ({ row }) => {
-            return <div className="text-center w-[100px]">{row.original.Invoice}</div>
+            return <div className="text-xs text-center w-[100px]">{row.original.Invoice}</div>
         }
     },
     {
@@ -67,7 +67,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         accessorFn: (row) => row.PickupPoint,
         header: "Destino",
         cell: ({ row }) => {
-            return <div className="text-center">{row.original.PickupPoint}</div>
+            return <div className=" text-xs truncate w-[200px]">{row.original.PickupPoint}</div>
         }
     },
     {

@@ -37,24 +37,22 @@ function ResetOrder() {
 
 
     return (
-        <>
-            <main>
-                <h1 className="text-3xl font-bold my-2">Lista de Ordenes</h1>
-                <form onSubmit={handleSearchOrder} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
-                    <div className="w-full">
-                        <label htmlFor="orden" className="text-sm font-bold">Buscar Nro Orden:</label>
-                        <Input placeholder="ss1234567890abc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
-                    </div>
-                    <Button variant="default" type="submit" className="mt-6">Buscar</Button>
-                </form>
+        <main className="w-full px-2 mx-auto">
+            <h1 className="text-3xl font-bold my-2">Lista de Ordenes</h1>
+            <form onSubmit={handleSearchOrder} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
+                <div className="w-full">
+                    <label htmlFor="orden" className="text-sm font-bold">Buscar Nro Orden:</label>
+                    <Input placeholder="ss1234567890abc" id="orden" value={order} onChange={(e) => setOrder(e.target.value)} />
+                </div>
+                <Button variant="default" type="submit" className="mt-6">Buscar</Button>
+            </form>
 
-                <br />
+            <br />
 
 
-                {/* TABLE */}
-                {!isFetching && <DataTable orders={filteredOrders.length > 0 ? filteredOrders : data} refetch={refetch} />}
-            </main>
-        </>
+            {/* TABLE */}
+            {!isFetching && <DataTable orders={filteredOrders.length > 0 ? filteredOrders : data} refetch={refetch} />}
+        </main>
     );
 }
 

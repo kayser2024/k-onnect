@@ -22,7 +22,8 @@ import TableSkeleton from "./pedido/tableSkeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import SearchFilter from "./search-filter";
 import SearchMain from "./search";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function TableMain() {
   const hoy = new Date();
@@ -117,7 +118,7 @@ export function TableMain() {
         loading={loading}
       />
 
-      <ScrollArea className="h-[600px] w-full rounded-md border p-4">
+      <ScrollArea className="h-[350px] md:h-[450px] w-full rounded-md border p-4">
         <SearchFilter
           setSearchBoleta={setSearchBoleta}
           setSearchPedido={setSearchPedido}
@@ -165,30 +166,31 @@ export function TableMain() {
 
       {/* Pagination */}
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-sm text-muted-foreground">
-          Total de registros: {totalRegistros}
+        <div className="text-xs md:text-sm text-muted-foreground">
+         Total Registro(s): {totalRegistros}
         </div>
 
-        <div className="text-sm text-muted-foreground">
-          Página {table.getState().pagination.pageIndex + 1} de{" "}
-          {table.getPageCount()}
-        </div>
-        <div className="space-x-2">
+
+        <div className="space-x-2 flex items-center justify-center">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Anterior
+            <ChevronLeft className="" />
           </Button>
+
+          <div className="text-sm text-muted-foreground">{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}</div>
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Siguiente
+            <ChevronRight className="" />
+
           </Button>
         </div>
       </div>

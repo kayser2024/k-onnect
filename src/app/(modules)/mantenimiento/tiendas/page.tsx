@@ -1,11 +1,11 @@
 import React from 'react'
-import { DataTable } from './table'
+import { DataTable } from './data-table'
 
 const MantenimientoEstablec = () => {
     return (
-        <div className=''>
+        <div className='w-full mx-auto p-2'>
 
-       
+
             {/* Tabla */}
             <DataTable />
 

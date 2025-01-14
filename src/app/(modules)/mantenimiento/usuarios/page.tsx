@@ -3,9 +3,9 @@ import { DataTable } from './table'
 
 const MantenimientoUsers = () => {
     return (
-        <div className=''>
+        <div className='p-2 mx-auto w-full'>
 
-       
+
             {/* Tabla */}
             <DataTable />
 

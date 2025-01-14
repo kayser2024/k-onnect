@@ -21,7 +21,7 @@ export const columns = (handleOpenModal: (action: string, userID: number, curren
         cell: ({ row }) => {
             const nombre = row.original.Name;
             const apellido = row.original.LastName;
-            return <>{nombre} {apellido}</>;
+            return <div className='truncate text-xs w-[100px]  md:text-sm md:w-[200px]'>{nombre} {apellido}</div>;
         },
         filterFn: (row, id, value) => {
             const estado = row.original.Name;

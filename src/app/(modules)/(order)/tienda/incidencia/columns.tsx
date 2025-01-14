@@ -52,8 +52,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         accessorFn: (row) => row.Invoice,
         header: "Bol. / Fact. Original",
         cell: ({ row }) => {
-            console.log(row.original)
-            return <div className="text-center w-[100px]">{row.original.Invoice}</div>
+            return <div className="text-xs text-center w-[100px]">{row.original.Invoice}</div>
         }
     },
     {
@@ -69,7 +68,7 @@ export const columns = (getDetailOrder: (OrderProps: number) => void, handleDown
         accessorFn: (row) => row.PickupPoint,
         header: "Destino",
         cell: ({ row }) => {
-            return <div className="text-center">{row.original.PickupPoint}</div>
+            return <div className="text-xs w-[200px] md:[300px] truncate">{row.original.PickupPoint}</div>
         }
     },
     {

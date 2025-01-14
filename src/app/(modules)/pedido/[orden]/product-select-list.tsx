@@ -52,7 +52,7 @@ export const ProductSelectList = ({ productsSelect, setProductsSelect, setProdOr
 
 
     return (
-        <ScrollArea className="h-[350px] w-full ">
+        <ScrollArea className="h-[220px] md:h-[350px] w-full ">
             <div className="flex flex-col gap-2">
 
                 {productsSelect.map((producto: DetallePedido) => {
