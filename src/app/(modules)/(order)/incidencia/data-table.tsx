@@ -92,7 +92,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       setIsOpen(false)
       setOpenDropdown(null)
       //refetch Incidence
-      refetch()//refetch incidencedetail
+      refetch()//refetch incidenceDetail
     }
   }
 
@@ -175,7 +175,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const handleChange = (incidenceId: number, detail: any) => {
     const { TypeIncidenceID, Received, Dispatched, NCIncidence, InvoiceIncidence } = detail
 
-
+    
     if (TypeIncidenceID === 3) {
       // CAMBIO
       if (NCIncidence && InvoiceIncidence.trim().length > 0) {
@@ -330,7 +330,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                   <TableHead className='text-white w-[350px]'>Prod. Cambiado</TableHead>
                                   <TableHead className='text-white w-[350px]'>Motivo</TableHead>
                                   <TableHead className='text-white'>N.C.</TableHead>
-                                  <TableHead className='text-white'>Boleta</TableHead>
+                                  <TableHead className='text-white'>Nva. Boleta</TableHead>
                                   <TableHead className='text-white'>Fecha</TableHead>
                                   <TableHead className='text-white'>Tienda</TableHead>
                                   <TableHead className='text-white '>Acción</TableHead>
@@ -394,21 +394,16 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
                                           <DropdownMenuContent align="end">
                                             <DropdownMenuItem>
-                                              {
-                                                detail.TypeIncidenceID == 3
-                                                && <div className='flex gap-2 items-center'>
-                                                  <Checkbox
-                                                    onCheckedChange={() => handleChange(Number(detail.IncidenceID), detail)}
-                                                    checked={detail.IsCompleted}
-                                                    disabled={detail.IsCompleted}
-                                                    className={`peer ${detail.IsCompleted ? 'checked:bg-green-500' : ''}`}
-                                                    style={{ backgroundColor: detail.IsCompleted ? 'green' : '' }}
-                                                  />Completado
+                                              <div className='flex gap-2 items-center'>
+                                                <Checkbox
+                                                  onCheckedChange={() => handleChange(Number(detail.IncidenceID), detail)}
+                                                  checked={detail.IsCompleted}
+                                                  disabled={detail.IsCompleted}
+                                                  className={`peer ${detail.IsCompleted ? 'checked:bg-green-500' : ''}`}
+                                                  style={{ backgroundColor: detail.IsCompleted ? 'green' : '' }}
+                                                />Completado
 
-                                                </div>
-
-
-                                              }
+                                              </div>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handleInvoiceModal(detail.IncidenceID, detail.NCIncidence, detail.InvoiceIncidence)}>
                                               Ingresar Nro Doc.

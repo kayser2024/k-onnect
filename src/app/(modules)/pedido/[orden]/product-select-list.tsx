@@ -22,9 +22,6 @@ interface ProductsSelectListProps {
 
 export const ProductSelectList = ({ productsSelect, setProductsSelect, setProdOriginSubtotal }: ProductsSelectListProps) => {
 
-    console.log({ productsSelect }, 'PRODUCTO SELECCIONADO');
-
-
     const initSelect = productsSelect.map((product: DetallePedido) => ({ sku: product.sku, quantity: product.quantity_sku, price: product.sale_price }))
 
     // Sincronizamos el estado local con el estado del padre

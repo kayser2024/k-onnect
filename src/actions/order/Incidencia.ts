@@ -9,6 +9,7 @@ interface IncidenceProps {
     invoiceOrigin: string,
     invoiceIncidence: string,
     product: { codeEan: string, quantity: number, codeSap: string, text: string, subtotal: number }[],
+    comment: string,
     typeIncidence: number,
     reason?: string
     pickupPoint?: string
@@ -16,7 +17,7 @@ interface IncidenceProps {
 
 
 // Función para crear Incidencia
-export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, typeIncidence, pickupPoint, reason = '' }: IncidenceProps) => {
+export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, comment, typeIncidence, pickupPoint, reason = '' }: IncidenceProps) => {
 
     try {
         const session = await auth();
@@ -63,6 +64,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
                 UserId: userId,
                 TypeIncidenceID: typeIncidence,
                 PickupPointID: store?.PickupPointID,
+                IncidenceComments: comment,
                 IsCompleted: false,
                 Description: reason.trim() || "Sin descripción",
                 CreatedAt: now,

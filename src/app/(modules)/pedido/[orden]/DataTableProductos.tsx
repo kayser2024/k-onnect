@@ -44,6 +44,7 @@ import { ProductSelectList } from "./product-select-list"
 import { updateStatusPayment } from "@/actions/order/api/PUT-order"
 import { CascadingSelect } from "@/components/select/CascadingSelect"
 import { SelectStore } from "./ui/select-store"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface DataTableProps {
     data: any,
@@ -82,8 +83,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [prodOriginSubtotal, setProdOriginSubtotal] = useState(0);
     const [prodChangeSubtotal, setProdChangeSubtotal] = useState(0);
     const [store, setStore] = useState("")
-    const [commentDev, setCommentDev] = useState("");
+    const [commentDevol, setCommentDevol] = useState("");
     const [commentCamb, setCommentCamb] = useState("");
+    const [option, setOption] = useState(false)
 
 
 
@@ -123,18 +125,12 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const handleReembolso = async () => {
         setLoading(true);
 
-        // Verificar si la voleta está en estado PAGADO
+        // Verificar si la Boleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
         if (pagado !== "pagado") {
             toast.error(`El estado de pago: ${pagado}`)
             return
         }
-
-        // Validar Boleta de inicdencia
-        // if (invoice.trim().length < 5) {
-        //     toast.warning("Ingresar la Boleta de la Incidencia")
-        //     return;
-        // }
 
 
         // construyendo la data para enviar a discord
@@ -227,9 +223,10 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             invoiceOrigin: orden.situacion_facturacion[0].estado_facturacion,
             invoiceIncidence: invoice.toUpperCase(),
             product: productSelect,
+            comment: commentDevol,
             typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
             pickupPoint: store,
-            reason: `Devolución ${tipoExtorno}`
+            reason: `DEVOLICIÓN ${tipoExtorno}`
         }
 
 
@@ -242,7 +239,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             setLoading(false);
             setDropdownOpen(false)
             setStore("")
-            setCommentDev("")
+            setCommentDevol("")
         }
 
         refetch();
@@ -350,13 +347,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             return;
         }
         setLoading(true)
-
-        // Validar Invoice
-        // if (invoice.trim().length < 5) {
-        //     toast.warning("Ingresar la Boleta de la Incidencia")
-        //     return;
-        // }
-
 
         const pagado = orden.situacion_pagos[0].estado_pago
 
@@ -490,6 +480,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                 invoiceIncidence: invoice.toUpperCase(),
                 product: productCombined,
                 typeIncidence: 3,
+                comment: commentCamb,
                 pickupPoint: store,
                 reason: motivoCambio
 
@@ -540,6 +531,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         setMotivoCambio(value)
     }
 
+
+    console.log({ option })
 
     return (
         <div >
@@ -658,7 +651,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
                                     {/* Escoger Productos Nuevos */}
-                                    <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} />
+                                    <Label><Checkbox onCheckedChange={(prev) => setOption(!prev)} /> Buscar por Cod. {option ? "EAN" : "SAP"}</Label>
+                                    <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} option={option} />
                                 </ScrollArea>
 
                             </div>
@@ -714,7 +708,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             <div className="">
                                 <span>Comentario:</span>
                                 <div className="">
-                                    <Input placeholder="Comentario" className="" onChange={(e) => setCommentDev(e.target.value)} value={commentDev} />
+                                    <Input placeholder="Comentario" className="" onChange={(e) => setCommentDevol(e.target.value)} value={commentDevol} />
                                 </div>
 
                             </div>
@@ -722,15 +716,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                             <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
 
-
-
                         </DropdownMenuLabel>
-                        {/* <DropdownMenuItem onClick={handleReembolso} className="flex flex-col gap-2"> */}
-                        {/* <div> */}
-                        {/* <BadgeCent className="mr-2 h-4 w-4" /> */}
-                        {/* <span>Copiar Linea excel y<br /> Notificar Discord</span> */}
-                        {/* </div> */}
-                        {/* </DropdownMenuItem> */}
                     </DropdownMenuContent>
                 </DropdownMenu>
 

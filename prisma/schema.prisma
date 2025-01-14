@@ -165,31 +165,32 @@ model tbl_articulo {
 }
 
 model Incidence {
-  IncidenceID      Int             @id @default(autoincrement())
-  OrdenID          Int
-  InvoiceOriginal  String?         @db.VarChar(20)
-  InvoiceIncidence String?         @db.VarChar(20)
-  NCIncidence      String?         @db.VarChar(20)
-  UserId           Int
-  TypeIncidenceID  Int
-  IsCompleted      Boolean?        @default(false)
-  CompletedDate    DateTime?       @db.Timestamp(0)
-  Description      String?         @db.Text
-  CreatedAt        DateTime?       @default(now()) @db.Timestamp(0)
-  PickupPointID    Int?
-  UserUpdater      Int?
-  UpdatedAt        DateTime?       @db.Timestamp(0)
-  DispatchedDate   DateTime?       @db.Timestamp(0)
-  Dispatched       Boolean?        @default(false)
-  Received         Boolean?        @default(false)
-  ReceivedDate     DateTime?       @db.Timestamp(0)
-  IsConfirmed      Boolean?        @default(false)
-  Comments         String?         @db.Text
-  Orders           Orders          @relation(fields: [OrdenID], references: [OrderID], onDelete: Cascade, map: "Incidence_ibfk_1")
-  TypesIncidence   TypesIncidence  @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
-  Users            Users           @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
-  PickupPoints     PickupPoints?   @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_4")
-  IncidenceLogs    IncidenceLogs[]
+  IncidenceID       Int             @id @default(autoincrement())
+  OrdenID           Int
+  InvoiceOriginal   String?         @db.VarChar(20)
+  InvoiceIncidence  String?         @db.VarChar(20)
+  NCIncidence       String?         @db.VarChar(20)
+  UserId            Int
+  TypeIncidenceID   Int
+  IsCompleted       Boolean?        @default(false)
+  CompletedDate     DateTime?       @db.Timestamp(0)
+  Description       String?         @db.Text
+  IncidenceComments String?         @db.VarChar(255)
+  CreatedAt         DateTime?       @default(now()) @db.Timestamp(0)
+  PickupPointID     Int?
+  UserUpdater       Int?
+  UpdatedAt         DateTime?       @db.Timestamp(0)
+  Received          Boolean?        @default(false)
+  ReceivedDate      DateTime?       @db.Timestamp(0)
+  Dispatched        Boolean?        @default(false)
+  DispatchedDate    DateTime?       @db.Timestamp(0)
+  IsConfirmed       Boolean?        @default(false)
+  Comments          String?         @db.Text
+  Orders            Orders          @relation(fields: [OrdenID], references: [OrderID], onDelete: Cascade, map: "Incidence_ibfk_1")
+  TypesIncidence    TypesIncidence  @relation(fields: [TypeIncidenceID], references: [TypeIncidenceID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_2")
+  Users             Users           @relation(fields: [UserId], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_3")
+  PickupPoints      PickupPoints?   @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Incidence_ibfk_4")
+  IncidenceLogs     IncidenceLogs[]
 
   @@index([UserId], map: "UserId")
   @@index([TypeIncidenceID], map: "Incidence_ibfk_2")

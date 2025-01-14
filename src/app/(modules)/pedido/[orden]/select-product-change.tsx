@@ -30,16 +30,17 @@ interface Option {
 interface SelectProductProps {
     setNewProducts: (product: Product[]) => void;
     newProducts: Product[];
+    option: boolean
 }
 
-export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProductProps) => {
+export const SelectProductChange = ({ setNewProducts, newProducts, option }: SelectProductProps) => {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [listProduct, setListProduct] = useState<Product[]>(newProducts);
 
     // Función para React Select Async
     const promiseOptions = async (inputValue: string): Promise<Option[]> => {
         try {
-            return await fetchData(inputValue);
+            return await fetchData(inputValue, option);
         } catch (error) {
             console.error('Error al cargar las opciones:', error);
             return [];
@@ -83,7 +84,7 @@ export const SelectProductChange = ({ setNewProducts, newProducts }: SelectProdu
             {/* Select para buscar productos */}
             <div className="flex gap-2 w-full">
                 <AsyncSelect
-                    cacheOptions
+                    cacheOptions={false}
                     defaultOptions={false}
                     loadOptions={promiseOptions}
                     placeholder="Buscar Producto..."

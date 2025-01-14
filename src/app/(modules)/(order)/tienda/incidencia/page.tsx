@@ -9,7 +9,6 @@ const IncidenciaPage = async () => {
 
     const session = await auth()
     const data = session!.user
-    console.log(data)
 
     const EstablishmentID = data!.PickupPointID || 0;
 

@@ -1,63 +1,5 @@
 'use server'
 
-
-// export interface Response {
-//     bEstado: boolean;
-//     iCodigo: number;
-//     sRpta: string;
-//     obj: Obj[];
-// }
-
-// export interface Obj {
-//     datos_variacion: DatosVariacion[];
-//     paginas_totales: number;
-//     pagina_actual: number;
-//     total_de_registros: number;
-// }
-
-// export interface DatosVariacion {
-//     _id: string;
-//     sku_padre: string;
-//     cod_agrupador: string;
-//     sku: string;
-//     dominio: string;
-//     url1_imagen_sku: string;
-//     url2_imagen_sku: string;
-//     url3_imagen_sku: string;
-//     url4_imagen_sku: string;
-//     url5_imagen_sku: string;
-//     url6_imagen_sku: string;
-//     url_images: string[];
-//     price: number;
-//     sale_price: number;
-//     cantidad: number;
-//     peso: number;
-//     atributo1_titulo: string;
-//     atributo1_valor: string;
-//     atributo1_cod_hex: string;
-//     atributo1_url_imagen: string;
-//     atributo1_detalle: string;
-//     atributo2_titulo: string;
-//     atributo2_valor: string;
-//     atributo2_cod_hex: string;
-//     atributo2_url_imagen: string;
-//     atributo2_detalle: string;
-//     atributo3_titulo: string;
-//     atributo3_valor: string;
-//     atributo3_cod_hex: string;
-//     atributo3_detalle: string;
-//     atributo3_url_imagen: string;
-//     producto_bandera: string;
-//     tags_widget: string;
-//     fecha_creacion: Date;
-//     fecha_modificacion: Date;
-//     usuario_creacion: string;
-//     usuario_modificacion: string;
-//     erp_storages: any[];
-//     __v: number;
-// }
-
-
 interface Product {
     codigoEan: string;
     codigoSap: string;
@@ -117,31 +59,27 @@ export interface Price {
 }
 
 
+export const fetchData = async (search: string, option: boolean): Promise<Option[]> => {
 
-
-export const fetchData = async (search: string): Promise<Option[]> => {
-
-    const URL = process.env.STOCK_API;
     const isCodePadre = !search.includes("-");
-    console.log({ isCodePadre }, 'IS CODE PADRE')
-    const res = await fetch(`${URL}?WarehouseCode=ALM220&${isCodePadre ? 'Model' : 'ProductCode'}=${search}`, {
+    const URL = `${process.env.STOCK_API}?WarehouseCode=ALM220&${option ? "BarCode" : (isCodePadre ? 'Model' : 'ProductCode')}=${search.toUpperCase()}`;
+    const res = await fetch(URL, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${process.env.STOK_TOKEN_BEARER}`
         },
     });
-    // if (!res.ok) throw new Error('Error al cargar productos');
-    const data: ProductResponse[] = await res.json();
 
+    const data = await res.json();
+    if (data.message) {
+        // throw new Error(data.message);
+        return []
+    }
 
+    // console.log({ data }, '🚩🚩🚩')
 
-    console.log({ data }, '🚩🚩🚩')
-
-    // calcular el stok
-
-
-    return data.map((product) => ({
+    return data?.map((product: ProductResponse) => ({
         label: `${product.EAN} - ${product.ProductCode}`,
         value: product.ProductCode,
         product: {
@@ -149,7 +87,7 @@ export const fetchData = async (search: string): Promise<Option[]> => {
             codigoSap: product.ProductCode,
             url_foto: product.images[0],
             id: product.EAN,
-            quantity: product.Stock[0].OnHand,
+            quantity: product.Stock[0]?.OnHand,
             price: product.prices[0].PricePublico,
             priceSale: product.prices[0].PriceWebKayser,
             size: product.Size,
