@@ -188,7 +188,7 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const validateProduct = (incidenceID: number, products: any) => {
     setOpenDropdown(null)
     setIsOpenModal(true)
-    // console.log({ incidenceID, products }, '---------')
+    console.log({ incidenceID, products }, '---------')
 
     // guardar los productos en la productsIncident
     setProductsIncident(products)
@@ -311,12 +311,12 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                       </ul>
 
                                     </TableCell>
-                                    <TableCell className='text-xs text-center'>{detail.Description || "─"}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>{detail.NCIncidence}</TableCell>
-                                    <TableCell className='text-xs w-[200px]'>{detail.InvoiceIncidence}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.CreatedAt)}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.ReceivedDate)}</TableCell>
-                                    <TableCell className='text-xs w-[250px]'>{formatDate(detail.DispatchedDate)}</TableCell>
+                                    <TableCell className='text-xs text-center'><span className='block w-[120px] truncate'>{detail.Description || "─"}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[100px] truncate text-center'>{detail.NCIncidence || "─"}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[100px] truncate text-center'>{detail.InvoiceIncidence || "─"}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[125px] truncate'>{formatDate(detail.CreatedAt)}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[125px] truncate'>{formatDate(detail.ReceivedDate)}</span></TableCell>
+                                    <TableCell className='text-xs'><span className='block w-[125px] truncate'>{formatDate(detail.DispatchedDate)}</span></TableCell>
 
 
                                     <TableCell className='text-xs w-[150px]'>
