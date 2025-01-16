@@ -18,15 +18,13 @@ interface ValidatorProductModalProps {
     fnRefetch: () => void
 }
 
-export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, handleClose, isLoading, productsIncidence,fnRefetch }: ValidatorProductModalProps) => {
+export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, handleClose, isLoading, productsIncidence, fnRefetch }: ValidatorProductModalProps) => {
 
     const [message, setMessage] = useState("");
     const [cod, setCod] = useState("");
     const [products, setProducts] = useState<IncidenceLog[] | []>([]);
     const [validationStep, setValidationStep] = useState<"ORIGIN" | "CHANGE" | "RETURN">("ORIGIN");
     const [productsChange, setProductsChange] = useState<IncidenceLog[]>([]);
-
-
 
 
     const handleCleanList = () => {

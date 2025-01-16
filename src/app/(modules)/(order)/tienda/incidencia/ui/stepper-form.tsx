@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { TableCompare } from "./table-compare";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getIncidenceByID, updateIncidence_ReceiveDispatch } from "@/actions/order/Incidencia";
+import { getIncidenceByID, updateIncidence_ReceiveDispatch, updateIncidenceDispatched, updateIncidenceReceived } from "@/actions/order/Incidencia";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Incidence, IncidenceLog } from "@/types/IncidenceDB";
@@ -37,26 +37,35 @@ interface StepperProps {
 }
 
 const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, products, setProducts, validationStep, productsChange, setProductsChange, setValidationStep, setIsOpenModal, fnRefetch }: StepperProps) => {
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(productsIncidence.Received ? 2 : 1);
     const [comments, setComments] = useState("");
     const [isChecked, setIsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { IncidenceID } = productsIncidence
+    const { IncidenceID } = productsIncidence;
+    console.log({ productsIncidence });
 
     const handleNext = async () => {
 
-        const discrepancies = handleCompareTableProducts(productsIncidence, validationStep === "ORIGIN" ? products : productsChange, validationStep);
+        const discrepancies = handleCompareTableProducts(productsIncidence, (step === 1) ? products : productsChange, step === 1 ? "ORIGIN" : "CHANGE");
+        console.log({ discrepancies })
+
         if (discrepancies.error) {
             toast.warning(discrepancies.message)
             return;
         } else {
+            console.log({ validationStep })
 
-            validationStep === "ORIGIN"
-                ? updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
-                : updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
+            // validationStep === "ORIGIN"
+            // ? updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
+            // : updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
 
-            setValidationStep("CHANGE")
+            // validationStep === "ORIGIN"
+            // ? updateIncidenceReceived(IncidenceID)
+            // : updateIncidenceDispatched(IncidenceID, { isConfirmed: false, comments: comments })
+
+            step === 1 && updateIncidenceReceived(IncidenceID)
+            // setValidationStep("CHANGE")
             if (step < 3) setStep(step + 1);
         }
     };
@@ -76,7 +85,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         }
 
         // Buscar el producto en la lista de incidencias
-        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidenceLog) => f.Description === validationStep).find(
+        const existingIncidenceProduct = productsIncidence.IncidenceLogs.filter((f: IncidenceLog) => f.Description === (step === 1 ? "ORIGIN" : "CHANGE")).find(
             (item: IncidenceLog) => item.CodProd === cod || item.CodEan === cod
         );
 
@@ -85,8 +94,8 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
             return;
         }
         // Seleccionar la lista a actualizar en función de validationStep
-        const targetList = validationStep === "ORIGIN" ? products : productsChange;
-        const setTargetList = validationStep === "ORIGIN" ? setProducts : setProductsChange;
+        const targetList = (step === 1) ? products : productsChange;
+        const setTargetList = (step === 1) ? setProducts : setProductsChange;
 
         // Verificar si el producto ya está en la lista de productos ingresados
         const existingProductIndex = targetList.findIndex(
@@ -119,7 +128,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         setLoading(true);
         try {
             // actualizar en la tabla inciencia  recibidos, fecha, enviar el recibido conforme y comentario 
-            const result = await updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: isChecked, comments: comments })
+            const result = await updateIncidenceDispatched(IncidenceID, { isConfirmed: isChecked, comments: comments })
             console.log(result);
             toast.success("Incidencia actualizada correctamente")
         } catch (error: any) {
@@ -224,10 +233,10 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                 
             } */}
             {/* Buttons */}
-            <div className="flex items-center justify-between mt-8">
-                <Button variant="outline" onClick={handleBack} disabled={step === 1}>
+            <div className="flex items-center justify-end  mt-8">
+                {/* <Button variant="outline" onClick={handleBack} disabled={step === 1}>
                     Atrás
-                </Button>
+                </Button> */}
                 {step < 3 ? (
                     <Button onClick={handleNext} disabled={step === 3}>
                         Siguiente

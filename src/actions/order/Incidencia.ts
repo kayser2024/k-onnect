@@ -515,6 +515,68 @@ export const updateIncidence = async (data: { nc: string, invoice?: string, inci
 
 }
 
+// Función para actualizar la fecha de los productos "recibidos"
+export const updateIncidenceReceived = async (incidenceId: number) => {
+
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
+
+    const session = await auth();
+    const userId = session!.user.UserID
+
+    let result;
+
+    try {
+
+        result = await prisma.incidence.update({
+            where: { IncidenceID: incidenceId },
+            data: {
+                ReceivedDate: now,
+                Received: true,
+                UserUpdater: userId,
+            }
+        })
+    } catch (error: any) {
+
+        result = error.message;
+    }
+
+    console.log(result)
+
+    return result
+}
+
+
+
+// Función para actualizar la fecha de los productos "despachados"
+export const updateIncidenceDispatched = async (incidenceId: number, data: { isConfirmed: boolean, comments: string }) => {
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
+
+    const session = await auth();
+    const userId = session!.user.UserID;
+    let result
+    try {
+
+        result = await prisma.incidence.update({
+            where: {
+                IncidenceID: incidenceId,
+            },
+            data: {
+                DispatchedDate: now,
+                Dispatched: true,
+                Comments: data.comments,
+                IsConfirmed: data.isConfirmed,
+            }
+        })
+    } catch (error: any) {
+        result = error.message;
+    }
+
+    console.log(result);
+
+    return result;
+}
 
 // Función para actualizar la fecha de los productos recibidos
 export const updateIncidence_ReceiveDispatch = async (incidenceId: number, data: { type: string, isConfirmed: boolean, comments: string }) => {

@@ -188,7 +188,6 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
   const validateProduct = (incidenceID: number, products: any) => {
     setOpenDropdown(null)
     setIsOpenModal(true)
-    console.log({ incidenceID, products }, '---------')
 
     // guardar los productos en la productsIncident
     setProductsIncident(products)
@@ -330,7 +329,6 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                           </DropdownMenuTrigger>
 
                                           <DropdownMenuContent align="end">
-
                                             <DropdownMenuItem onClick={() => validateProduct(detail.IncidenceID, detail)}>
                                               Validar Producto.
                                             </DropdownMenuItem>

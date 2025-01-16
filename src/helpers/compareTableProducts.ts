@@ -15,7 +15,6 @@ export const handleCompareTableProducts = (incidence: Incidence, productsList: a
                 (item: IncidenceLog) => item.CodProd === product.CodProd
             );
 
-            console.log({ originalProduct }, 'filter')
             // Si no encuentra el producto original, lo marca como discrepancia
             if (!originalProduct) {
                 console.error(`Producto original no encontrado para: ${product.CodProd}`);

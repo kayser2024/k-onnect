@@ -64,7 +64,7 @@ interface TableCompareProps {
     setMessage: (message: string) => void
 }
 export const TableCompare = ({ productsIncidence, products, type, handleSubmit, handleCleanList, cod, setCod, setMessage }: TableCompareProps) => {
-    console.log(type)
+
     return (
         <div className="flex flex-col gap-2">
 

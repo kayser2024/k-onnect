@@ -152,7 +152,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       return;
     }
 
-    if (trimmedValue.length > 5) {
+    if (trimmedValue.length > 4) {
       // Buscar por boleta válida
       try {
         setLoading(true);
@@ -166,7 +166,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
       }
     } else {
       //   // Formato inválido
-      toast.warning("Ingresar una Boleta válida");
+      toast.warning("Ingresar almenos 5 carácteres");
     }
 
   }
