@@ -66,7 +66,7 @@ export const ProductSelectList = ({ productsSelect, setProductsSelect, setProdOr
                             </div>
                             <div>
                                 <h3 className="text-xs  text-gray-400">{producto.categoria} / {producto.sub_categoria}</h3>
-                                <h2 className="text-normal truncate max-w-[250px]" title={producto.title}>{producto.title}</h2>
+                                <h2 className="text-sm truncate w-[130px] md:max-w-[250px]" title={producto.title}>{producto.title}</h2>
                                 <p className="text-xs text-gray-400">{producto.sku}</p>
                                 <p className="text-xs text-gray-400">Talla: {producto.atributo1_valor}</p>
                                 <p className="text-xs text-gray-400">Color: {producto.atributo2_valor}</p>

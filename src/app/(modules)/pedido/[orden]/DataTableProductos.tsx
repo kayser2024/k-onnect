@@ -226,7 +226,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             comment: commentDevol,
             typeIncidence: tipoExtorno === "PARCIAL" ? 1 : 2,
             pickupPoint: store,
-            reason: `DEVOLICIÓN ${tipoExtorno}`
+            reason: `DEVOLUCIÓN ${tipoExtorno}`
         }
 
 
@@ -419,7 +419,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         try {
             // Actualizar Api
             // await onUpdateObservaciones(nroOrden, antes + " >> " + despues, 'Cambio', observacionTotal)
-            await insertComment(`${antes}  >>  ${despues}`, nroOrden, 1)
+            await insertComment(`${antes}  >>  ${despues}`, nroOrden)
 
             // Enviar Notificacion a DISCORD en el CANAL de de CAMBIO
             // const notificacionDiscord = await fetch('/api/notificacion/cambio', {
@@ -594,7 +594,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                     <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
 
                     {/* Modal Cambio Producto */}
-                    <DialogContent className=" md:max-w-screen-md lg:w-screen-lg">
+                    <DialogContent className="max-h-svh md:max-w-screen-md lg:w-screen-lg">
 
                         <DialogHeader>
                             <DialogTitle className="text-xl uppercase text-center mb-4">CAMBIAR PRODUCTO</DialogTitle>
@@ -619,6 +619,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
                             </div>
 
+
+                            {/* tabla de lista de producto Mobile */}
                             <div className="md:hidden col-span-2">
 
                                 {/* <TablaRealizarCambio /> */}
@@ -626,6 +628,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                                 <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
                             </div>
 
+                            {/*  */}
                             <div className=" flex flex-col gap-3">
                                 <ScrollArea className="max-h-72 flex flex-col gap-4 px-2">
 
@@ -637,21 +640,24 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
                                     {/* Seleccionar Motivo de Cambio */}
-                                    <div className="my-3">
-                                        <Label htmlFor="selectMotivo" className="text-xs font-semibold">Seleccionar Motivo</Label>
-                                        <Select onValueChange={manejarCambioMotivo}>
-                                            <SelectTrigger className="">
-                                                <SelectValue placeholder="Seleccionar..." />
-                                            </SelectTrigger>
-                                            <SelectContent id="selectMotivo">
-                                                <SelectGroup>
-                                                    <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
-                                                    <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
-                                                    <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
-                                                    <SelectItem value="Otro">Otro</SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
+                                    <div className="my-3 flex flex-col gap-2">
+                                        <div className="">
+                                            <Label htmlFor="selectMotivo" className="text-xs font-semibold">Seleccionar Motivo</Label>
+                                            <Select onValueChange={manejarCambioMotivo}>
+                                                <SelectTrigger className="">
+                                                    <SelectValue placeholder="Seleccionar..." />
+                                                </SelectTrigger>
+                                                <SelectContent id="selectMotivo">
+                                                    <SelectGroup>
+                                                        <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
+                                                        <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
+                                                        <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
+                                                        <SelectItem value="Otro">Otro</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {motivoCambio.includes("Otro") && <Input placeholder="Ingresar motivo" onChange={(e) => setMotivoCambio(`Otro : ${e.target.value}`)} />}
                                     </div>
 
 
@@ -694,8 +700,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                         <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
                             {/* <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button> */}
 
-                            <Button onClick={handleCambio} disabled={loading || (prodOriginSubtotal >= prodChangeSubtotal)} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+                            <Button onClick={handleCambio} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
 
+                            {/* TODO: agregar un popUp para verificar que el monto del cambio no es superior al monto original seleccionado🚩 */}
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

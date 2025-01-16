@@ -233,7 +233,7 @@ async function HomeOrden({ params }: Props) {
                                 <CardTitle className="text-xl flex items-center justify-center gap-2">
                                     Detalle de Productos
 
-                                    <span className={`rounded-2xl p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
+                                    <span className={`rounded-2xl block p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                                 </CardTitle>
                                 <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
                             </div>

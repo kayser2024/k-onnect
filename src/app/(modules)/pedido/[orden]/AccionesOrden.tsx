@@ -89,7 +89,7 @@ export default function AccionesOrden({ orden, docActual }: Orden) {
     return (
         <>
             <DropdownMenu onOpenChange={setIsOpenDropMenu} open={isOpenDropMenu}>
-                <DropdownMenuTrigger className=" p-2 rounded-full bg-slate-100 hover:bg-slate-200">
+                <DropdownMenuTrigger className=" p-2 rounded-full bg-slate-100 hover:bg-slate-200 aspect-square">
                     <EllipsisVertical />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

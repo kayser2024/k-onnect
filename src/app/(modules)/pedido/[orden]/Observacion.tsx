@@ -29,9 +29,7 @@ const Observacion = ({ observaciones, orden }: Params) => {
 
         try {
             // TODO: AGREGAR COMENTARIO AL ORDEN EN LA BD🚩
-            await insertComment(comment, orden, 1)
-            toast.success('Comentario agregado correctamente')
-
+            await insertComment(comment, orden)
 
             setComment("");
             setIsDialogOpen(false)
@@ -48,7 +46,7 @@ const Observacion = ({ observaciones, orden }: Params) => {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger aria-label='Crear Observacion' title='Agregar comentario'><MessageSquareQuote size={40} className='bg-slate-100 rounded-full hover:bg-slate-300 p-2' /></DialogTrigger>
             <DialogContent>
-                <DialogHeader>
+                <DialogHeader className='my-2'>
                     <DialogTitle>Agregar Comentario</DialogTitle>
 
                 </DialogHeader>

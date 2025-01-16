@@ -3,7 +3,7 @@
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma"
 
-export const insertComment = async (comment: string, orden: string, userID: number) => {
+export const insertComment = async (comment: string, orden: string) => {
 
     const now = new Date();
     now.setHours(now.getHours() - 5);
