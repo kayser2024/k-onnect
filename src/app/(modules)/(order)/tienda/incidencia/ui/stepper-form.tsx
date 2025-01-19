@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TableCompare } from "./table-compare";
@@ -53,9 +53,9 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         // si se omite la deciciciónde validar  "despachar" entonces pasamos al siguiente step
         if (ommitReceived || ommitDispatched) {
             step === 1 && updateIncidenceReceived(IncidenceID)
-            // setValidationStep("CHANGE")
             if (step < 3) setStep(step + 1);
             setOmmitReceived(false)
+            setValidationStep("CHANGE")
 
         } else {
 
@@ -69,8 +69,8 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                 console.log({ validationStep })
 
                 step === 1 && updateIncidenceReceived(IncidenceID)
-                // setValidationStep("CHANGE")
                 if (step < 3) setStep(step + 1);
+                setValidationStep("CHANGE")
             }
         }
 
@@ -146,6 +146,11 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         }
 
     }
+
+
+    useEffect(() => {
+        step === 2 && setValidationStep("CHANGE")
+    }, []);
 
     return (
         <div className="w-full mx-auto">

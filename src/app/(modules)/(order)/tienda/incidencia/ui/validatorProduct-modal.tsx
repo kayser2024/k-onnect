@@ -29,9 +29,10 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
 
     const handleCleanList = () => {
 
+        console.log(validationStep)
+
         if (validationStep === "ORIGIN") {
             setProducts([]);
-
         }
 
         if (validationStep === "CHANGE") {
