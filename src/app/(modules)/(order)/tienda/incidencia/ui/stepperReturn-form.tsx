@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
 import { Incidence, IncidenceLog } from "@/types/IncidenceDB";
 import { handleCompareTableProducts } from "@/helpers/compareTableProducts";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Product {
     CodProd: string,
@@ -36,22 +37,32 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
     const [step, setStep] = useState(1);
     const [comments, setComments] = useState("");
     const [loading, setLoading] = useState(false)
-    // const [isChecked, setIsChecked] = useState(false);
+
+    const [ommitReceived, setOmmitReceived] = useState(false);
 
 
     const handleNext = async () => {
 
-        // const discrepancies = handleCompare(productsReturned, products, "RETURN")
-        const discrepancies = handleCompareTableProducts(productsIncidence, products, "RETURN")
 
-        if (discrepancies.error) {
-            toast.warning(discrepancies.message)
+        if (ommitReceived) {
+            setStep(step + 1)
+            setOmmitReceived(false) 
+
         } else {
-            // TODO: actualizar en la tabla inciencia  recibidos, fecha 🚩
-            // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
-            console.log("ENTRANDO AL SIGUIENTE PASO")
-            if (step < 2) setStep(step + 1);
+
+            // const discrepancies = handleCompare(productsReturned, products, "RETURN")
+            const discrepancies = handleCompareTableProducts(productsIncidence, products, "RETURN")
+
+            if (discrepancies.error) {
+                toast.warning(discrepancies.message)
+            } else {
+                // TODO: actualizar en la tabla inciencia  recibidos, fecha 🚩
+                // const result = await updateIncidence_ReceiveDispatch(productsIncidence.IncidenceID, { type: validationStep, comments: '', isConfirmed: false })
+                console.log("ENTRANDO AL SIGUIENTE PASO")
+                if (step < 2) setStep(step + 1);
+            }
         }
+
     };
 
     const handleBack = () => {
@@ -173,6 +184,22 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
                         setCod={setCod}
                         setMessage={setMessage}
                     />
+                    {/* Omitir validación */}
+                    <div className="flex  flex-col items-start space-x-2 mt-4">
+                        <div className="flex gap-2 items-center">
+
+                            <Checkbox id="terms" onCheckedChange={(checked) => setOmmitReceived(checked === true)} checked={ommitReceived} aria-label="Omitir Validación" />
+                            <label
+                                htmlFor="terms"
+                                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${ommitReceived ? 'font-semibold' : ''}`}
+                            >
+                                Omitir Validación
+                            </label>
+                        </div>
+                        <div className={`transition-opacity duration-300 ${ommitReceived ? 'opacity-100' : 'opacity-0'}`}>
+                            {ommitReceived && <span className="text-orange-400 text-xs font-light">Me responsabilizo de los productos que recibo del cliente.</span>}
+                        </div>
+                    </div>
 
 
                 </div>
@@ -214,10 +241,10 @@ const StepperReturn = ({ handleCleanList, cod, setCod, setMessage, productsIncid
                 
             } */}
             {/* Buttons */}
-            <div className="flex items-center justify-between mt-8">
-                <Button variant="outline" onClick={handleBack} disabled={step === 1} >
+            <div className="flex items-center justify-end mt-8">
+                {/* <Button variant="outline" onClick={handleBack} disabled={step === 1} >
                     Atrás
-                </Button>
+                </Button> */}
                 {step < 2 ? (
                     <Button onClick={handleNext} disabled={step === 2}>
                         Siguiente

@@ -92,6 +92,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             let dataFacturacion: string = "";
             let invoice: string = "";
             let orderNumber: string = "";
+            let orderCreated: Date | null = null;
 
             // OBTENER EL DESTINO DEL ORDEN
             if (estado === 'en_preparacion') {
@@ -115,10 +116,11 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                     const data_facturacion = dataOrder.obj.ordenes[0].datos_facturacion[0];
                     invoice = dataOrder.obj.ordenes[0].situacion_facturacion[0].estado_facturacion;
                     orderNumber = dataOrder.obj.ordenes[0].order_number;
+                    orderCreated = new Date(dataOrder.obj.ordenes[0].created_at)
 
                     const tipo_envio = data_envio.tipo_envio;
 
-                    // TODO: Convertir data_envio en JSON para enviar al sp 🚩
+                    // Convertir data_envio en JSON para enviar al sp
                     dataEnvio = JSON.stringify(data_envio)
                     dataFacturacion = JSON.stringify(data_facturacion)
 
@@ -173,7 +175,7 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             const [result] = await prisma.$transaction(async (tx) => {
                 // Llama al procedimiento almacenado
                 await tx.$executeRaw`
-                    CALL sp_UpdateOrders(${orderNumber}, ${invoice}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio || {}}, ${dataFacturacion || {}}, @result);
+                    CALL sp_UpdateOrders(${orderNumber}, ${invoice}, ${orderCreated || null}, ${estadoId}, ${userId}, ${destino.label}, ${estado}, ${CommentText}, ${dataEnvio || {}}, ${dataFacturacion || {}}, @result);
                 `;
 
                 // Recupera el mensaje desde la variable de salida

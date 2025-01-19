@@ -7,6 +7,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { BsFileEarmarkPdf } from "react-icons/bs";
 import { PiCaretUpDownThin } from "react-icons/pi";
 import { ArrowDown01, ArrowDown10, ArrowDownAZ, ArrowDownZA, } from "lucide-react";
+import { formatDate } from "@/helpers/convertDate";
 
 // import { Badge } from 'lucide-react';
 
@@ -50,7 +51,13 @@ export const columns: ColumnDef<Orden>[] = [
       return <div className="cursor-pointer w-28 flex gap-2 items-center justify-center" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Fec. Pedido {column.getIsSorted() ? (<>{column.getIsSorted() === 'asc' ? <ArrowDown01 /> : <ArrowDown10 />}</>) : <PiCaretUpDownThin />}</div>
     },
     cell: ({ row }) => {
-      let fecha = format(row.original.cabecera_pedido[0].fecha_pedido, "dd / MM / yy hh:mm:ss a");
+      const fechaPedido = row.original.cabecera_pedido[0].fecha_pedido;
+      const fechaOriginal = new Date(fechaPedido);
+
+      // Ajusta la fecha a la zona horaria de Lima (UTC-5)
+      const fechaAjustada = new Date(fechaOriginal);
+      const fecha = formatDate(fechaAjustada.toISOString());
+
       return <p className="text-xs">{fecha}</p>;
     },
   },

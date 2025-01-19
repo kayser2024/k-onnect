@@ -73,6 +73,7 @@ model Orders {
   OrderID           Int             @id @default(autoincrement())
   OrderNumber       String          @unique(map: "OrderNumber") @db.VarChar(50)
   Invoice           String          @db.VarChar(20)
+  OrderCreatedAtUTC DateTime?       @db.Timestamp(0)
   StatusID          Int
   UserID            Int
   PickupPointID     Int?

@@ -41,33 +41,39 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
     const [comments, setComments] = useState("");
     const [isChecked, setIsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [ommitReceived, setOmmitReceived] = useState(false);
+    const [ommitDispatched, setOmmitDispatched] = useState(false);
 
     const { IncidenceID } = productsIncidence;
     console.log({ productsIncidence });
 
     const handleNext = async () => {
 
-        const discrepancies = handleCompareTableProducts(productsIncidence, (step === 1) ? products : productsChange, step === 1 ? "ORIGIN" : "CHANGE");
-        console.log({ discrepancies })
-
-        if (discrepancies.error) {
-            toast.warning(discrepancies.message)
-            return;
-        } else {
-            console.log({ validationStep })
-
-            // validationStep === "ORIGIN"
-            // ? updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
-            // : updateIncidence_ReceiveDispatch(IncidenceID, { type: validationStep, isConfirmed: false, comments: "" })
-
-            // validationStep === "ORIGIN"
-            // ? updateIncidenceReceived(IncidenceID)
-            // : updateIncidenceDispatched(IncidenceID, { isConfirmed: false, comments: comments })
-
+        // si se omite la deciciciónde validar en "Recibir" entonces pasamos al siguiente step
+        // si se omite la deciciciónde validar  "despachar" entonces pasamos al siguiente step
+        if (ommitReceived || ommitDispatched) {
             step === 1 && updateIncidenceReceived(IncidenceID)
             // setValidationStep("CHANGE")
             if (step < 3) setStep(step + 1);
+            setOmmitReceived(false)
+
+        } else {
+
+            const discrepancies = handleCompareTableProducts(productsIncidence, (step === 1) ? products : productsChange, step === 1 ? "ORIGIN" : "CHANGE");
+            console.log({ discrepancies })
+
+            if (discrepancies.error) {
+                toast.warning(discrepancies.message)
+                return;
+            } else {
+                console.log({ validationStep })
+
+                step === 1 && updateIncidenceReceived(IncidenceID)
+                // setValidationStep("CHANGE")
+                if (step < 3) setStep(step + 1);
+            }
         }
+
     };
 
 
@@ -169,7 +175,7 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
 
             {/* Step Content */}
             {step === 1 && (
-                <div className="space-y-4">
+                <div className=" flex flex-col">
                     {/* Tabla de "Recibir" */}
                     <TableCompare
                         productsIncidence={productsIncidence}
@@ -182,9 +188,26 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                         setMessage={setMessage}
                     />
 
+                    {/* Omitir Validación */}
+                    <div className="flex  flex-col items-start space-x-2 mt-4">
+                        <div className="flex gap-2 items-center">
+
+                            <Checkbox id="terms" onCheckedChange={(checked) => setOmmitReceived(checked === true)} checked={ommitReceived} aria-label="Omitir Validación" />
+                            <label
+                                htmlFor="terms"
+                                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${ommitReceived ? 'font-semibold' : ''}`}
+                            >
+                                Omitir Validación
+                            </label>
+                        </div>
+                        <div className={`transition-opacity duration-300 ${ommitReceived ? 'opacity-100' : 'opacity-0'}`}>
+                            {ommitReceived && <span className="text-orange-400 text-xs font-light">Me responsabilizo de los productos a recibir por el cliente.</span>}
+                        </div>
+                    </div>
 
                 </div>
             )}
+
 
             {step === 2 && (
                 <div className="space-y-4">
@@ -201,6 +224,22 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
                         setMessage={setMessage}
                     />
 
+                    {/* Omitir validación */}
+                    <div className="flex  flex-col items-start space-x-2 mt-4">
+                        <div className="flex gap-2 items-center">
+
+                            <Checkbox id="terms" onCheckedChange={(checked) => setOmmitReceived(checked === true)} checked={ommitReceived} aria-label="Omitir Validación" />
+                            <label
+                                htmlFor="terms"
+                                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${ommitReceived ? 'font-semibold' : ''}`}
+                            >
+                                Omitir Validación
+                            </label>
+                        </div>
+                        <div className={`transition-opacity duration-300 ${ommitReceived ? 'opacity-100' : 'opacity-0'}`}>
+                            {ommitReceived && <span className="text-orange-400 text-xs font-light">Me responsabilizo de los productos que entrego al cliente.</span>}
+                        </div>
+                    </div>
 
 
                 </div>

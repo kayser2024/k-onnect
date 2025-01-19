@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components";
 import { ThemeProvider } from "@/components/provider/ThemeProvider";
 import { QueryProvider } from "@/components/provider/QueryProvider";
 import NProgress from "@/components/NProgress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,16 +29,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className}`}>
-        <QueryProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <AuthProvider>
-              {children}
-              <NProgress />
-              <Toaster richColors />
-            </AuthProvider>
-          </ThemeProvider>
-        </QueryProvider>
+      <body className={`${inter.className} `}>
+        <ScrollArea className="h-lvh p-2 w-full">
+
+          <QueryProvider>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+              <AuthProvider>
+                {children}
+                <NProgress />
+                <Toaster richColors />
+              </AuthProvider>
+            </ThemeProvider>
+          </QueryProvider>
+        </ScrollArea>
       </body>
     </html>
   );

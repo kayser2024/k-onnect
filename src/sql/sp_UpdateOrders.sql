@@ -4,6 +4,7 @@ DELIMITER $$
 DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 		IN p_OrderNumber VARCHAR ( 50 ),
 		IN p_Invoice VARCHAR(20),
+		IN p_OrderCreated TIMESTAMP,
 		IN p_StatusID INT,
 		IN p_UserID INT,
 		IN p_PickupPoint VARCHAR ( 100 ),
@@ -98,8 +99,7 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 					ELSEIF currentStatusID = 3 THEN SET currentStatusDescription = 'En Ruta';						
 					ELSEIF currentStatusID = 4 THEN SET currentStatusDescription = 'Recibido en Tienda';						
 					ELSEIF currentStatusID = 5 THEN SET currentStatusDescription = 'Entregado al Cliente';
-					ELSE SET currentStatusDescription = 'Estado Desconocido';
-						
+					ELSE SET currentStatusDescription = 'Estado Desconocido';						
 					END IF;
 					
 					-- Informar al usuario si ya está en el estado esperado
@@ -134,8 +134,8 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 							
 							
 								-- Insertar la orden si no existe en la tabla "Orders"
-								INSERT INTO Orders ( OrderNumber,  StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, DataFacturationID, Invoice ,CreatedAt, UpdatedAt)
-								VALUES (p_OrderNumber, 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, d_dataFacturationID, p_Invoice, NOW(), null);
+								INSERT INTO Orders ( OrderNumber, OrderCreatedAtUTC, StatusID, UserID, PickupPointID, PickupPoint, InfoShippingID, DataFacturationID, Invoice ,CreatedAt, UpdatedAt)
+								VALUES (p_OrderNumber, IFNULL(p_OrderCreated, NULL), 2, p_UserID, findStoreID, p_PickupPoint, d_infoShippingID, d_dataFacturationID, p_Invoice, NOW(), null);
 							
 							
 								-- Insertar en OrderLogs
@@ -148,20 +148,17 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 						
 						
 						ELSE 
-							-- Verificar si es Delivery o Recojo en tienda
-							IF p_PickupPoint = 'DELIVERY' THEN						
-								INSERT INTO Orders ( OrderNumber, StatusID, UserID, PickupPoint, CreatedAt, UpdatedAt )
-								VALUES (p_OrderNumber,2,p_UserID,p_PickupPoint,NOW(),null);
-								SET p_Result = 'OK: Orden creada correctamente con entrega a domicilio.';
-							ELSE
-								SET p_Result = CONCAT( 'ERROR: Establecimiento "', p_PickupPoint, '" no encontrado en la BD' );								
-							END IF;							
+		
+							SET p_Result = CONCAT( 'ERROR: Interno sp_UpdateOrder "', p_PickupPoint, '" no encontrado en la BD' );								
+
 						END IF;						
-				END IF;				
+				END IF;	
+							
 			END IF;
 			
 	-- Resetear el estado de la orden
 	IF p_status = 'reset_status' THEN
+
 		-- Verificar si la orden existe
 		IF NOT EXISTS ( SELECT 1 FROM Orders WHERE OrderNumber = p_OrderNumber ) THEN			
 			SET p_Result = 'ERROR: La orden no existe para resetear el estado';
@@ -175,9 +172,9 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 			INSERT INTO OrderLogs ( OrderNumber, StatusOld, StatusID, UserID, CommentText, CreatedAt )
 			VALUES (p_OrderNumber, currentStatusID, 1, p_UserID, p_CommentText, NOW());
 			
-			SET p_Result = 'OK: Estado de la orden reseteado correctamente';
-			
+			SET p_Result = 'OK: Estado de la orden reseteado correctamente';			
 		END IF;		
+
 	END IF;
 	
 	-- Cambiar el estado de la orden en 'en_ruta', 'recibido_tienda', 'entregado_cliente'

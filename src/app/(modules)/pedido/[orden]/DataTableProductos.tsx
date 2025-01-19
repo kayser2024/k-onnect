@@ -22,7 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Orden } from "@/types/Orden"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -45,6 +45,7 @@ import { updateStatusPayment } from "@/actions/order/api/PUT-order"
 import { CascadingSelect } from "@/components/select/CascadingSelect"
 import { SelectStore } from "./ui/select-store"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ConfirmContinue } from "./ui/confirm-continue"
 
 interface DataTableProps {
     data: any,
@@ -86,6 +87,9 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     const [commentDevol, setCommentDevol] = useState("");
     const [commentCamb, setCommentCamb] = useState("");
     const [option, setOption] = useState(false)
+
+    const [openModal, setOpenModal] = useState(false)
+    const [optionSelected, setOptionSelected] = useState(false)
 
 
 
@@ -335,6 +339,20 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
     }
 
+    const changeProduct = () => {
+
+        // si el "monto total a cambiar" es mayor o igual al "monto total original" 
+        // entonces se puede realizar el cambio, en caso contrario abrir modal de advertencia
+        if (prodChangeSubtotal >= prodOriginSubtotal) {
+            handleCambio();
+        } else {
+            setOpenModal(true);
+        }
+
+
+    }
+
+
     // Función para Realizar camnbios
     const handleCambio = async () => {
 
@@ -532,6 +550,14 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     }
 
 
+    
+    useEffect(() => {
+        if (optionSelected) {
+            handleCambio();
+            setOptionSelected(false);
+        }
+    }, [optionSelected]);
+
     return (
         <div >
             <ScrollArea className="h-[350px] md:h-[500px]">
@@ -700,9 +726,11 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                         <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
                             {/* <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button> */}
 
-                            <Button onClick={handleCambio} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+                            <Button onClick={changeProduct} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
 
                             {/* TODO: agregar un popUp para verificar que el monto del cambio no es superior al monto original seleccionado🚩 */}
+
+
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -742,6 +770,13 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
             </div>
 
+
+            {/* Modal ConfirmContinue */}
+            <ConfirmContinue
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                setOptionSelected={setOptionSelected}
+            />
         </div>
     )
 }
