@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -22,6 +22,7 @@ import { SelectDepartment } from './select-department'
 import { SelectProvince } from './select-province'
 import { SelectDistrict } from './select-district'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { CascadingSelect } from '@/components/select/CascadingSelect'
 
 
 interface ModalEditEnvioProps {
@@ -37,18 +38,20 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     const [lastName, setLastName] = useState(datos_envio.apellidos_envio)
     const [phone, setPhone] = useState(datos_envio.telefono_envio)
     const [dni, setDni] = useState(datos_envio.dni_envio)
-    
-    const [department, setDepartment] = useState("")
-    const [province, setProvince] = useState("")
-    const [district, setDistrict] = useState("")
-    const [address, setAddress] = useState("")
-    const [reference, setReference] = useState("")
-    const [locationCode, setLocationCode] = useState("")
+
+    const [department, setDepartment] = useState(datos_envio.departamento.trim());
+    const [province, setProvince] = useState(datos_envio.provincia.trim());
+    const [district, setDistrict] = useState(datos_envio.distrito.trim());
+    const [address, setAddress] = useState(datos_envio.direccion_envio);
+    const [reference, setReference] = useState(datos_envio.referencia_envio);
+    const [locationCode, setLocationCode] = useState(datos_envio.ubigeo);
 
     const tipo_envio = datos_envio.tipo_envio;
 
     const isDelivery = datos_envio.tipo_envio === 'delivery';
 
+    console.log({ tipo_envio, datos_envio })
+    console.log({ provincia: datos_envio.provincia, distrito: datos_envio.distrito })
     // Función para guardar la información del Envío
     const handleSave = async () => {
         setLoading(true)
@@ -76,8 +79,9 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
 
         try {
             // ACtualizar información envio
-            await updateShippingInfo(data)
+            const resultUpdateShippingInfo = await updateShippingInfo(data)
 
+            console.log(resultUpdateShippingInfo)
             toast.success("Operación exitosa")
 
         } catch (error: any) {
@@ -103,9 +107,19 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     }
 
 
+    const handleOpenModalEdit = () => {
+        setOpenEdit(true);
+        // cargar los datos 
+        setDepartment(datos_envio.departamento)
+        setProvince(datos_envio.provincia)
+        setDistrict(datos_envio.distrito)
+    }
+
+    console.log(province, district)
+
     return (
         <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-            <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={() => setOpenEdit(true)}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>
+            <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={handleOpenModalEdit}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>
             <DialogContent className="">
                 <DialogHeader>
                     <DialogTitle className='text-center'>Editar Envio</DialogTitle>
@@ -126,6 +140,7 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
 
                             />
                         </div>
+
                         <div className=" items-center gap-4">
                             <Label htmlFor="lastname" className="text-right text-slate-500">
                                 Apellidos
@@ -138,6 +153,7 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
 
                             />
                         </div>
+
                         <div className=" items-center gap-4">
                             <Label htmlFor="dni" className="text-right text-slate-500">
                                 DNI
@@ -149,6 +165,7 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                 onChange={e => setDni(e.target.value)}
                             />
                         </div>
+
                         <div className=" items-center gap-4">
                             <Label htmlFor="cel" className="text-right text-slate-500">
                                 Tel. / Cel.
@@ -185,6 +202,8 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                     setLocationCode={setLocationCode}
                                 />
 
+
+
                             }
 
                         </div>
@@ -219,6 +238,7 @@ interface OptionShippingProps {
 }
 const OptionShipping = ({ department, setDepartment, province, setProvince, district, setDistrict, address, setAddress, reference, setReference, locationCode, setLocationCode }: OptionShippingProps) => {
 
+    console.log({ department, province, district })
 
     const handleSetDepartment = (value: string) => {
         setDepartment(value);
@@ -239,31 +259,34 @@ const OptionShipping = ({ department, setDepartment, province, setProvince, dist
 
             <div className="grid gap-4">
 
-                <div className=" items-center gap-4">
+                {/* <div className=" items-center gap-4">
                     <Label htmlFor="name" className="text-right text-slate-500">
                         Departamento
                     </Label>
                     <SelectDepartment
                         setDepartment={handleSetDepartment}
+                        department={department}
                         setProvince={setProvince}
                         setDistrict={setDistrict}
                         setLocationCode={setLocationCode}
                     />
 
                 </div>
+                
                 <div className=" items-center gap-4">
                     <Label htmlFor="name" className="text-right text-slate-500">
                         Provincia
                     </Label>
                     <SelectProvince
-                        province={province}
-                        setProvince={handleSetProvince}
                         department={department}
+                        setProvince={handleSetProvince}
+                        province={province}
                         setDistrict={setDistrict}
                         setLocationCode={setLocationCode}
                     />
 
                 </div>
+
                 <div className=" items-center gap-4">
                     <Label htmlFor="name" className="text-right text-slate-500">
                         Distrito
@@ -276,8 +299,18 @@ const OptionShipping = ({ department, setDepartment, province, setProvince, dist
                         setLocationCode={setLocationCode}
                     />
 
-                </div>
+                </div> */}
 
+                <CascadingSelect
+                    department={department.trim()}
+                    setDepartment={setDepartment}
+                    province={province.trim()}
+                    setProvince={setProvince}
+                    district={district.trim()}
+                    setDistrict={setDistrict}
+                    locationCode={locationCode}
+                    setLocationCode={setLocationCode}
+                />
 
 
                 <div className=" items-center gap-4">

@@ -7,6 +7,7 @@ import deparments from '@/mock/data/departamento.json'
 
 interface SelectDepartmentProps {
     setDepartment: (value: string) => void
+    department: string
     setProvince: (value: string) => void
     setDistrict: (value: string) => void
     setLocationCode: (value: string) => void
@@ -17,7 +18,11 @@ interface Option {
     value: string;
 }
 
-export const SelectDepartment = ({ setDepartment, setProvince, setDistrict, setLocationCode }: SelectDepartmentProps) => {
+export const SelectDepartment = ({ setDepartment, department, setProvince, setDistrict, setLocationCode }: SelectDepartmentProps) => {
+
+
+    console.log(department)
+
 
     // Filtra las provincias según el valor de búsqueda
     const filterProvinces = (inputValue: string) => {
@@ -62,6 +67,7 @@ export const SelectDepartment = ({ setDepartment, setProvince, setDistrict, setL
             loadOptions={promiseOptions}
             className='w-full'
             onChange={handleChange}
+            value={department ? { label: department, value: department } : null}
         />
     )
 }

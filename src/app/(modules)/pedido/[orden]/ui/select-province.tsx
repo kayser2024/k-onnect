@@ -16,9 +16,11 @@ interface Option {
     value: string;
 }
 
-export const SelectProvince = ({ department,province, setProvince, setDistrict, setLocationCode }: SelectProvinceProps) => {
+export const SelectProvince = ({ department, province, setProvince, setDistrict, setLocationCode }: SelectProvinceProps) => {
 
     const provincias = provinces.filter(p => { p.departamento === department }).map(pp => ({ value: pp.provincia, label: pp.inei }))
+
+    console.log(province)
 
 
     // Filtra las provincias según el valor de búsqueda
@@ -65,7 +67,7 @@ export const SelectProvince = ({ department,province, setProvince, setDistrict, 
         <AsyncSelect
             // cacheOptions
             defaultOptions={false}
-            placeholder="Buscar Distrito"
+            placeholder="Buscar Provincia"
             loadOptions={promiseOptions}
             className='w-full '
             onChange={handleChange}

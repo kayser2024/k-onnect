@@ -64,7 +64,7 @@ export const SelectDistrict = ({ province, district, setDistrict, locationCode, 
         <AsyncSelect
             // cacheOptions
             defaultOptions={false}
-            placeholder="Buscar Provincia"
+            placeholder="Buscar Distrito"
             loadOptions={promiseOptions}
             className='w-full'
             onChange={handleChange}
