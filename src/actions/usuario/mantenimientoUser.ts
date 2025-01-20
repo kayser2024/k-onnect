@@ -61,7 +61,7 @@ export const createUser = async (data: User) => {
                 NroDoc: data.NroDoc,
                 RoleID: data.RoleID,
                 Password: passwordHash,
-                PickupPointID: data.PickupPointID,
+                PickupPointID: data.PickupPointID === 0 ? null : data.PickupPointID,
                 CreatedAt: now,
             }
         });
