@@ -60,13 +60,11 @@ const Stepper = ({ handleCleanList, cod, setCod, setMessage, productsIncidence, 
         } else {
 
             const discrepancies = handleCompareTableProducts(productsIncidence, (step === 1) ? products : productsChange, step === 1 ? "ORIGIN" : "CHANGE");
-            console.log({ discrepancies })
 
             if (discrepancies.error) {
                 toast.warning(discrepancies.message)
                 return;
             } else {
-                console.log({ validationStep })
 
                 step === 1 && updateIncidenceReceived(IncidenceID)
                 if (step < 3) setStep(step + 1);

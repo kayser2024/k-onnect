@@ -28,9 +28,6 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
 
 
     const handleCleanList = () => {
-
-        console.log(validationStep)
-
         if (validationStep === "ORIGIN") {
             setProducts([]);
         }
@@ -38,6 +35,8 @@ export const ValidatorProductModal = ({ setIsOpenModal, isOpen, handleAccept, ha
         if (validationStep === "CHANGE") {
             setProductsChange([])
         }
+
+        // validationStep === "ORIGIN" ? setProducts([]) : setProductsChange([])
         setMessage("");
         setCod("");
     };
