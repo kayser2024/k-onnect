@@ -506,7 +506,6 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             }
 
             const resultIncidence = await createIncidence(data)
-            console.log(resultIncidence);
 
             if (!resultIncidence.ok) {
                 toast.error(resultIncidence.message);
@@ -519,7 +518,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             setOpenDrawer(false)
             setNewProducts([])
             setStore("");
-            
+
         } catch (error: any) {
             toast.error('Error al crear incidencia', error.message)
             // toast.error('Error al actualizar observaciones')
