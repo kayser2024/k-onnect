@@ -118,7 +118,7 @@ export function TableMain() {
         loading={loading}
       />
 
-      <ScrollArea className="h-[350px] md:h-[600px] w-full rounded-md border p-4 ">
+      <ScrollArea className="h-[350px] md:h-[500px] w-full rounded-md border p-4 ">
         <SearchFilter
           setSearchBoleta={setSearchBoleta}
           setSearchPedido={setSearchPedido}

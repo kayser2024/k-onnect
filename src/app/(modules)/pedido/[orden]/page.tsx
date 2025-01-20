@@ -209,7 +209,7 @@ async function HomeOrden({ params }: Props) {
 
 
     return (
-        <main className="p-2 mx-auto max-w-screen-2xl" >
+        <main className="mx-auto max-w-screen-2xl" >
             <section>
                 <div className="flex flex-col sm:flex-row  sm:justify-between">
                     <div className="flex items-center gap-5">

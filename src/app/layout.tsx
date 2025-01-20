@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} `}>
-        <ScrollArea className="h-lvh p-2 w-full">
+        <ScrollArea className="h-lvh w-full">
 
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>

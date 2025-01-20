@@ -24,18 +24,29 @@ const Observacion = ({ observaciones, orden }: Params) => {
     // obtener el ID de la Orden
 
     const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
-        setIsSaving(true)
         e.preventDefault();
+        if (!comment.trim() || !orden) {
+            toast.error("El comentario o la orden no pueden estar vacíos");
+            return;
+        }
+
+        setIsSaving(true)
 
         try {
             // TODO: AGREGAR COMENTARIO AL ORDEN EN LA BD🚩
-            await insertComment(comment, orden)
+            const result = await insertComment(comment.trim(), orden)
 
+            console.log(result)
+            if (!result.ok) {
+                toast.error("Orden no encontrada, comuniquese con el Área correspondiente")
+                return
+            }
             setComment("");
             setIsDialogOpen(false)
 
         } catch (error: any) {
-            toast.error(error.message)
+            const errorMessage = error instanceof Error ? error.message : "Ocurrió un error inesperado";
+            toast.error(errorMessage)
 
         } finally {
             setIsSaving(false)

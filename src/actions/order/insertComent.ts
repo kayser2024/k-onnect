@@ -15,9 +15,15 @@ export const insertComment = async (comment: string, orden: string) => {
         throw new Error("Usuario no autenticado");
     }
     let result;
+
     try {
         // obtener el StatusCurrent
         const orderData = await prisma.orders.findUnique({ where: { OrderNumber: orden } })
+
+        console.log(orderData);
+        if (!orderData) {
+            return ({ ok: false, message: "Orden No encontrada" });
+        }
 
         result = await prisma.orderLogs.create({
             data: {
@@ -29,10 +35,16 @@ export const insertComment = async (comment: string, orden: string) => {
                 CreatedAt: now
             }
         })
+
+        console.log(result)
     } catch (error: any) {
-        result = error.message
+        // result = error.message
+        result = { ok: false, message: "Error: " + error.message }
 
     }
 
-    return result;
+    return {
+        ok: true,
+        message: result ? result.CommentText : "Comentario agregado correctamente"
+    };
 }
