@@ -236,6 +236,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
         try {
             const responseIncidencia = await createIncidence(data);
+            console.log(responseIncidencia)
             toast.info(JSON.stringify(responseIncidencia, null, 2));
         } catch (error: any) {
             console.log(error.message)
@@ -504,19 +505,26 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
             }
 
-            await createIncidence(data)
+            const resultIncidence = await createIncidence(data)
+            console.log(resultIncidence);
 
+            if (!resultIncidence.ok) {
+                toast.error(resultIncidence.message);
+                return
+            }
 
-        } catch (error) {
-            toast.error('Error al actualizar observaciones')
-        } finally {
-            setLoading(false)
             setMotivoCambio("")
             setRowSelection({})
             setInvoice("")
             setOpenDrawer(false)
             setNewProducts([])
             setStore("");
+            
+        } catch (error: any) {
+            toast.error('Error al crear incidencia', error.message)
+            // toast.error('Error al actualizar observaciones')
+        } finally {
+            setLoading(false)
         }
 
 
@@ -550,7 +558,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
     }
 
 
-    
+
     useEffect(() => {
         if (optionSelected) {
             handleCambio();

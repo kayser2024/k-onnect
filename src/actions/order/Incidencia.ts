@@ -19,6 +19,9 @@ interface IncidenceProps {
 // Función para crear Incidencia
 export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, product, comment, typeIncidence, pickupPoint, reason = '' }: IncidenceProps) => {
 
+    let result;
+
+
     try {
         const session = await auth();
         const userId = session!.user.UserID
@@ -43,7 +46,11 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
         const OrderId = order?.OrderID;
 
         if (!OrderId) {
-            throw new Error(`Orden no encontrada: ${orden}`);
+            return result = {
+                ok: false,
+                message: "No se encontró la orden, Contacte con el Área correspondinte"
+            }
+            // throw new Error(`Orden no encontrada: ${orden}`);
         }
 
 
@@ -91,9 +98,13 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
         });
 
     } catch (error: any) {
-        console.error("Error en createIncidence:", error.message);
-        throw error; // Re-lanza el error para manejarlo en un nivel superior
+
+        result = { ok: false, message: error.message }
+        // console.error("Error en createIncidence:", error.message);
+        // throw error; // Re-lanza el error para manejarlo en un nivel superior
     }
+
+    return { ok: true, message: "Incidencia creado con éxito" }
 };
 
 
