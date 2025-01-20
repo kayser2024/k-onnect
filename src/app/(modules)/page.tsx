@@ -3,7 +3,7 @@ import { TableMain } from './table'
 
 function ModulesPage() {
   return (
-    <main className=" flex flex-col  gap-2">
+    <main className=" flex flex-col  gap-2 ">
       
 
       <TableMain />

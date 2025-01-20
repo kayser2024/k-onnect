@@ -37,7 +37,7 @@ function ResetOrder() {
 
 
     return (
-        <main className="w-full px-2 mx-auto">
+        <main className="w-full px-2 mx-auto max-w-screen-xl">
             <h1 className="text-3xl font-bold my-2">Lista de Ordenes</h1>
             <form onSubmit={handleSearchOrder} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
                 <div className="w-full">

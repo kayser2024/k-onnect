@@ -146,7 +146,7 @@ function RecepcionOrder() {
 
     return (
         <>
-            <main>
+            <main className="mx-auto max-w-screen-xl">
                 <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
                     <div className="w-full">
 

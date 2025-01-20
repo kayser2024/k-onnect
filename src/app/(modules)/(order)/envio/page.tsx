@@ -176,7 +176,7 @@ function EnvioMasivo() {
 
     return (
         <>
-            <main>
+            <main className="max-w-screen-xl mx-auto">
                 <div className="grid sm:grid-cols-4 gap-2 bg-blue-50 p-2 rounded-md">
 
                     <form onSubmit={handleSubmit} className="flex flex-col">

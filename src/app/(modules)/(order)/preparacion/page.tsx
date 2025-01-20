@@ -176,7 +176,7 @@ function PreparacionOrder() {
 
     return (
         <>
-            <main className="px-2 m-auto">
+            <main className="px-2 m-auto max-w-screen-xl">
                 <form onSubmit={handleSubmit} className="flex gap-2 bg-blue-50 p-1 rounded-md py-2">
                     <div className="w-full">
 
