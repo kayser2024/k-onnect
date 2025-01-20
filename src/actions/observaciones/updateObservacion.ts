@@ -43,7 +43,7 @@ export const onUpdateObservaciones = async (orden: string, comentario: string, s
 
     try {
 
-        await insertComment(`${selectedValue}-${comentario}`, orden, userId)
+        await insertComment(`${selectedValue}-${comentario}`, orden)
     } catch (error: any) {
         console.log(error.message)
         return error.message
