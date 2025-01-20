@@ -73,6 +73,37 @@ function PreparacionOrder() {
     };
 
 
+    // Insertar en bloques
+    const insertInBatches = async (orders: any, batchSize = 20) => {
+        const batches = [];
+
+        // Dividir orders en lotes de tamaño batchSize
+        for (let i = 0; i < orders.length; i += batchSize) {
+            batches.push(orders.slice(i, i + batchSize));
+        }
+
+        const failedOrders = [];
+
+        for (const batch of batches) {
+            try {
+                // Suponiendo que `onChangeStatusSend` realiza la inserción en la base de datos
+                // const result = await onChangeStatusSend(batch, 'en_preparacion', '/preparacion');
+                const result = await onChangeStatusSend(batch, 'en_preparacion', '/preparacion');
+
+                if (result.length > 0) {
+                    // Si algunas órdenes fallaron, las agregamos a la lista de errores
+                    failedOrders.push(...result);
+                }
+            } catch (error) {
+                console.error("Error al insertar lote:", error);
+                failedOrders.push(...batch);  // Si hubo un error, agregamos todo el lote a la lista de fallidos
+            }
+        }
+
+        return failedOrders;
+    };
+
+
     // Cambiar estado de las ordenes
     const handleChangeStatusOrders = async () => {
         if (orderList.length === 0) {
@@ -85,7 +116,8 @@ function PreparacionOrder() {
             // console.log("cambiando estado del pedido");
 
             // Obtén las órdenes fallidas
-            const failedOrdersResult = await onChangeStatusSend(orderList, 'en_preparacion', '/preparacion');
+            // const failedOrdersResult = await onChangeStatusSend(orderList, 'en_preparacion', '/preparacion');
+            const failedOrdersResult = await insertInBatches(orderList,20);
 
             // Actualizar el estado de las órdenes fallidas
             setFailedOrders(failedOrdersResult);
