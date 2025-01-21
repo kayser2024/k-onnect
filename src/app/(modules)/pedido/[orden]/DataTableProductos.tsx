@@ -425,9 +425,10 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
         const despues = prendasCambiadasSAP.join(' / ')
         const ean = prendasCambiadasEAN.join(' / ')
         const motivo = motivoCambio
-        const enviarA = '-'
+        const enviarA = store
         const situacionDelCambio = 'Ingresado'
 
+        console.log(antes, despues)
 
         // Copiar al portapapeles
         navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${enviarA}\t${situacionDelCambio}`)

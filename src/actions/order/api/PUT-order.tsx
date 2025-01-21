@@ -65,9 +65,12 @@ export const updateShippingInfo = async (data: any) => {
 
     const { orden } = data;
 
-    // obtener el usuario
-    const user = await auth()
+    console.log(data)
 
+    // obtener el usuario
+    const session = await auth()
+    const userId = session!.user.UserID
+    console.log(session?.user.UserID)
 
     const url = `https://sami3-external.winwinafi.com/orders/kayser.pe/${orden}`;
 
@@ -77,7 +80,8 @@ export const updateShippingInfo = async (data: any) => {
             Description: data.direccion_envio
         }
     })
-
+    
+    console.log(pickupPoint)
 
     const jsonData = {
         "actualizar": {
@@ -102,58 +106,78 @@ export const updateShippingInfo = async (data: any) => {
 
 
     try {
-        // Actualizar APi🚩
-        const response = await fetch(url, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `${process.env.SAMISHOP_API_TOKEN}`,
-            },
-            body: JSON.stringify(jsonData)
+        //1. Actualizar APi🚩
+        // const response = await fetch(url, {
+        //     method: "PUT",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         Authorization: `${process.env.SAMISHOP_API_TOKEN}`,
+        //     },
+        //     body: JSON.stringify(jsonData)
 
-        });
+        // });
 
-        const dataFetch = await response.json();
+        // const dataFetch = await response.json();
 
-        if (!dataFetch.bEstado) {
-            throw new Error("OCURRIÓ UN ERROR INESPERADO")
-        }
+        // if (!dataFetch.bEstado) {
+        //     throw new Error("OCURRIÓ UN ERROR INESPERADO")
+        // }
 
-        // Actualizar en OrderLogs 🚩
+        //2. Actualizar en OrderLogs 🚩
         const now = new Date();
         now.setHours(now.getHours() - 5);
 
         // obtener información de la orden
         const orderData = await prisma.orders.findUnique({ where: { OrderNumber: orden } })
 
+        console.log(orderData)
+
+        // si no encuentra devolver un error
+
+        if (!orderData) {
+            return { ok: false, message: "No se encontró la orden, comuniquese con el Área correspondiente" }
+        }
+
         // Actualizar el nuevo pickupPoints en la tabla orden
-        await prisma.orders.update({
+        const resultOrders = await prisma.orders.update({
             where: { OrderNumber: orden },
-            data: { PickupPoint: pickupPoint[0].Description, UserUpdaterID: 1, UpdatedAt: now }
+            data: { PickupPoint: pickupPoint[0].Description, UserUpdaterID: userId, UpdatedAt: now }
         })
 
+        console.log(resultOrders)
 
-        await prisma.orderLogs.create({
+
+        const responseOrders = await prisma.orderLogs.create({
             data: {
-                CommentText: `Se edito Información de Envío`,
+                CommentText: `Se cambió Información de Envío`,
                 StatusOld: orderData!.StatusID,
                 StatusID: orderData!.StatusID || 0,
                 OrderNumber: orden,
-                UserID: 1,
+                UserID: userId,
                 CreatedAt: now
             }
         })
 
-
-        if (dataFetch.sRpta) {
-            revalidatePath(`/pedido/${orden}`);
+        // si hay error al crear una orden devolver un error
+        if (!responseOrders) {
+            return { ok: false, message: "No se pudo crear la orden, comuniquese con el Área correspondiente" }
         }
 
-        return dataFetch.sRpta;
+        // si la respuesta es OK, revalidar la Página
+        // if (dataFetch.sRpta) {
+        //     revalidatePath(`/pedido/${orden}`);
+        // }
+
+        // return dataFetch.sRpta;
+
+
 
     } catch (error: any) {
         return error.message
     }
+
+    return { ok: true, message: "Se realizaron los cambios correctamente" }
+
 }
 
 export const updateStatusPayment = async (order: string, status: string) => {

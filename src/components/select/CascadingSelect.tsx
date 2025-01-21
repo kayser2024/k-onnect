@@ -40,32 +40,32 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
     setLocationCode("")
   }
 
-  // // valor por defecto
-  // const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-  //   label: d.departamento,
-  //   value: d.reniec,
-  // }))
+  // valor por defecto
+  const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+    label: d.departamento,
+    value: d.reniec,
+  }))
 
-  // // valor por defecto
-  // const defaultProvince = provinces.filter(d => d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-  //   label: d.provincia,
-  //   value: d.reniec,
-  // }))
-
-
-  // // valor por defecto
-  // const defaultDistrict = districts.filter(d => d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-  //   label: d.distrito,
-  //   value: d.reniec || "",
-  // }))
+  // valor por defecto
+  const defaultProvince = provinces.filter(d => d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+    label: d.provincia,
+    value: d.reniec,
+  }))
 
 
-  // useEffect(() => {
-  //   setDepartment(defaultDepartment[0].label)
-  //   setProvince(defaultProvince[0]?.label || "")
-  //   setDistrict(defaultDistrict[0]?.label || "")
-  //   setLocationCode(defaultDistrict[0]?.value || "")
-  // }, [])
+  // valor por defecto
+  const defaultDistrict = districts.filter(d => d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+    label: d.distrito,
+    value: d.reniec || "",
+  }))
+
+
+  useEffect(() => {
+    setDepartment(defaultDepartment[0].label)
+    setProvince(defaultProvince[0]?.label || "")
+    setDistrict(defaultDistrict[0]?.label || "")
+    setLocationCode(defaultDistrict[0]?.value || "")
+  }, [])
 
 
   return (

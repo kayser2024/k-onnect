@@ -18,9 +18,6 @@ import { DatosEnvio } from '@/types/Orden'
 import { SelectStore } from './select-store'
 import { updateShippingInfo } from '@/actions/order/api/PUT-order'
 import { toast } from 'sonner'
-import { SelectDepartment } from './select-department'
-import { SelectProvince } from './select-province'
-import { SelectDistrict } from './select-district'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { CascadingSelect } from '@/components/select/CascadingSelect'
 
@@ -50,8 +47,6 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
 
     const isDelivery = datos_envio.tipo_envio === 'delivery';
 
-    console.log({ tipo_envio, datos_envio })
-    console.log({ provincia: datos_envio.provincia, distrito: datos_envio.distrito })
     // Función para guardar la información del Envío
     const handleSave = async () => {
         setLoading(true)
@@ -81,14 +76,19 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
             // ACtualizar información envio
             const resultUpdateShippingInfo = await updateShippingInfo(data)
 
+
             console.log(resultUpdateShippingInfo)
+
+            if (!resultUpdateShippingInfo.ok) {
+                toast.error(resultUpdateShippingInfo.message)
+                return
+            }
+
+            
             toast.success("Operación exitosa")
 
-        } catch (error: any) {
-            toast.error(error.message)
-        } finally {
+
             setOpenEdit(false)
-            setLoading(false)
 
             setName("")
             setLastName("")
@@ -101,6 +101,11 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
             setDistrict("")
             setStore("")
             setDni("")
+
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setLoading(false)
         }
 
 
@@ -114,8 +119,6 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
         setProvince(datos_envio.provincia)
         setDistrict(datos_envio.distrito)
     }
-
-    console.log(province, district)
 
     return (
         <Dialog open={openEdit} onOpenChange={setOpenEdit}>
@@ -190,9 +193,9 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                 : <OptionShipping
                                     department={department}
                                     setDepartment={setDepartment}
-                                    province={province}
+                                    province={datos_envio.provincia.trim()}
                                     setProvince={setProvince}
-                                    district={district}
+                                    district={datos_envio.distrito.trim()}
                                     setDistrict={setDistrict}
                                     address={address}
                                     setAddress={setAddress}
@@ -201,9 +204,6 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                     locationCode={locationCode}
                                     setLocationCode={setLocationCode}
                                 />
-
-
-
                             }
 
                         </div>
@@ -238,68 +238,10 @@ interface OptionShippingProps {
 }
 const OptionShipping = ({ department, setDepartment, province, setProvince, district, setDistrict, address, setAddress, reference, setReference, locationCode, setLocationCode }: OptionShippingProps) => {
 
-    console.log({ department, province, district })
-
-    const handleSetDepartment = (value: string) => {
-        setDepartment(value);
-        setProvince("")
-        setDistrict("")
-        setLocationCode("")
-    }
-
-    const handleSetProvince = (value: string) => {
-        setProvince(value)
-        setDistrict("")
-        setLocationCode("")
-    }
-
-
     return (
         <>
 
             <div className="grid gap-4">
-
-                {/* <div className=" items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-slate-500">
-                        Departamento
-                    </Label>
-                    <SelectDepartment
-                        setDepartment={handleSetDepartment}
-                        department={department}
-                        setProvince={setProvince}
-                        setDistrict={setDistrict}
-                        setLocationCode={setLocationCode}
-                    />
-
-                </div>
-                
-                <div className=" items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-slate-500">
-                        Provincia
-                    </Label>
-                    <SelectProvince
-                        department={department}
-                        setProvince={handleSetProvince}
-                        province={province}
-                        setDistrict={setDistrict}
-                        setLocationCode={setLocationCode}
-                    />
-
-                </div>
-
-                <div className=" items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-slate-500">
-                        Distrito
-                    </Label>
-                    <SelectDistrict
-                        district={district}
-                        province={province}
-                        setDistrict={setDistrict}
-                        locationCode={locationCode}
-                        setLocationCode={setLocationCode}
-                    />
-
-                </div> */}
 
                 <CascadingSelect
                     department={department.trim()}
@@ -335,13 +277,9 @@ const OptionShipping = ({ department, setDepartment, province, setProvince, dist
                         placeholder="Ingresar Referencia"
                         className=""
                         onChange={(e) => setReference(e.target.value)}
-
                     />
                 </div>
-
             </div>
-
-
         </>
     )
 }
