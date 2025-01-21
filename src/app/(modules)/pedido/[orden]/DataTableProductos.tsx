@@ -235,16 +235,21 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
 
         try {
-            const responseIncidencia = await createIncidence(data);
-            console.log(responseIncidencia)
-            toast.info(JSON.stringify(responseIncidencia, null, 2));
+            const resultIncidence = await createIncidence(data);
+
+            if (!resultIncidence.ok) {
+                toast.error(resultIncidence.message);
+                return
+            }
+
+            setDropdownOpen(false)
+            setStore("")
+            setCommentDevol("")
+            
         } catch (error: any) {
             console.log(error.message)
         } finally {
             setLoading(false);
-            setDropdownOpen(false)
-            setStore("")
-            setCommentDevol("")
         }
 
         refetch();
@@ -340,6 +345,8 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
     }
 
+
+    // 
     const changeProduct = () => {
 
         // si el "monto total a cambiar" es mayor o igual al "monto total original" 
