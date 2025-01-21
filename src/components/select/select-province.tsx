@@ -71,20 +71,14 @@ export const SelectProvince = ({ department, province, setProvince, setDistrict,
     }))
 
 
-    console.log({ provinces, defaultProvince, department, province }, '🔴🔴🔴')
-
     return (
         <AsyncSelect
-            // cacheOptions
             defaultOptions={false}
-            // defaultValue={defaultProvince}
-            value={defaultProvince}
             placeholder="Buscar Provincia"
+            value={defaultProvince}
             loadOptions={promiseOptions}
             className='w-full '
             onChange={handleChange}
-        // value={province ? { label: province, value: province } : null}
-        // isDisabled={!department}
         />
     )
 }

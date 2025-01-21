@@ -67,6 +67,10 @@ export const updateShippingInfo = async (data: any) => {
 
     console.log(data)
 
+
+    let resutlPickupPoint;
+    let pickupPoint;
+
     // obtener el usuario
     const session = await auth()
     const userId = session!.user.UserID
@@ -74,15 +78,20 @@ export const updateShippingInfo = async (data: any) => {
 
     const url = `https://sami3-external.winwinafi.com/orders/kayser.pe/${orden}`;
 
-    // Obtener los datos de tienda
-    const pickupPoint = await prisma.pickupPoints.findMany({
-        where: {
-            Description: data.direccion_envio
-        }
-    })
-    
-    console.log(pickupPoint)
 
+    // verificar el tipo de envío 🚩
+    if (data.tipo_envio === "recojo en tienda") {
+        // obtner los datos del pickupPoint
+        resutlPickupPoint = await prisma.pickupPoints.findMany({
+            where: {
+                Description: data.direccion_envio
+            }
+        })
+
+        console.log(resutlPickupPoint)
+    }
+
+    // TODO:armar data para actualizar en API🚩
     const jsonData = {
         "actualizar": {
             "datos_envio":
@@ -132,8 +141,7 @@ export const updateShippingInfo = async (data: any) => {
 
         console.log(orderData)
 
-        // si no encuentra devolver un error
-
+        // verificar que la orden existe en la BD 🚩
         if (!orderData) {
             return { ok: false, message: "No se encontró la orden, comuniquese con el Área correspondiente" }
         }
@@ -179,6 +187,7 @@ export const updateShippingInfo = async (data: any) => {
     return { ok: true, message: "Se realizaron los cambios correctamente" }
 
 }
+
 
 export const updateStatusPayment = async (order: string, status: string) => {
 

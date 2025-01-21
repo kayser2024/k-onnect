@@ -10,13 +10,13 @@ import districts from '@/mock/data/distrito.json'
 
 
 interface CascadingSelectProps {
-  department: string
+  department: string | null
   setDepartment: (department: string) => void
-  province: string
+  province: string | null
   setProvince: (province: string) => void
-  district: string
+  district: string | null
   setDistrict: (district: string) => void
-  locationCode: string
+  locationCode: string | null
   setLocationCode: (value: string) => void
 
 }
@@ -40,32 +40,39 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
     setLocationCode("")
   }
 
-  // valor por defecto
-  const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-    label: d.departamento,
-    value: d.reniec,
-  }))
+  const handleSetDistrict = (value: string) => {
+    console.log(value)
+    setDistrict(value)
 
-  // valor por defecto
-  const defaultProvince = provinces.filter(d => d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-    label: d.provincia,
-    value: d.reniec,
-  }))
+    // setLocationCode()
+  }
+
+  // // valor por defecto
+  // const defaultDepartment = deparments.filter(d => d.departamento.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(department.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.departamento,
+  //   value: d.reniec,
+  // }))
+
+  // // valor por defecto
+  // const defaultProvince = provinces.filter(d => d.provincia.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(province.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.provincia,
+  //   value: d.reniec,
+  // }))
 
 
-  // valor por defecto
-  const defaultDistrict = districts.filter(d => d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
-    label: d.distrito,
-    value: d.reniec || "",
-  }))
+  // // valor por defecto
+  // const defaultDistrict = districts.filter(d => d.distrito.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(district.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).map(d => ({
+  //   label: d.distrito,
+  //   value: d.reniec || "",
+  // }))
 
 
-  useEffect(() => {
-    setDepartment(defaultDepartment[0].label)
-    setProvince(defaultProvince[0]?.label || "")
-    setDistrict(defaultDistrict[0]?.label || "")
-    setLocationCode(defaultDistrict[0]?.value || "")
-  }, [])
+  // useEffect(() => {
+  //   setDepartment(defaultDepartment[0].label)
+  //   setProvince(defaultProvince[0]?.label || "")
+  //   setDistrict(defaultDistrict[0]?.label || "")
+  //   setLocationCode(defaultDistrict[0]?.value || "")
+  // }, [])
 
 
   return (
@@ -77,7 +84,7 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
           Departamento
         </Label>
         <SelectDepartment
-          department={department}
+          department={department || ""}
           setDepartment={handleSetDepartment}
           setProvince={setProvince}
           setDistrict={setDistrict}
@@ -90,9 +97,9 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
           Provincia
         </Label>
         <SelectProvince
-          province={province}
+          province={province || ""}
           setProvince={handleSetProvince}
-          department={department}
+          department={department || ""}
           setDistrict={setDistrict}
           setLocationCode={setLocationCode}
         />
@@ -103,10 +110,10 @@ export const CascadingSelect = ({ department, setDepartment, province, setProvin
           Distrito
         </Label>
         <SelectDistrict
-          district={district}
-          province={province}
-          setDistrict={setDistrict}
-          locationCode={locationCode}
+          district={district || ""}
+          province={province || ""}
+          setDistrict={handleSetDistrict}
+          locationCode={locationCode || ""}
           setLocationCode={setLocationCode}
         />
 

@@ -48,9 +48,11 @@ export const SelectDistrict = ({ province, district, setDistrict, locationCode, 
 
     // Manejador de cambio de selección
     const handleChange = (district: SingleValue<Option>) => {
+        console.log(district)
+        console.log(district?.label.split("-")[1].trim())
         if (district) {
             setLocationCode(district.value);
-            setDistrict(district.label.split("-")[1]);
+            setDistrict(district.label.split("-")[1].trim());
         }
     }
 
@@ -74,16 +76,12 @@ export const SelectDistrict = ({ province, district, setDistrict, locationCode, 
 
     return (
         <AsyncSelect
-            // cacheOptions
             defaultOptions={false}
             placeholder="Buscar Distrito"
-            // defaultValue={defaultDistrict}
             value={defaultDistrict}
             loadOptions={promiseOptions}
             className='w-full'
             onChange={handleChange}
-        // value={district ? { label: `${locationCode} - ${district}`, value: locationCode } : null}
-        // isDisabled={!province}
         />
     )
 }

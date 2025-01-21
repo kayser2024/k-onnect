@@ -20,8 +20,6 @@ interface Option {
 
 export const SelectDepartment = ({ department, setDepartment, setProvince, setDistrict, setLocationCode }: SelectDepartmentProps) => {
 
-
-    console.log({ department }, 'DEPARTAMENTO')
     // Filtra las provincias según el valor de búsqueda
     const filterProvinces = (inputValue: string) => {
         return deparments.filter(p =>
@@ -66,11 +64,9 @@ export const SelectDepartment = ({ department, setDepartment, setProvince, setDi
 
     return (
         <AsyncSelect
-            // cacheOptions
             defaultOptions={false}
-            // defaultValue={defaultDepartment}
-            value={defaultDepartment}
             placeholder="Buscar Departamento"
+            value={defaultDepartment}
             loadOptions={promiseOptions}
             className='w-full'
             onChange={handleChange}

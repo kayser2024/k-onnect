@@ -26,6 +26,8 @@ interface ModalProps {
 export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalProps) => {
 
 
+    console.log(data);
+
     const initialData = {
         PickupPointID: 0,
         Description: '',
@@ -38,7 +40,7 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
     }
 
-    const [dataPickupPoint, setDataPickupPoint] = useState<PickupPoint>({
+    const [dataPickupPoint, setDataPickupPoint] = useState({
         PickupPointID: data.PickupPointID,
         Description: data.Description,
         District: data.District,
@@ -89,7 +91,7 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
     // validar información antes de enviar
     const handleSubmit = () => {
-        // validar data
+        // TODO:validar data 🚩
 
         // enviar data 
         handleSave(action, dataPickupPoint)
@@ -122,13 +124,13 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
 
                     <CascadingSelect
-                        department={`${dataPickupPoint.Department}`}
+                        department={dataPickupPoint.Department || data.Department}
                         setDepartment={(value) => handleChange('Department', value)}
-                        province={dataPickupPoint.Province || ""}
+                        province={dataPickupPoint.Province || data.Province}
                         setProvince={(value) => handleChange('Province', value)}
-                        district={dataPickupPoint.District || ""}
+                        district={dataPickupPoint.District || data.District}
                         setDistrict={(value) => handleChange('District', value)}
-                        locationCode={dataPickupPoint.LocationCode || ""}
+                        locationCode={dataPickupPoint.LocationCode || data.LocationCode}
                         setLocationCode={(value) => handleChange('LocationCode', value)}
                     />
 
@@ -138,7 +140,7 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
                         <Input
                             id="lastName"
                             className="col-span-3"
-                            value={dataPickupPoint.LocationCode || ""}
+                            value={dataPickupPoint.LocationCode || data.LocationCode || ""}
                             onChange={e => setDataPickupPoint({ ...dataPickupPoint, LocationCode: e.target.value })}
                             required
                         />
@@ -150,7 +152,7 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
                         <Input
                             id="lastName"
                             className="col-span-3"
-                            value={dataPickupPoint.Address || ""}
+                            value={data.Address || ""}
                             onChange={e => setDataPickupPoint({ ...dataPickupPoint, Address: e.target.value })}
                             required
                         />

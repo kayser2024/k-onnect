@@ -50,20 +50,31 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     // Función para guardar la información del Envío
     const handleSave = async () => {
         setLoading(true)
+
+        // TODO:si es tienda, buscar la nueva tienda para obtener el departamento, provincia, distrito... 🚩
+        // direccion_envio:resultPickupPoint.Description
+        // referencia_envio=""
+        // departamento=resultPickupPint.Department
+        // provincia=resultPickupPint.Province
+        // distrito=resultPickupPint.District
+        // ubigeo=resultPickupPoint.LocationCode
+
+        // si es delivery entonces insertar los cambios 
+        
         const data = {
             orden,
             nombres_envio: name,
             apellidos_envio: lastName,
             telefono_envio: phone,
-            referencia_envio: isDelivery ? datos_envio.referencia_envio : reference,
+            referencia_envio: isDelivery ? datos_envio.referencia_envio : reference,//🚩
             direccion_envio: store,
             pais: "Perú",
-            departamento: isDelivery ? datos_envio.departamento : department,
-            provincia: isDelivery ? datos_envio.provincia : province,
-            distrito: isDelivery ? datos_envio.distrito : district,
+            departamento: isDelivery ? datos_envio.departamento : department, //🚩
+            provincia: isDelivery ? datos_envio.provincia : province, //🚩
+            distrito: isDelivery ? datos_envio.distrito : district,//🚩
             dni_envio: datos_envio.dni_envio,
             servicio_envio: isDelivery ? "recojo en tienda" : "programado",
-            ubigeo: isDelivery ? datos_envio.ubigeo : locationCode,
+            ubigeo: isDelivery ? datos_envio.ubigeo : locationCode,//🚩
             tipo_envio: isDelivery ? "delivery" : "recojo en tienda"
         }
 
@@ -84,7 +95,7 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                 return
             }
 
-            
+
             toast.success("Operación exitosa")
 
 
@@ -191,17 +202,17 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                     <SelectStore setStore={setStore} />
                                 </>
                                 : <OptionShipping
-                                    department={department}
+                                    department={department || datos_envio.departamento.trim()}
                                     setDepartment={setDepartment}
-                                    province={datos_envio.provincia.trim()}
+                                    province={province || datos_envio.provincia.trim()}
                                     setProvince={setProvince}
-                                    district={datos_envio.distrito.trim()}
+                                    district={district || datos_envio.distrito.trim()}
                                     setDistrict={setDistrict}
                                     address={address}
                                     setAddress={setAddress}
                                     reference={reference}
                                     setReference={setReference}
-                                    locationCode={locationCode}
+                                    locationCode={locationCode || datos_envio.ubigeo.trim()}
                                     setLocationCode={setLocationCode}
                                 />
                             }
