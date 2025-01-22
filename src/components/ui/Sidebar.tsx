@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog } from 'lucide-react';
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown } from 'lucide-react';
 import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
@@ -51,14 +51,18 @@ export const Sidebar = () => {
 
         },
         {
-            nombre: 'Enviar Orden (Almacen)',
-            icon: <Truck />,
-            ruta: '/envio',
-            roles: [1, 2, 5]
+            nombre: 'Almacén',
+            ruta: '/almacen',
+            icon: <Warehouse />,
+            roles: [1, 2, 5],
+            children: [
+                { nombre: "Enviar Orden", ruta: "/almacen/envio_orden", icon: <Truck /> },
+                { nombre: "Exportar Data", ruta: "/almacen/export_data", icon: <FileDown /> },
+            ]
 
         },
         {
-            nombre: 'Orden (tienda)',
+            nombre: 'Tienda',
             icon: <Box />,
             ruta: '/tienda_orden',
             roles: [1, 2, 6],
@@ -79,7 +83,7 @@ export const Sidebar = () => {
 
         // },
         {
-            nombre: 'Mantenimiento (Soporte)',
+            nombre: 'Soporte',
             icon: <Monitor />,
             ruta: '/mantenimiento',
             roles: [1, 2],
