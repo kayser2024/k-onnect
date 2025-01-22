@@ -74,22 +74,74 @@ export const updateShippingInfo = async (data: any) => {
     // obtener el usuario
     const session = await auth()
     const userId = session!.user.UserID
-    console.log(session?.user.UserID)
 
     const url = `https://sami3-external.winwinafi.com/orders/kayser.pe/${orden}`;
 
 
     // verificar el tipo de envío 🚩
     if (data.tipo_envio === "recojo en tienda") {
-        // obtner los datos del pickupPoint
+        // buscar la tienda para obtener los datos del pickupPoint
         resutlPickupPoint = await prisma.pickupPoints.findMany({
             where: {
                 Description: data.direccion_envio
             }
         })
 
+        //    PickupPointID: 3,
+        //   Description: 'KAYSER LURIN - LURIN',✔️
+        //   District: 'Lurin',✔️
+        //   Province: 'Lima',✔️
+        //   Department: 'Lima',✔️
+        //   LocationCode: 'PE150119',✔️
+        //   Place: 'Lurin',
+        //   Address: 'Calle Monasterio S/N Predio San Vicente Parcela B-63 Sub Lote C  - Lurin ',
+        //   Grouped: 'LIMA'
+
+        // armar la data para actualizar 🚩
+        const { Description, District, Province, Department, LocationCode, PickupPointID } = resutlPickupPoint[0]
+
+        pickupPoint = {
+            PickupPointID,
+            Description,
+            District,
+            Province,
+            Department,
+            LocationCode
+        }
         console.log(resutlPickupPoint)
+    } else {
+        // en caso de que es delivery armar la data 🚩
+
+        // nombres_envio: 'Rossmery Claudia',
+        // apellidos_envio: 'contreras',
+        // direccion_envio: 'jr los badianes 306 urb. san ignacio',✔️
+        // referencia_envio: 'nueva referencia',✔️
+        // telefono_envio: '941064317',
+        // departamento: 'lima', ✔️
+        // provincia: 'CAÑETE',✔️
+        // distrito: 'SAN VICENTE DE CAÑETE',✔️
+        // dni_envio: '42412807',
+        // servicio_envio: 'programado',
+        // ubigeo: '150501',✔️
+        // tipo_envio: 'delivery'
+
+        pickupPoint = {
+            PickupPointID: 56,
+            Description: data.direccion_envio,
+            District: data.distrito,
+            Province: data.provincia,
+            Department: data.departamento,
+            LocationCode: data.ubigeo
+        }
+
+
     }
+
+
+
+
+
+
 
     // TODO:armar data para actualizar en API🚩
     const jsonData = {
@@ -98,16 +150,16 @@ export const updateShippingInfo = async (data: any) => {
             {
                 "nombres_envio": data.nombres_envio,
                 "apellidos_envio": data.apellidos_envio,
-                "direccion_envio": data.direccion_envio,
+                "direccion_envio": pickupPoint.Description,          //✔️
                 "referencia_envio": data.referencia_envio,
                 "telefono_envio": data.telefono_envio,
-                "pais": data.pais,
-                "departamento": data.departamento,
-                "provincia": data.provincia,
-                "distrito": data.distrito,
+                "pais": "Perú",
+                "departamento": pickupPoint.Department,              //✔️
+                "provincia": pickupPoint.Province,                    //✔️
+                "distrito": pickupPoint.District,                      //✔️
                 "dni_envio": data.dni_envio,
                 "servicio_envio": data.servicio_envio,
-                "ubigeo": data.ubigeo,
+                "ubigeo": pickupPoint.LocationCode,                          //✔️
                 "tipo_envio": data.tipo_envio
             }
         }
@@ -146,18 +198,44 @@ export const updateShippingInfo = async (data: any) => {
             return { ok: false, message: "No se encontró la orden, comuniquese con el Área correspondiente" }
         }
 
+        // Verificar que InfoShippingID no sea null
+        if (orderData.InfoShippingID === null) {
+            return { ok: false, message: "No se encontró la información de envío, comuníquese con el Área correspondiente" };
+        }
+
         // Actualizar el nuevo pickupPoints en la tabla orden
         const resultOrders = await prisma.orders.update({
             where: { OrderNumber: orden },
-            data: { PickupPoint: pickupPoint[0].Description, UserUpdaterID: userId, UpdatedAt: now }
+            data: { PickupPoint: data.tipo_envio === "delivery" ? "DELIVERY" : pickupPoint.Description, UserUpdaterID: userId, UpdatedAt: now }
         })
 
-        console.log(resultOrders)
+
+        // Actualizar infoShipping 🚩
+        const resulInfoShipping = await prisma.infoShipping.update({
+            where: { InfoShippingID: orderData.InfoShippingID },
+            data: {
+                Nombre: data.nombres_envio,
+                LastName: data.apellidos_envio,
+                Address: pickupPoint.Description,
+                Reference: data.referencia_envio,
+                Phone: data.telefono_envio,
+                Country: "Perú",
+                Department: pickupPoint.Department,
+                Province: pickupPoint.Province,
+                District: pickupPoint.District,
+                Dni: data.dni_envio,
+                Service: data.servicio_envio,
+                LocationCode: pickupPoint.LocationCode,
+                TypeShipping: data.tipo_envio,
+                PickupPointID: pickupPoint.PickupPointID,
+            }
+
+        })
 
 
         const responseOrders = await prisma.orderLogs.create({
             data: {
-                CommentText: `Se cambió Información de Envío`,
+                CommentText: `Cambió Información de Envío`,
                 StatusOld: orderData!.StatusID,
                 StatusID: orderData!.StatusID || 0,
                 OrderNumber: orden,

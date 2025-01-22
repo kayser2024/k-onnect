@@ -46,44 +46,39 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     const tipo_envio = datos_envio.tipo_envio;
 
     const isDelivery = datos_envio.tipo_envio === 'delivery';
+    console.log(isDelivery)
 
     // Función para guardar la información del Envío
     const handleSave = async () => {
-        setLoading(true)
 
         // TODO:si es tienda, buscar la nueva tienda para obtener el departamento, provincia, distrito... 🚩
-        // direccion_envio:resultPickupPoint.Description
-        // referencia_envio=""
-        // departamento=resultPickupPint.Department
-        // provincia=resultPickupPint.Province
-        // distrito=resultPickupPint.District
-        // ubigeo=resultPickupPoint.LocationCode
 
         // si es delivery entonces insertar los cambios 
-        
         const data = {
             orden,
             nombres_envio: name,
             apellidos_envio: lastName,
             telefono_envio: phone,
-            referencia_envio: isDelivery ? datos_envio.referencia_envio : reference,//🚩
-            direccion_envio: store,
-            pais: "Perú",
-            departamento: isDelivery ? datos_envio.departamento : department, //🚩
-            provincia: isDelivery ? datos_envio.provincia : province, //🚩
-            distrito: isDelivery ? datos_envio.distrito : district,//🚩
-            dni_envio: datos_envio.dni_envio,
-            servicio_envio: isDelivery ? "recojo en tienda" : "programado",
-            ubigeo: isDelivery ? datos_envio.ubigeo : locationCode,//🚩
-            tipo_envio: isDelivery ? "delivery" : "recojo en tienda"
+            referencia_envio: isDelivery ? reference : "",//🚩
+            direccion_envio: isDelivery ? address : store,
+            departamento: isDelivery ? department : "", //🚩
+            provincia: isDelivery ? province : "", //🚩
+            distrito: isDelivery ? district : "",//🚩
+            dni_envio: dni,
+            servicio_envio: datos_envio.servicio_envio,
+            ubigeo: isDelivery ? locationCode : "",//🚩
+            tipo_envio: datos_envio.tipo_envio,
         }
 
-        if (!store) {
+        if (!store && !isDelivery) {
             toast.warning("Por favor seleccionar una Tienda")
+            return;
         }
 
 
         try {
+            setLoading(true)
+
             // ACtualizar información envio
             const resultUpdateShippingInfo = await updateShippingInfo(data)
 
@@ -131,6 +126,25 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
         setDistrict(datos_envio.distrito)
     }
 
+
+
+    useEffect(() => {
+        if (openEdit) {
+            setName(datos_envio.nombres_envio);
+            setLastName(datos_envio.apellidos_envio);
+            setPhone(datos_envio.telefono_envio);
+            setDni(datos_envio.dni_envio);
+            setDepartment(datos_envio.departamento);
+            setProvince(datos_envio.provincia);
+            setDistrict(datos_envio.distrito);
+            setAddress(datos_envio.direccion_envio);
+            setReference(datos_envio.referencia_envio);
+            setLocationCode(datos_envio.ubigeo);
+            setStore(datos_envio.direccion_envio);
+        }
+    }, [openEdit, datos_envio]);
+
+    console.log(store)
     return (
         <Dialog open={openEdit} onOpenChange={setOpenEdit}>
             <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={handleOpenModalEdit}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>
@@ -199,7 +213,7 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
                                         Tienda
                                     </Label>
 
-                                    <SelectStore setStore={setStore} />
+                                    <SelectStore setStore={setStore} storeDefault={store || datos_envio.direccion_envio} />
                                 </>
                                 : <OptionShipping
                                     department={department || datos_envio.departamento.trim()}
@@ -267,7 +281,20 @@ const OptionShipping = ({ department, setDepartment, province, setProvince, dist
 
 
                 <div className=" items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-slate-500">
+                    <Label htmlFor="locationCode" className="text-right text-slate-500">
+                        Ubigeo
+                    </Label>
+                    <Input
+                        id="locationCode"
+                        value={locationCode}
+                        placeholder="Ingresar Ubigeo"
+                        className=""
+                        onChange={(e) => setLocationCode(e.target.value)}
+                    />
+                </div>
+
+                <div className=" items-center gap-4">
+                    <Label htmlFor="addres" className="text-right text-slate-500">
                         Direccion
                     </Label>
                     <Input
@@ -279,7 +306,7 @@ const OptionShipping = ({ department, setDepartment, province, setProvince, dist
                     />
                 </div>
                 <div className=" items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-slate-500">
+                    <Label htmlFor="reference" className="text-right text-slate-500">
                         Referencia
                     </Label>
                     <Input

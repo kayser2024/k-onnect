@@ -676,7 +676,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                                     {/* Seleccionar Tienda */}
                                     <div className="">
                                         <span className="text-sm font-semibold">Seleccionar Tienda:</span>
-                                        <SelectStore setStore={setStore} />
+                                        <SelectStore setStore={setStore} storeDefault={store} />
                                     </div>
 
 
@@ -764,7 +764,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
                             <div className="">
                                 <span>Seleccionar Tienda:</span>
                                 <div className="">
-                                    <SelectStore setStore={setStore} />
+                                    <SelectStore setStore={setStore} storeDefault={store} />
                                 </div>
 
                             </div>
