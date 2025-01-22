@@ -46,12 +46,9 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
     const tipo_envio = datos_envio.tipo_envio;
 
     const isDelivery = datos_envio.tipo_envio === 'delivery';
-    console.log(isDelivery)
 
     // Función para guardar la información del Envío
     const handleSave = async () => {
-
-        // TODO:si es tienda, buscar la nueva tienda para obtener el departamento, provincia, distrito... 🚩
 
         // si es delivery entonces insertar los cambios 
         const data = {
@@ -82,16 +79,12 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
             // ACtualizar información envio
             const resultUpdateShippingInfo = await updateShippingInfo(data)
 
-
-            console.log(resultUpdateShippingInfo)
-
             if (!resultUpdateShippingInfo.ok) {
                 toast.error(resultUpdateShippingInfo.message)
                 return
             }
 
-
-            toast.success("Operación exitosa")
+            toast.success(resultUpdateShippingInfo.message)
 
 
             setOpenEdit(false)
@@ -144,7 +137,6 @@ export function ModalEditEnvio({ datos_envio, orden }: ModalEditEnvioProps) {
         }
     }, [openEdit, datos_envio]);
 
-    console.log(store)
     return (
         <Dialog open={openEdit} onOpenChange={setOpenEdit}>
             <DialogTrigger> <div className="bg-slate-100 text-center rounded-full cursor-pointer hover:bg-slate-300 p-2" onClick={handleOpenModalEdit}><LiaUserEditSolid title="Editar Envío" size={20} /></div></DialogTrigger>

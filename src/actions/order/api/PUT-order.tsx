@@ -87,16 +87,6 @@ export const updateShippingInfo = async (data: any) => {
             }
         })
 
-        //    PickupPointID: 3,
-        //   Description: 'KAYSER LURIN - LURIN',✔️
-        //   District: 'Lurin',✔️
-        //   Province: 'Lima',✔️
-        //   Department: 'Lima',✔️
-        //   LocationCode: 'PE150119',✔️
-        //   Place: 'Lurin',
-        //   Address: 'Calle Monasterio S/N Predio San Vicente Parcela B-63 Sub Lote C  - Lurin ',
-        //   Grouped: 'LIMA'
-
         // armar la data para actualizar 🚩
         const { Description, District, Province, Department, LocationCode, PickupPointID } = resutlPickupPoint[0]
 
@@ -112,19 +102,6 @@ export const updateShippingInfo = async (data: any) => {
     } else {
         // en caso de que es delivery armar la data 🚩
 
-        // nombres_envio: 'Rossmery Claudia',
-        // apellidos_envio: 'contreras',
-        // direccion_envio: 'jr los badianes 306 urb. san ignacio',✔️
-        // referencia_envio: 'nueva referencia',✔️
-        // telefono_envio: '941064317',
-        // departamento: 'lima', ✔️
-        // provincia: 'CAÑETE',✔️
-        // distrito: 'SAN VICENTE DE CAÑETE',✔️
-        // dni_envio: '42412807',
-        // servicio_envio: 'programado',
-        // ubigeo: '150501',✔️
-        // tipo_envio: 'delivery'
-
         pickupPoint = {
             PickupPointID: 56,
             Description: data.direccion_envio,
@@ -136,10 +113,6 @@ export const updateShippingInfo = async (data: any) => {
 
 
     }
-
-
-
-
 
 
 
@@ -168,21 +141,21 @@ export const updateShippingInfo = async (data: any) => {
 
     try {
         //1. Actualizar APi🚩
-        // const response = await fetch(url, {
-        //     method: "PUT",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         Authorization: `${process.env.SAMISHOP_API_TOKEN}`,
-        //     },
-        //     body: JSON.stringify(jsonData)
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `${process.env.SAMISHOP_API_TOKEN}`,
+            },
+            body: JSON.stringify(jsonData)
 
-        // });
+        });
 
-        // const dataFetch = await response.json();
+        const dataFetch = await response.json();
 
-        // if (!dataFetch.bEstado) {
-        //     throw new Error("OCURRIÓ UN ERROR INESPERADO")
-        // }
+        if (!dataFetch.bEstado) {
+            throw new Error("OCURRIÓ UN ERROR INESPERADO")
+        }
 
         //2. Actualizar en OrderLogs 🚩
         const now = new Date();
@@ -233,6 +206,7 @@ export const updateShippingInfo = async (data: any) => {
         })
 
 
+        // crear orderLogs para el History de la orden🚩
         const responseOrders = await prisma.orderLogs.create({
             data: {
                 CommentText: `Cambió Información de Envío`,
@@ -250,9 +224,9 @@ export const updateShippingInfo = async (data: any) => {
         }
 
         // si la respuesta es OK, revalidar la Página
-        // if (dataFetch.sRpta) {
-        //     revalidatePath(`/pedido/${orden}`);
-        // }
+        if (dataFetch.sRpta) {
+            revalidatePath(`/pedido/${orden}`);
+        }
 
         // return dataFetch.sRpta;
 
@@ -262,7 +236,7 @@ export const updateShippingInfo = async (data: any) => {
         return error.message
     }
 
-    return { ok: true, message: "Se realizaron los cambios correctamente" }
+    return { ok: true, message: "Cambios realizados con éxito!" }
 
 }
 
