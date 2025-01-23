@@ -43,9 +43,9 @@ export const columns: ColumnDef<DetallePedido>[] = [
 
 
             const { categoria, title, sku, atributo1_titulo, atributo1_valor, atributo2_titulo, atributo2_valor, sub_categoria } = row.original
-            return <div>
+            return <div className="">
                 <h3 className="text-xs  text-gray-400">{categoria} / {sub_categoria}</h3>
-                <h2 className="text-normal truncate max-w-[200px]" title={title}>{title}</h2>
+                <h2 className="text-normal truncate max-w-[200px] xl:max-w-[450px]" title={title}>{title}</h2>
                 <p className="text-xs text-gray-400">{sku}</p>
                 <p className="text-xs text-gray-400">{atributo1_titulo}: {atributo1_valor}</p>
                 <p className="text-xs text-gray-400">{atributo2_titulo}: {atributo2_valor}</p>
