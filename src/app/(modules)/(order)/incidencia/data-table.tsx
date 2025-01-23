@@ -117,7 +117,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
   const table = useReactTable({
-    data: dataIncidente,
+    data: dataIncidente || [],
     columns: columns(getDetailOrden, handleDownLoadDetail),
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),

@@ -148,15 +148,23 @@ export function TableMain() {
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-b">
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="border p-2 text-center">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+            {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={table.getAllColumns().length} className="text-center p-4">
+                No se encontraron registros.
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map(row => (
+              <tr key={row.id} className="border-b">
+                {row.getVisibleCells().map(cell => (
+                  <td key={cell.id} className="border p-2 text-center">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
             </tbody>
           </table>
         )}

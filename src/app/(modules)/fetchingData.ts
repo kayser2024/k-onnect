@@ -24,7 +24,8 @@ async function fetchWithRetry(url: string, options: object, retries = 3, delay =
     }
 }
 
-export async function fetchingAllData(start: string, end: string, paymentStatus: string ) {
+export async function fetchingAllData(start: string, end: string, paymentStatus: string) {
+    console.log(start, end)
     const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&paymentStatus=${paymentStatus}`,
         {
             method: 'GET',
@@ -36,6 +37,15 @@ export async function fetchingAllData(start: string, end: string, paymentStatus:
         }
     );
     const firstData = await firstResponse;
+    console.log(firstData)
+
+    if (!firstData.bEstado) {
+        return {
+            ordenes: [],
+            totalRegistros: 0,
+
+        }
+    }
 
     const totalPages = firstData.obj["paginas totales"];
     let allOrders = firstData.obj["ordenes"];
@@ -85,6 +95,15 @@ export async function fetchingAllData(start: string, end: string, paymentStatus:
                 }
             });
         }
+    }
+
+
+    // Si solo hay una página, retornar los datos obtenidos de la primera solicitud
+    if (totalPages === 1) {
+        return {
+            ordenes: allOrders,
+            totalRegistros: firstResponse.obj["total de registros"]
+        };
     }
 
     return {
