@@ -35,9 +35,16 @@ import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Check, MonitorDown, MoreVertical } from 'lucide-react'
+import { Check, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
 
+interface OrderWitHIncidence {
+  OrderID: number,
+  OrderNumber: string,
+  Invoice: string,
+  QtyIncidence: number | null,
+  PickupPoints: { Description: string | null } | null,
+}
 
 interface OrderProps {
   incidentList: [];

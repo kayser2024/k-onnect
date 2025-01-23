@@ -6,12 +6,13 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown } from 'lucide-react';
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown, Store, User, Headphones } from 'lucide-react';
 import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/actions/auth/logout';
+import { FaHeadset } from 'react-icons/fa';
 
 
 
@@ -38,9 +39,13 @@ export const Sidebar = () => {
         // },
         {
             nombre: 'Incidencias (ATC)',
-            icon: <TriangleAlert />,
+            icon: <FaHeadset size={22} />,
             ruta: '/incidencia',
-            roles: [1, 2, 4]
+            roles: [1, 2, 4],
+            children: [
+                { nombre: "Incidencias", ruta: "/atc/incidencia", icon: <TriangleAlert /> },
+                { nombre: "Exportar Data", ruta: "/atc/export_data", icon: <FileDown /> },
+            ]
 
         },
         {
@@ -63,7 +68,7 @@ export const Sidebar = () => {
         },
         {
             nombre: 'Tienda',
-            icon: <Box />,
+            icon: <Store />,
             ruta: '/tienda_orden',
             roles: [1, 2, 6],
             children: [

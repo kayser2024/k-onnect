@@ -179,6 +179,46 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
 };
 
 
+// Obtener todos las ordenes con Inciencias
+export const getOrdersWithIncidence = async () => {
+    let result;
+    try {
+
+        result = await prisma.orders.findMany({
+            where: {
+                HasIncidence: true
+            },
+            select: {
+                OrderID: true,
+                OrderNumber: true,
+                Invoice: true,
+                QtyIncidence: true,
+                PickupPoints:{
+                    select: {
+                        Description: true,
+                    }
+                }
+
+            }
+        })
+
+    } catch (error: any) {
+
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: []
+        }
+    }
+
+    return {
+        ok: true,
+        message: "Ordenes con incidencias obtenidas correctamente",
+        data: result
+    }
+}
+
+
 export const getAllIncidenceByInvoice: any = async (invoice: string) => {
     let result;
 
