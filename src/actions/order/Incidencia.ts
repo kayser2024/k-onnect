@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma"
+import { endOfDay, startOfDay, subHours } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 interface IncidenceProps {
@@ -193,7 +194,7 @@ export const getOrdersWithIncidence = async () => {
                 OrderNumber: true,
                 Invoice: true,
                 QtyIncidence: true,
-                PickupPoints:{
+                PickupPoints: {
                     select: {
                         Description: true,
                     }
@@ -691,4 +692,90 @@ export const getIncidenceByEstablishment = async (establishmentID: number) => {
 
     return result;
 
+}
+
+
+// función para obtenet incidencias por filtro del usuario
+export const getIncidenceByFilter = async (filter: { pickupPointId: number | null, typeIncidenceId: number | null, isCompleted: boolean | null, userId: number | null, startDate: Date, endDate: Date }) => {
+
+    // Ajustar las fechas para la zona horaria correcta y establecer el inicio y fin del día
+    const adjustedStartDate = startOfDay(subHours(filter.startDate, 0));
+    const adjustedEndDate = endOfDay(subHours(filter.endDate, 0));
+
+    let result
+    try {
+
+        result = await prisma.incidence.findMany({
+            where: {
+                AND: [
+                    {
+                        CreatedAt: {
+                            gte: adjustedStartDate,
+                            lte: adjustedEndDate
+                        }
+                    },
+                    ...(filter.pickupPointId ? [{ PickupPointID: filter.pickupPointId }] : []),
+                    ...(filter.typeIncidenceId ? [{ TypeIncidenceID: filter.typeIncidenceId }] : []),
+                    ...(filter.isCompleted ? [{ IsCompleted: filter.isCompleted }] : []),
+                    ...(filter.userId ? [{ UserId: filter.userId }] : []),
+
+                ]
+            },
+            select: {
+                InvoiceOriginal: true,
+                NCIncidence: true,
+                InvoiceIncidence: true,
+                IncidenceComments: true,
+                TypeIncidenceID: true,
+                Orders: {
+                    select: {
+                        OrderNumber: true
+                    }
+                },
+                Users: {
+                    select: {
+                        Name: true,
+                        LastName: true
+                    }
+                },
+                PickupPoints: {
+                    select: {
+                        Description: true
+                    }
+                },
+                TypesIncidence: {
+                    select: {
+                        Description: true
+                    }
+                },
+                Description: true,
+                CreatedAt: true,
+                IncidenceLogs: {
+                    select: {
+                        CodEan: true,
+                        CodProd: true,
+                        ProdQuantity: true,
+                        ProdSubtotal: true,
+                        Description: true,
+                    }
+                },
+                IsCompleted: true,
+
+            }
+        });
+
+    } catch (error: any) {
+
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: []
+        }
+    }
+
+    return {
+        ok: true,
+        message: "",
+        data: result
+    }
 }

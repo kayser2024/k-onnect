@@ -40,12 +40,6 @@ model usuarios {
   @@index([pickupPointID], map: "usuarios_ibfk_2")
 }
 
-model OSF_Product_bk {
-  codigoEan String  @id @db.VarChar(100)
-  codigoSap String? @db.VarChar(100)
-  url_foto  String? @db.VarChar(300)
-}
-
 model OrderLogs {
   LogID       Int         @id @default(autoincrement())
   OrderNumber String      @db.VarChar(50)

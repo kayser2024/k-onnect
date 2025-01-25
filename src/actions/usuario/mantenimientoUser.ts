@@ -7,14 +7,28 @@ import bcryptjs from 'bcryptjs';
 export const getAllUsers = async () => {
     let result;
     try {
-
         result = await prisma.users.findMany()
+
 
     } catch (error: any) {
         console.log(error)
         result = error.message
     }
     return result
+}
+
+export const getUsersByRol = async (rolId: number) => {
+    let result;
+    try {
+        result = await prisma.users.findMany({
+            where: {
+                RoleID: rolId
+            }
+        });
+    } catch (error: any) {
+        result = error.message
+    }
+    return result;
 }
 
 export const getUserByID = async (userID: number) => {
