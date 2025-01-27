@@ -77,9 +77,11 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
 
     // Agregar encabezados
     worksheet.columns = [
-      { header: 'NRO PEDIDO', key: 'OrderNumber', width: 30 },
-      { header: 'BOL./FACT.', key: 'Invoice', width: 20 },
-      { header: 'DESTINO', key: 'PickupPoint', width: 50 },
+      { header: 'NRO PEDIDO', key: 'OrderNumber', width: 25 },
+      { header: 'BOL./FACT.', key: 'Invoice', width: 15 },
+      { header: 'DESTINO', key: 'PickupPoint', width: 40 },
+      { header: 'USUARIO', key: 'User', width: 15 },
+      { header: 'FECHA', key: 'Date', width: 15 },
     ];
 
 
@@ -101,6 +103,8 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
         OrderNumber: order.OrderNumber,
         Invoice: order.Invoice,
         PickupPoint: order.PickupPoint,
+        User: order.Users.Name,
+        Date: order.CreatedAt,
       });
     });
 
@@ -182,8 +186,10 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
         </Popover>
 
       </div>
+      {/* TODO: Filtrar por Usuario 🚩 */}
 
-      <Button onClick={downloadReport} className='mt-5' disabled={isFetching}>{isFetching ? "Generando..." : "Generar Reporte"}</Button>
+      {/* Button para cargar Datos */}
+      <Button onClick={downloadReport} className='mt-5' disabled={isFetching}>{isFetching ? "Descargando..." : "Descargar Excel"}</Button>
 
     </div>
   )

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useState } from "react";
+import { ChangeEvent, FormEvent, MouseEvent, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -10,8 +10,12 @@ import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
 import { SelectEstablec } from "@/components/SelectEsablec";
-import { getDataOrderByInvoice } from "@/actions/order/api/GET-order";
+// import { getDataOrderByInvoice } from "@/actions/order/api/GET-order";
 import { Trash } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import ExcelJS from "exceljs";
+import { Separator } from "@/components/ui/separator";
+import { getDataOrderByInvoice } from "@/actions/order/getOrders";
 
 function EnvioMasivo() {
     const session = useSession();
@@ -24,7 +28,9 @@ function EnvioMasivo() {
     const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
-    const [establecSelect, setEstablecSelect] = useState("")
+    const [establecSelect, setEstablecSelect] = useState({ value: '', label: '' })
+
+    const [fileData, setFileData] = useState<any[]>([])
 
     const [error, setError] = useState(false);
 
@@ -35,12 +41,34 @@ function EnvioMasivo() {
 
     // función para verificar que tienda es la orden
     const verifyOrderEstablec = useCallback(async (invoice: string, establec: string) => {
-        const dataInvoice = await getDataOrderByInvoice(invoice);
-        const { tipo_envio, direccion_envio } = dataInvoice.datos_envio[0] || {};
-        return (
-            (tipo_envio === VERIFY_OPTIONS.RECOJO_TIENDA && establec === direccion_envio) ||
-            (tipo_envio === 'delivery' && establec === VERIFY_OPTIONS.DELIVERY)
-        );
+        try {
+            const dataInvoice = await getDataOrderByInvoice(invoice);
+            // Verifica que `dataInvoice.data` no sea un array vacío y tenga la propiedad `PickupPoint`
+            if (!dataInvoice.data || Array.isArray(dataInvoice.data) || !('PickupPoint' in dataInvoice.data)) {
+                setError(true);
+                return false;
+            }
+
+
+            if (dataInvoice.data?.PickupPoint !== establec) {
+                setError(true);
+                return;
+            }
+
+
+            return dataInvoice.ok
+
+        } catch (error: any) {
+            toast.error(error.message)
+            return false;
+        }
+
+
+        // const { tipo_envio, direccion_envio } = dataInvoice.datos_envio[0] || {};
+        // return (
+        //     (tipo_envio === VERIFY_OPTIONS.RECOJO_TIENDA && establec === direccion_envio) ||
+        //     (tipo_envio === 'delivery' && establec === VERIFY_OPTIONS.DELIVERY)
+        // );
     }, []);
 
     // función para agregar a la tabla
@@ -69,7 +97,7 @@ function EnvioMasivo() {
             if (newOrders.length > 0) {
                 const ordersWithDestino = newOrders.map((orderItem) => ({
                     order: orderItem,
-                    destino: optionSelection,
+                    destino: establecSelect,
                 }));
                 setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
@@ -85,12 +113,12 @@ function EnvioMasivo() {
 
 
             // agregar solo si corresponde a la tienda seleccionada
-            const isOrderValid = await verifyOrderEstablec(order, establecSelect)
+            const isOrderValid = await verifyOrderEstablec(order, establecSelect.label)
 
             if (isOrderValid) {
                 setOrderList((prevList) => [
                     ...prevList,
-                    { order: order.trim(), destino: optionSelection },
+                    { order: order.trim(), destino: establecSelect },
                 ]);
                 setError(false)
             } else {
@@ -170,6 +198,102 @@ function EnvioMasivo() {
 
 
 
+    const handleLoadFile = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            console.log(file);
+        }
+    };
+
+
+
+    // Función para obtener la información del File
+    const handleUploadFile = async (e: MouseEvent<HTMLButtonElement>) => {
+        const input = document.getElementById('file') as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                const arrayBuffer = e.target?.result as ArrayBuffer;
+
+                await workbook.xlsx.load(arrayBuffer);
+
+                const worksheet = workbook.getWorksheet(1); // Selecciona la primera hoja
+
+                if (!worksheet) {
+                    toast.error("No se encontró la hoja de trabajo.");
+                    return;
+                }
+
+                const rows: any[] = [];
+                const headers: any[] = [];
+
+                worksheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) {
+                        // Leer las cabeceras
+                        row.eachCell((cell, colNumber) => {
+                            headers.push(cell.value);
+                        });
+                    } else {
+                        // Leer los datos
+                        const rowData: any = {};
+                        row.eachCell((cell, colNumber) => {
+                            rowData[headers[colNumber - 1]] = cell.value;
+                        });
+                        rows.push(rowData);
+                    }
+                });
+
+
+                // Verificar si las columnas "Bol./Fact." y "Destino" existen
+                if (!headers.includes("BOL./FACT.") || !headers.includes("DESTINO")) {
+                    toast.error("El archivo no cumple con el formato de la plantilla para cargar las boletas en bloque.");
+                    return;
+                }
+
+                // Obtener la columna "Bol./Fact." y "Destino"
+                const filteredData = rows.map(row => ({
+                    Invoice: row["BOL./FACT."],
+                    PickupPoint: row["DESTINO"]
+                }))
+
+
+                // Verificar si ya existen en orderList
+                const newOrders = filteredData.filter(data =>
+                    !orderList.some(order => order.order === data.Invoice)
+                );
+
+                if (newOrders.length < filteredData.length) {
+                    toast.warning("Algunas boletas ya existen en la lista actual.");
+                }
+
+                setFileData(filteredData)
+                setOrderList((prevList) => [
+                    ...prevList,
+                    ...newOrders.map(data => ({ order: data.Invoice, destino: { label: data.PickupPoint, value: data.PickupPoint } }))
+                ]);
+                setError(false)
+
+                // Limpiar el input type file
+                input.value = ""
+            };
+
+
+
+            reader.readAsArrayBuffer(file);
+        } catch (error: any) {
+            console.error("Error al procesar el archivo:", error.message);
+            toast.error(error.message)
+            setError(true)
+        }
+
+    }
+
+
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
@@ -177,31 +301,50 @@ function EnvioMasivo() {
     return (
         <>
             <main className="max-w-screen-xl mx-auto">
-                <div className="grid sm:grid-cols-4 gap-2 bg-blue-50 p-2 rounded-md">
 
-                    <form onSubmit={handleSubmit} className="flex flex-col">
-                        <label htmlFor="orden" className="text-sm font-bold"># Boleta/ Factura:</label>
-                        <Input
-                            placeholder="B001-ABC"
-                            id="orden"
-                            value={order}
-                            onChange={(e) => {
-                                setOrder(e.target.value);
-                                if (error) setError(false);
-                            }}
-                            className={`border ${error ? "border-red-500" : ""}`}
-                        />
-                        {error && (
-                            <span className="text-red-500 text-sm mt-1">
-                                El destino no coincide con la Boleta.
-                            </span>
-                        )}
-                    </form>
-                    <div className="flex flex-col">
-                        <label htmlFor="" className="text-sm font-bold">Destino:</label>
-                        <SelectEstablec setEstablec={setEstablecSelect} />
+                <div className="grid md:grid-cols-2 gap-2">
+
+                    {/* Formulario para agregar registro por registro */}
+                    <div className="grid sm:grid-cols-4 gap-2 bg-blue-50 p-2  rounded-md">
+
+                        <form onSubmit={handleSubmit} className="flex flex-col col-span-2">
+                            <label htmlFor="orden" className="text-sm font-bold"># Boleta/ Factura:</label>
+                            <Input
+                                placeholder="B001-ABC"
+                                id="orden"
+                                value={order}
+                                onChange={(e) => {
+                                    setOrder(e.target.value);
+                                    if (error) setError(false);
+                                }}
+                                className={`border ${error ? "border-red-500" : ""}`}
+                            />
+                            {error && (
+                                <span className="text-red-500 text-xs mt-1">
+                                    El destino no coincide con la Boleta.
+                                </span>
+                            )}
+                        </form>
+
+                        <div className="flex flex-col col-span-2">
+                            <label htmlFor="" className="text-sm font-bold">Destino:</label>
+                            <SelectEstablec setEstablec={setEstablecSelect} />
+                        </div>
                     </div>
+
+
+                    {/* formularion para importar excel */}
+                    <div className="gap-2 flex bg-blue-50 p-2 rounded-md">
+                        <div className="grid max-w-sm items-center">
+                            <Label htmlFor="file" className="text-sm font-bold">Cargar EXCEL</Label>
+                            <Input id="file" type="file" accept=".xls,.xlsx" onChange={handleLoadFile} />
+
+                        </div>
+                        <Button onClick={(e) => handleUploadFile(e)} className="mt-5 flex-1">Cargar</Button>
+                    </div>
+
                 </div>
+
 
                 <br />
 

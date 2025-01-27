@@ -4,7 +4,7 @@ import { OptionOrder } from "@/types/Option"
 import { ColumnDef } from "@tanstack/react-table"
 
 
-export const columns: ColumnDef<{order:string,destino:OptionOrder}>[] = [
+export const columns: ColumnDef<{ order: string, destino: OptionOrder }>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -31,8 +31,15 @@ export const columns: ColumnDef<{order:string,destino:OptionOrder}>[] = [
         accessorKey: "order",
         header: "Orden",
         cell: ({ row }) => {
+            return <div className="text-sm">{row.original.order}</div>
+        }
+    },
+    {
+        accessorKey: "pickupPoint",
+        header: "Destino",
+        cell: ({ row }) => {
             console.log(row.original)
-            return <>{row.original.order}</>
+            return <div className="text-sm">{row.original.destino.label}</div>
         }
     },
 ]

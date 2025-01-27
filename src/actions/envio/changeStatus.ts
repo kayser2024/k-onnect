@@ -57,7 +57,6 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
 
     // Función para actualizar una orden en la API
     const updateOrderInAPI = async (orderNumber: string, estado: string) => {
-        console.log(orderNumber, estado);
 
         if (estado === 'en_preparacion' || estado === 'en_ruta' || estado === 'entregado_cliente') {
 

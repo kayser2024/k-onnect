@@ -7,7 +7,7 @@ import { getAllEstablecimientos } from '@/actions/establecimiento/getEstablecimi
 
 
 interface SelectEstablecProps {
-    setEstablec: (value: string) => void;
+    setEstablec: (value: Option) => void;
 }
 interface Option {
     label: string;
@@ -28,7 +28,10 @@ export const SelectEstablec = ({ setEstablec }: SelectEstablecProps) => {
     }
 
     const handleChange = (store: SingleValue<Option>) => {
-        setEstablec(store!.label)
+        if (store) {
+            setEstablec(store)
+
+        }
     }
 
 

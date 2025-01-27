@@ -38,7 +38,7 @@ export const Sidebar = () => {
         //     roles: ['admin']
         // },
         {
-            nombre: 'Incidencias (ATC)',
+            nombre: 'ATC',
             icon: <FaHeadset size={22} />,
             ruta: '/incidencia',
             roles: [1, 2, 4],

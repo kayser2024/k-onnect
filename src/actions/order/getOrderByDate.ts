@@ -20,10 +20,21 @@ export const getOrdersByDate = async (start: Date, end: Date) => {
                     gte: startOfDay,
                     lte: endOfDay
                 }
+            },
+            select: {
+                OrderNumber: true,
+                Invoice: true,
+                PickupPoint: true,
+                Users:{
+                    select:{
+                        Name: true,
+                    }
+                },
+                CreatedAt: true,
             }
+
         });
 
-        console.log(result)
 
     } catch (error: any) {
         return {

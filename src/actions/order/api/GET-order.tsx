@@ -1,6 +1,5 @@
 'use server'
 
-
 export const getDataOrderByInvoice = async (invoice: string, statusPayment: string = "pagado") => {
 
   const URL = `${process.env.WIN_WIN_URL}?estado_facturacion=${invoice.trim().toUpperCase()}&paymentStatus=${statusPayment}`;
@@ -24,6 +23,8 @@ export const getDataOrderByInvoice = async (invoice: string, statusPayment: stri
   }
 
 }
+
+
 export const getDataOrderByOrder = async () => {
 
 }
