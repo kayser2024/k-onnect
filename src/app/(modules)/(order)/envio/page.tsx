@@ -24,7 +24,7 @@ function EnvioMasivo() {
     const [failedOrders, setFailedOrders] = useState<{}>([]); // Estado para las órdenes fallidas
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [optionSelection, setOptionSelection] = useState({ value: '', label: '' });
-    const [establecSelect, setEstablecSelect] = useState("")
+    const [establecSelect, setEstablecSelect] = useState({ value: '', label: '' })
 
     const [error, setError] = useState(false);
 
@@ -69,7 +69,7 @@ function EnvioMasivo() {
             if (newOrders.length > 0) {
                 const ordersWithDestino = newOrders.map((orderItem) => ({
                     order: orderItem,
-                    destino: optionSelection,
+                    destino: establecSelect,
                 }));
                 setOrderList((prevList) => [...prevList, ...ordersWithDestino]);
                 toast.success(`${newOrders.length} órdenes agregadas correctamente.`);
@@ -85,12 +85,12 @@ function EnvioMasivo() {
 
 
             // agregar solo si corresponde a la tienda seleccionada
-            const isOrderValid = await verifyOrderEstablec(order, establecSelect)
+            const isOrderValid = await verifyOrderEstablec(order, establecSelect.label)
 
             if (isOrderValid) {
                 setOrderList((prevList) => [
                     ...prevList,
-                    { order: order.trim(), destino: optionSelection },
+                    { order: order.trim(), destino: establecSelect },
                 ]);
                 setError(false)
             } else {
