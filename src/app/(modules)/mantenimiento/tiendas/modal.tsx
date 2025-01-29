@@ -110,7 +110,7 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
                     {/* Dni */}
                     <div className="">
-                        <Label htmlFor="dni" className="text-right">
+                        <Label htmlFor="name" className="text-right">
                             Nombre:
                         </Label>
                         <Input
@@ -148,11 +148,11 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
                     {/* Dirección */}
                     <div className="">
-                        <Label htmlFor="lastName" className="text-right">Dirección:</Label>
+                        <Label htmlFor="Address" className="text-right">Dirección:</Label>
                         <Input
-                            id="lastName"
+                            id="Address"
                             className="col-span-3"
-                            value={data.Address || ""}
+                            value={dataPickupPoint.Address || ""}
                             onChange={e => setDataPickupPoint({ ...dataPickupPoint, Address: e.target.value })}
                             required
                         />

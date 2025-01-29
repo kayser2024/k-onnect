@@ -76,3 +76,32 @@ export const getEstablecById = async (id: number) => {
 export const updateEstablec = async (data: PickupPoint) => {
 
 }
+
+
+export const createEstablec = async (data: any) => {
+    let result;
+    try {
+        result = await prisma.pickupPoints.create({
+            data: {
+                Description: data.Description,
+                District: data.District,
+                Province: data.Province,
+                Department: data.Department,
+                LocationCode: data.LocationCode,
+                Place: data.Place,
+                Address: data.Address
+            }
+        })
+        return {
+            ok: true,
+            data: result,
+            message: "Establecimiento creado con éxito"
+        }
+    } catch (error: any) {
+        return {
+            ok: false,
+            data: [],
+            message: `${error.message}`
+        }
+    }
+}

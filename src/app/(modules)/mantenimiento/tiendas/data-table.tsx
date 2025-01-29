@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { columns } from './columns';
 import { Modal } from './modal';
-import { getEstablecById, getListEstablecimientos, updateEstablec } from '@/actions/establecimiento/getEstablecimiento';
+import { createEstablec, getEstablecById, getListEstablecimientos, updateEstablec } from '@/actions/establecimiento/getEstablecimiento';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { PickupPoint } from '@/types/Establec';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -68,6 +68,8 @@ export const DataTable = () => {
     // FUNCIÓN PARA CREAR UN NUEVO USUARIO
     const handleCreate = () => {
         setDataUser(initialData)
+        // TODO: Crear una tienda 🚩
+
         setIsOpenModal(true);
     }
 
@@ -107,19 +109,26 @@ export const DataTable = () => {
     }
 
 
-    // FUNCIÓN PARA GUARDAR LOS DATOS DEL USUARIO
+    // FUNCIÓN PARA GUARDAR LOS DATOS DE la TIENDA
     const handleSave = async (action: string, data: PickupPoint) => {
-
+        let message;
+        let result;
         setIsSaving(true)
         try {
-            // if (action === 'create') await createUser(data);
-            // if (action === 'edit') await updateUser(data);
+            if (action === 'create') {
+                result = await createEstablec(data);
+                message = result.message;
+                
+                if (!result.ok) return;
+            }
+
+
 
             // llamar action para crear un establecimiento y actualizar establecimiento
             if (action === 'edit') await updateEstablec(data)
 
 
-            toast.success("Operación exitosa");
+            toast.success(message);
         } catch (error: any) {
             toast.error(error.message);
         } finally {
