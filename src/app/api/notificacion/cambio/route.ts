@@ -26,7 +26,7 @@ interface Respuesta {
 export async function POST(req: NextRequest) {
 
     const body: Respuesta = await req.json()
-    console.log(body, '🟢🟢')
+    // console.log(body, '🟢🟢')
     const antes = body.antes.split(' / ')
     const despues = body.despues.split(' / ')
     const ean = body.ean.split(' / ')
@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
 
     }
 
-    console.log(antes);
-    console.log(despues);
+    // console.log(antes);
+    // console.log(despues);
 
     const message = {
         content: `**${body.boleta}**\n` +
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
 
     const webhookURL: string = process.env.CANAL_CREADOR_CAMBIO!
-    console.log(webhookURL)
+    // console.log(webhookURL)
     const send = await fetch(webhookURL, {
         method: 'POST',
         headers: {

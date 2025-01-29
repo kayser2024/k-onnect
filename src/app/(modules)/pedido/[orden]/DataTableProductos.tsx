@@ -52,6 +52,7 @@ interface DataTableProps {
     orden: Orden,
     comprobante: any,
     persona?: string | null
+    isPermited: boolean
 }
 
 interface Product {
@@ -71,7 +72,7 @@ interface ProductSelect {
     quantity: number
     price: number
 }
-export function DataTableProductos({ data, orden, comprobante, persona }: DataTableProps) {
+export function DataTableProductos({ data, orden, comprobante, persona, isPermited }: DataTableProps) {
 
     const [rowSelection, setRowSelection] = useState({})
     const [motivoCambio, setMotivoCambio] = useState("")
@@ -575,7 +576,7 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
 
     return (
         <div >
-            <ScrollArea className="h-[350px] md:h-[500px]">
+            <ScrollArea className="h-[350px] md:h-[450px]">
                 <Table >
                     {/* <TableCaption>Tabla de Productos</TableCaption> */}
                     <TableHeader>
@@ -628,162 +629,167 @@ export function DataTableProductos({ data, orden, comprobante, persona }: DataTa
             </ScrollArea>
 
             {/* BUTTONS */}
-            <div className="my-2 flex flex-col gap-2">
+            {
+                isPermited
+                &&
+                <div className="my-2 flex flex-col gap-2">
 
-                {/* Drawer para cambiar producto */}
-                <Dialog open={openDrawer} onOpenChange={setOpenDrawer}>
-                    <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
+                    {/* Drawer para cambiar producto */}
+                    <Dialog open={openDrawer} onOpenChange={setOpenDrawer}>
+                        <DialogTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`} >Cambio</DialogTrigger>
 
-                    {/* Modal Cambio Producto */}
-                    <DialogContent className="max-h-svh md:max-w-screen-md lg:w-screen-lg">
+                        {/* Modal Cambio Producto */}
+                        <DialogContent className="max-h-svh md:max-w-screen-md lg:w-screen-lg">
 
-                        <DialogHeader>
-                            <DialogTitle className="text-xl uppercase text-center mb-4">CAMBIAR PRODUCTO</DialogTitle>
-                            {/* <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription> */}
-                        </DialogHeader>
+                            <DialogHeader>
+                                <DialogTitle className="text-xl uppercase text-center mb-4">CAMBIAR PRODUCTO</DialogTitle>
+                                {/* <DrawerDescription>Accion solicitada para generar linea de excel, salida de cambio, notificacion de discord</DrawerDescription> */}
+                            </DialogHeader>
 
-                        {/* Header Modal Cambiar Producto */}
-                        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 ">
+                            {/* Header Modal Cambiar Producto */}
+                            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 ">
 
-                            {/* RESUMEN Orden */}
-                            <div className="w-full rounded-lg border p-4">
+                                {/* RESUMEN Orden */}
+                                <div className="w-full rounded-lg border p-4">
 
-                                <h2 className="text-center text-lg font-semibold  mb-3">Resumen Orden: {docActual}</h2>
-                                <div className=" flex items-center justify-between">
-                                    <p className="">Total Orden: </p>
-                                    <span className="">S/ {prodOriginSubtotal.toFixed(2)}</span>
+                                    <h2 className="text-center text-lg font-semibold  mb-3">Resumen Orden: {docActual}</h2>
+                                    <div className=" flex items-center justify-between">
+                                        <p className="">Total Orden: </p>
+                                        <span className="">S/ {prodOriginSubtotal.toFixed(2)}</span>
+                                    </div>
+                                    <div className=" flex items-center justify-between my-2">
+                                        <p className="">Total Cambio: </p>
+                                        <span className="">S/ {prodChangeSubtotal.toFixed(2)}</span>
+                                    </div>
+
                                 </div>
-                                <div className=" flex items-center justify-between my-2">
-                                    <p className="">Total Cambio: </p>
-                                    <span className="">S/ {prodChangeSubtotal.toFixed(2)}</span>
+
+
+                                {/* tabla de lista de producto Mobile */}
+                                <div className="md:hidden col-span-2">
+
+                                    {/* <TablaRealizarCambio /> */}
+                                    <h3 className="text-lg mb-2">Lista de Productos</h3>
+                                    <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
+                                </div>
+
+                                {/*  */}
+                                <div className=" flex flex-col gap-3">
+                                    <ScrollArea className="max-h-72 flex flex-col gap-4 px-2">
+
+                                        {/* Seleccionar Tienda */}
+                                        <div className="">
+                                            <span className="text-sm font-semibold">Seleccionar Tienda:</span>
+                                            <SelectStore setStore={setStore} storeDefault={store} />
+                                        </div>
+
+
+                                        {/* Seleccionar Motivo de Cambio */}
+                                        <div className="my-3 flex flex-col gap-2">
+                                            <div className="">
+                                                <Label htmlFor="selectMotivo" className="text-xs font-semibold">Seleccionar Motivo</Label>
+                                                <Select onValueChange={manejarCambioMotivo}>
+                                                    <SelectTrigger className="">
+                                                        <SelectValue placeholder="Seleccionar..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent id="selectMotivo">
+                                                        <SelectGroup>
+                                                            <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
+                                                            <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
+                                                            <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
+                                                            <SelectItem value="Otro">Otro</SelectItem>
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            {motivoCambio.includes("Otro") && <Input placeholder="Ingresar motivo" onChange={(e) => setMotivoCambio(`Otro : ${e.target.value}`)} />}
+                                        </div>
+
+
+                                        {/* Escoger Productos Nuevos */}
+                                        <Label><Checkbox onCheckedChange={(prev) => setOption(!prev)} /> Buscar por Cod. {option ? "EAN" : "SAP"}</Label>
+                                        <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} option={option} />
+                                    </ScrollArea>
+
                                 </div>
 
                             </div>
 
 
-                            {/* tabla de lista de producto Mobile */}
-                            <div className="md:hidden col-span-2">
+                            {/* Tabla de Productos a Cambiar */}
+                            <ScrollArea className="max-h-[500px]">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                                    {/* Lista de Productos */}
+                                    <div className="hidden md:block ">
+                                        <h3 className="text-lg mb-2">Lista de Productos</h3>
+                                        <ProductSelectList
+                                            productsSelect={table?.getSelectedRowModel().rows.map((row) => row.original) || []}
+                                            setProductsSelect={setProductsSelect}
+                                            setProdOriginSubtotal={setProdOriginSubtotal}
+                                        />
+                                    </div>
 
-                                {/* <TablaRealizarCambio /> */}
-                                <h3 className="text-lg mb-2">Lista de Productos</h3>
-                                <ProductSelectList productsSelect={table.getSelectedRowModel().rows.map((row) => row.original)} setProductsSelect={setProductsSelect} setProdOriginSubtotal={setProdOriginSubtotal} />
-                            </div>
+                                    {/* Nuevos Productos */}
+                                    <div className="col-span-1 md:col-span-1 ">
+                                        <h3 className="text-lg mb-2">Nuevos Productos</h3>
+                                        <ProductToChangeList
+                                            newProducts={newProducts}
+                                            setNewProducts={setNewProducts}
+                                            setProdChangeSubtotal={setProdChangeSubtotal}
+                                        />
+                                    </div>
+                                </div>
+                            </ScrollArea>
 
-                            {/*  */}
-                            <div className=" flex flex-col gap-3">
-                                <ScrollArea className="max-h-72 flex flex-col gap-4 px-2">
 
-                                    {/* Seleccionar Tienda */}
+                            <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
+                                {/* <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button> */}
+
+                                <Button onClick={changeProduct} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+
+                                {/* TODO: agregar un popUp para verificar que el monto del cambio no es superior al monto original seleccionado🚩 */}
+
+
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* DropMenu para Devolucion */}
+                    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} >
+                        <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
+
+                        {/* Drawer Menu Devolucion */}
+                        <DropdownMenuContent>
+                            <DropdownMenuLabel className="flex flex-col gap-4">
+                                <div className="flex flex-col mb-2">
+                                    <span>¿Realizar Devolución?</span>
+                                    <span className="text-xs text-slate-400 font-normal">Copiar Linea Excel y Notificar Discord</span>
+                                </div>
+                                <div className="">
+                                    <span>Seleccionar Tienda:</span>
                                     <div className="">
-                                        <span className="text-sm font-semibold">Seleccionar Tienda:</span>
                                         <SelectStore setStore={setStore} storeDefault={store} />
                                     </div>
 
-
-                                    {/* Seleccionar Motivo de Cambio */}
-                                    <div className="my-3 flex flex-col gap-2">
-                                        <div className="">
-                                            <Label htmlFor="selectMotivo" className="text-xs font-semibold">Seleccionar Motivo</Label>
-                                            <Select onValueChange={manejarCambioMotivo}>
-                                                <SelectTrigger className="">
-                                                    <SelectValue placeholder="Seleccionar..." />
-                                                </SelectTrigger>
-                                                <SelectContent id="selectMotivo">
-                                                    <SelectGroup>
-                                                        <SelectItem value="Cambio a pedido del cliente por talla o modelo">Cambio a pedido del cliente por talla o modelo</SelectItem>
-                                                        <SelectItem value="Cambio por falta de stock">Cambio por falta de stock</SelectItem>
-                                                        <SelectItem value="Cambio por prenda fallada">Cambio por prenda fallada</SelectItem>
-                                                        <SelectItem value="Otro">Otro</SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        {motivoCambio.includes("Otro") && <Input placeholder="Ingresar motivo" onChange={(e) => setMotivoCambio(`Otro : ${e.target.value}`)} />}
+                                </div>
+                                <div className="">
+                                    <span>Comentario:</span>
+                                    <div className="">
+                                        <Input placeholder="Comentario" className="" onChange={(e) => setCommentDevol(e.target.value)} value={commentDevol} />
                                     </div>
 
-
-                                    {/* Escoger Productos Nuevos */}
-                                    <Label><Checkbox onCheckedChange={(prev) => setOption(!prev)} /> Buscar por Cod. {option ? "EAN" : "SAP"}</Label>
-                                    <SelectProductChange setNewProducts={setNewProducts} newProducts={newProducts} option={option} />
-                                </ScrollArea>
-
-                            </div>
-
-                        </div>
-
-
-                        {/* Tabla de Productos a Cambiar */}
-                        <ScrollArea className="max-h-[500px]">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                                {/* Lista de Productos */}
-                                <div className="hidden md:block ">
-                                    <h3 className="text-lg mb-2">Lista de Productos</h3>
-                                    <ProductSelectList
-                                        productsSelect={table?.getSelectedRowModel().rows.map((row) => row.original) || []}
-                                        setProductsSelect={setProductsSelect}
-                                        setProdOriginSubtotal={setProdOriginSubtotal}
-                                    />
                                 </div>
 
-                                {/* Nuevos Productos */}
-                                <div className="col-span-1 md:col-span-1 ">
-                                    <h3 className="text-lg mb-2">Nuevos Productos</h3>
-                                    <ProductToChangeList
-                                        newProducts={newProducts}
-                                        setNewProducts={setNewProducts}
-                                        setProdChangeSubtotal={setProdChangeSubtotal}
-                                    />
-                                </div>
-                            </div>
-                        </ScrollArea>
 
+                                <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
 
-                        <DialogFooter className="flex gap-2 flex-row items-center justify-end my-4">
-                            {/* <Button onClick={handleDescargaCambio} variant='secondary'><RiFileExcel2Line size={25} className="text-gren-400" />Descargar Salida de Cambio</Button> */}
+                            </DropdownMenuLabel>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
-                            <Button onClick={changeProduct} disabled={loading} variant="default"><TbStatusChange size={25} /> {loading ? 'Guardando...' : 'Realizar Cambio'}</Button>
+                </div>
 
-                            {/* TODO: agregar un popUp para verificar que el monto del cambio no es superior al monto original seleccionado🚩 */}
-
-
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                {/* DropMenu para Devolucion */}
-                <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} >
-                    <DropdownMenuTrigger disabled={table.getSelectedRowModel().rows.length === 0} className={`${table.getSelectedRowModel().rows.length === 0 ? "bg-gray-300" : "bg-black"} text-white p-2 rounded-md transition-all`}>Devolucion</DropdownMenuTrigger>
-
-                    {/* Drawer Menu Devolucion */}
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel className="flex flex-col gap-4">
-                            <div className="flex flex-col mb-2">
-                                <span>¿Realizar Devolución?</span>
-                                <span className="text-xs text-slate-400 font-normal">Copiar Linea Excel y Notificar Discord</span>
-                            </div>
-                            <div className="">
-                                <span>Seleccionar Tienda:</span>
-                                <div className="">
-                                    <SelectStore setStore={setStore} storeDefault={store} />
-                                </div>
-
-                            </div>
-                            <div className="">
-                                <span>Comentario:</span>
-                                <div className="">
-                                    <Input placeholder="Comentario" className="" onChange={(e) => setCommentDevol(e.target.value)} value={commentDevol} />
-                                </div>
-
-                            </div>
-
-
-                            <Button className="" onClick={handleReembolso} disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</Button>
-
-                        </DropdownMenuLabel>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-
-            </div>
+            }
 
 
             {/* Modal ConfirmContinue */}

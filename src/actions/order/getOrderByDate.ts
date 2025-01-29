@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 
-export const getOrdersByDate = async (start: Date, end: Date) => {
+export const getOrdersByDate = async (start: Date, end: Date, userId: number, statusId: number) => {
 
     // Ajustar la fecha de inicio a las 00:00:00
     const startOfDay = new Date(start);
@@ -19,15 +19,22 @@ export const getOrdersByDate = async (start: Date, end: Date) => {
                 CreatedAt: {
                     gte: startOfDay,
                     lte: endOfDay
-                }
+                },
+                UserID: userId,
+                StatusID: statusId,
             },
             select: {
                 OrderNumber: true,
                 Invoice: true,
                 PickupPoint: true,
-                Users:{
-                    select:{
+                Users: {
+                    select: {
                         Name: true,
+                    }
+                },
+                OrderStatus: {
+                    select: {
+                        Description: true,
                     }
                 },
                 CreatedAt: true,
@@ -35,11 +42,11 @@ export const getOrdersByDate = async (start: Date, end: Date) => {
 
         });
 
-
     } catch (error: any) {
         return {
             ok: false,
-            message: error.message
+            message: error.message,
+            data: []
         };
     }
 

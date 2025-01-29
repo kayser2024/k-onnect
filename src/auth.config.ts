@@ -66,12 +66,12 @@ export const authConfig: NextAuthConfig = {
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials);
 
-        console.log(parsedCredentials);
+        // console.log(parsedCredentials);
         if (!parsedCredentials.success) return null;
 
         const { email, password } = parsedCredentials.data;
 
-        console.log(email, password)
+        // console.log(email, password)
 
         // Encontrar el usuario por el correo activo
         const user = await prisma.users.findUnique({
@@ -83,12 +83,12 @@ export const authConfig: NextAuthConfig = {
 
         if (!user) return null;
 
-        console.log(user)
+        // console.log(user)
 
         if (!bcryptjs.compareSync(password, user.Password)) return null;
 
 
-        console.log(user)
+        // console.log(user)
 
         // Regresar el usuario sin el password
         const { Password: _, ...rest } = user;

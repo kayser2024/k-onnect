@@ -24,4 +24,4 @@ export const formatDate = (isoDate: string): string => {
 
 // Ejemplo de uso
 const formattedDate = formatDate("2024-11-28T10:53:37.000Z");
-console.log(formattedDate); // "28-nov-24 10:53:37 AM"
+// console.log(formattedDate); // "28-nov-24 10:53:37 AM"

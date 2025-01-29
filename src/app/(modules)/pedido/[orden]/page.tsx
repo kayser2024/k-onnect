@@ -172,7 +172,11 @@ async function HomeOrden({ params }: Props) {
     const { orden } = params
 
     const user = await auth()
+    const role = user!.user.RoleID;
 
+    const rolePermission = [1, 2, 4]//admin,soporte,atc
+
+    const isPermited = rolePermission.includes(role)
     if (!user) redirect('/api/auth/signin')
 
 
@@ -235,13 +239,16 @@ async function HomeOrden({ params }: Props) {
 
                                     <span className={`rounded-2xl block p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
                                 </CardTitle>
-                                <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
+                                {
+                                    isPermited
+                                    && <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
+                                }
                             </div>
                             <CardDescription>Detalles de la orden</CardDescription>
 
                         </CardHeader>
                         <CardContent>
-                            <DataTableProductos persona={user.user?.Name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} />
+                            <DataTableProductos persona={user.user?.Name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} isPermited={isPermited} />
                         </CardContent>
                     </Card>
 
@@ -255,7 +262,10 @@ async function HomeOrden({ params }: Props) {
                                         {situacion_pagos.estado_pago}
                                     </span>
                                 </div>
-                                <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
+
+                                {isPermited &&
+                                    <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
+                                }
                             </CardTitle>
 
                         </CardHeader>
@@ -340,7 +350,9 @@ async function HomeOrden({ params }: Props) {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle>Informacion de Envio </CardTitle>
-                                <ModalEditEnvio datos_envio={datos_envio} orden={cabecera_pedido?.numero_orden} />
+                                {isPermited &&
+                                    <ModalEditEnvio datos_envio={datos_envio} orden={cabecera_pedido?.numero_orden} />
+                                }
                             </div>
                         </CardHeader>
                         <CardContent>

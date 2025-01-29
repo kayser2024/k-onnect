@@ -25,7 +25,7 @@ async function fetchWithRetry(url: string, options: object, retries = 3, delay =
 }
 
 export async function fetchingAllData(start: string, end: string, paymentStatus: string) {
-    console.log(start, end)
+    // console.log(start, end)
     const firstResponse = await fetchWithRetry(`${process.env.WIN_WIN_URL}?orderStartDate=${start}&orderEndDate=${end}&paymentStatus=${paymentStatus}`,
         {
             method: 'GET',
@@ -37,7 +37,7 @@ export async function fetchingAllData(start: string, end: string, paymentStatus:
         }
     );
     const firstData = await firstResponse;
-    console.log(firstData)
+    // console.log(firstData)
 
     if (!firstData.bEstado) {
         return {

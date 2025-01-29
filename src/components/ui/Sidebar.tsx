@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown, Store, User, Headphones } from 'lucide-react';
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown, Store, User, Headphones, Scroll } from 'lucide-react';
 import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
@@ -14,7 +14,7 @@ import { usePathname } from 'next/navigation';
 import { logout } from '@/actions/auth/logout';
 import { FaHeadset } from 'react-icons/fa';
 
-
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export const Sidebar = () => {
 
@@ -113,7 +113,7 @@ export const Sidebar = () => {
     const sesion = useSession()
     const userRole = sesion.data?.user.RoleID;
 
-    const usuarioInfo = { nombre: `${sesion.data?.user?.Name} ${sesion.data?.user?.LastName} ` || 'No Conectado' }
+    const usuarioInfo = { nombre: `${sesion.data?.user?.Name} ` || 'No Conectado' }
 
 
     // Filtrar rutas según el rol del usuario
@@ -144,89 +144,91 @@ export const Sidebar = () => {
             {isSideMenuOpen && (<div onClick={closeMenu} className="fade-in fixed top-0 left-0 w-screen h-screen z-20 backdrop-filter backdrop-blur-sm" />)}
 
             {/* Sidemenu */}
-            <nav
-                className={clsx("fixed p-5 right-0 top-0 w-[400px] h-screen rounded-bl-3xl rounded-tl-3xl z-[25] bg-white dark:bg-black dark:text-white shadow-2xl transform transition-all duration-300", { "translate-x-full": !isSideMenuOpen })}>
+            <nav className={clsx("fixed p-5 right-0 top-0 w-[400px] h-screen z-[25] bg-white dark:bg-black dark:text-white shadow-2xl transform transition-all duration-300", { "translate-x-full": !isSideMenuOpen })}>
+                <ScrollArea className='h-screen' >
 
-                {/* Menú */}
-                <div>
-                    <div className='flex items-center '>
 
-                        {usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()}</div>}
+                    {/* Menú */}
+                    <div>
+                        <div className='flex items-center '>
 
-                        <div className='flex-grow text-center'>
-                            <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>
-                            <span className='text-xs text-gray-300'>Registrado en sistema ATC</span>
+                            {usuarioInfo.nombre !== 'No Conectado' && <div className='bg-black text-white rounded-full p-1 w-10 h-10 flex items-center justify-center'>{usuarioInfo.nombre.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()}</div>}
+
+                            <div className='flex-grow text-center'>
+                                <h2 className='text-base font-bold'>{usuarioInfo.nombre}</h2>
+                                <span className='text-xs text-gray-300'>Registrado en sistema ATC</span>
+                            </div>
+                            <div onClick={() => logout()} className='bg-red-500 p-3 rounded-lg cursor-pointer'>
+                                {
+                                    usuarioInfo.nombre !== 'No Conectado'
+                                        ? <Power className='w-auto h-[15px] text-white ' />
+                                        : <ScanEye href='/api/auth/signin' />
+                                }
+                            </div>
                         </div>
-                        <div onClick={() => logout()} className='bg-red-500 p-3 rounded-lg cursor-pointer'>
-                            {
-                                usuarioInfo.nombre !== 'No Conectado'
-                                    ? <Power className='w-auto h-[15px] text-white ' />
-                                    : <ScanEye href='/api/auth/signin' />
-                            }
-                        </div>
+
+                        <div className='m-4  bg-gray-100 h-[1px]' />
                     </div>
 
-                    <div className='m-4  bg-gray-100 h-[1px]' />
-                </div>
-
-                <div className='flex flex-col gap-1'>
-                    {rutasFiltradas.map((ruta) => (
-                        <div key={ruta.nombre}>
-                            {ruta.children ? (
-                                // Si tiene hijos, se renderiza un contenedor desplegable.
-                                <>
-                                    <div
-                                        className={clsx(
-                                            'flex items-center justify-between hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
-                                            { 'text-blue-500 border': pathname === ruta.ruta || expandedMenu === ruta.nombre }
+                    <div className='flex flex-col gap-1'>
+                        {rutasFiltradas.map((ruta) => (
+                            <div key={ruta.nombre}>
+                                {ruta.children ? (
+                                    // Si tiene hijos, se renderiza un contenedor desplegable.
+                                    <>
+                                        <div
+                                            className={clsx(
+                                                'flex items-center justify-between hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
+                                                { 'text-blue-500 border': pathname === ruta.ruta || expandedMenu === ruta.nombre }
+                                            )}
+                                            onClick={() => toggleMenu(ruta.nombre)}
+                                        >
+                                            <div className='flex items-center gap-3'>
+                                                {ruta.icon} {ruta.nombre}
+                                            </div>
+                                            <span>{expandedMenu === ruta.nombre ? '-' : '+'}</span>
+                                        </div>
+                                        {expandedMenu === ruta.nombre && (
+                                            <div className='ml-6 flex flex-col gap-2'>
+                                                {ruta.children.map((child) => (
+                                                    <Link
+                                                        key={child.ruta}
+                                                        href={child.ruta}
+                                                        onClick={closeMenu}
+                                                        className={clsx(
+                                                            'flex gap-2 hover:bg-gray-200 dark:hover:text-black p-3 rounded-lg transition-all',
+                                                            { 'text-blue-500': pathname === child.ruta }
+                                                        )}
+                                                    >
+                                                        {child.icon} {child.nombre}
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         )}
-                                        onClick={() => toggleMenu(ruta.nombre)}
+                                    </>
+                                ) : (
+                                    // Si no tiene hijos, renderiza un Link directamente.
+                                    <Link
+                                        href={ruta.ruta}
+                                        onClick={closeMenu}
+                                        className={clsx(
+                                            'flex items-center gap-3 hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
+                                            { 'text-blue-500 border': pathname === ruta.ruta }
+                                        )}
                                     >
-                                        <div className='flex items-center gap-3'>
-                                            {ruta.icon} {ruta.nombre}
-                                        </div>
-                                        <span>{expandedMenu === ruta.nombre ? '-' : '+'}</span>
-                                    </div>
-                                    {expandedMenu === ruta.nombre && (
-                                        <div className='ml-6 flex flex-col gap-2'>
-                                            {ruta.children.map((child) => (
-                                                <Link
-                                                    key={child.ruta}
-                                                    href={child.ruta}
-                                                    onClick={closeMenu}
-                                                    className={clsx(
-                                                        'flex gap-2 hover:bg-gray-200 dark:hover:text-black p-3 rounded-lg transition-all',
-                                                        { 'text-blue-500': pathname === child.ruta }
-                                                    )}
-                                                >
-                                                    {child.icon} {child.nombre}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                // Si no tiene hijos, renderiza un Link directamente.
-                                <Link
-                                    href={ruta.ruta}
-                                    onClick={closeMenu}
-                                    className={clsx(
-                                        'flex items-center gap-3 hover:bg-gray-100 dark:hover:text-black p-4 rounded-xl transition-all',
-                                        { 'text-blue-500 border': pathname === ruta.ruta }
-                                    )}
-                                >
-                                    {ruta.icon} {ruta.nombre}
-                                </Link>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                                        {ruta.icon} {ruta.nombre}
+                                    </Link>
+                                )}
+                            </div>
+                        ))}
+                    </div>
 
 
-                <div>
+                    <div>
 
-                </div>
+                    </div>
 
+                </ScrollArea>
             </nav >
 
         </div >

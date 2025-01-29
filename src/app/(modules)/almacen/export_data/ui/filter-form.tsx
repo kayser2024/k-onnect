@@ -22,6 +22,8 @@ import { useQuery } from '@tanstack/react-query';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { Loader } from '@/components/loader';
+import { SelectUser } from './select-user';
+import { SelectOrderStatus } from './select-orderStatus';
 
 
 interface FilterFormProps {
@@ -32,6 +34,9 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
   const [dateStart, setDateStart] = useState<Date | undefined>(new Date())
   const [dateEnd, setDateEnd] = useState<Date | undefined>(new Date())
 
+  const [userId, SetUserId] = useState(4)//usuarioID  felipe 
+  const [orderStatusId, setOrderStatusId] = useState(2)
+
 
   const { data, isFetching, isError, refetch, isLoading } = useQuery({
     queryKey: ["dataFilter"],
@@ -40,7 +45,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
         toast.warning("Por favor seleccione ambas fechas");
         return;
       }
-      const resultFilter = await getOrdersByDate(dateStart, dateEnd)
+      const resultFilter = await getOrdersByDate(dateStart, dateEnd, userId, orderStatusId)
       return resultFilter;
     },
     enabled: false
@@ -58,7 +63,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
     };
 
     fetchData();
-  }, [dateStart, dateEnd, refetch, setLoading, setOrderFilter]);
+  }, [dateStart, dateEnd, userId, orderStatusId, refetch, setLoading, setOrderFilter]);
 
 
   const downloadReport = async () => {
@@ -73,7 +78,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
 
   const generateExcelReport = (data: any[]) => {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Reporte de Órdenes');
+    const worksheet = workbook.addWorksheet('Reporte');
 
     // Agregar encabezados
     worksheet.columns = [
@@ -81,6 +86,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
       { header: 'BOL./FACT.', key: 'Invoice', width: 15 },
       { header: 'DESTINO', key: 'PickupPoint', width: 40 },
       { header: 'USUARIO', key: 'User', width: 15 },
+      { header: 'ESTADO', key: 'Status', width: 15 },
       { header: 'FECHA', key: 'Date', width: 15 },
     ];
 
@@ -104,6 +110,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
         Invoice: order.Invoice,
         PickupPoint: order.PickupPoint,
         User: order.Users.Name,
+        Status: order.OrderStatus.Description,
         Date: order.CreatedAt,
       });
     });
@@ -125,7 +132,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
 
 
   return (
-    <div className='flex gap-2'>
+    <div className='flex gap-2 bg-slate-100 rounded-md p-2'>
       <div className="flex flex-col gap-1">
         <Label>Incio</Label>
 
@@ -134,7 +141,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
             <Button
               variant={"outline"}
               className={cn(
-                "w-[280px] justify-start text-left font-normal",
+                "w-[200px] justify-start text-left font-normal",
                 !dateStart && "text-muted-foreground"
               )}
             >
@@ -165,7 +172,7 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
             <Button
               variant={"outline"}
               className={cn(
-                "w-[280px] justify-start text-left font-normal",
+                "w-[200px] justify-start text-left font-normal",
                 !dateEnd && "text-muted-foreground"
               )}
             >
@@ -187,6 +194,17 @@ export const FilterForm = ({ setOrderFilter, setLoading }: FilterFormProps) => {
 
       </div>
       {/* TODO: Filtrar por Usuario 🚩 */}
+      <div className="flex flex-col gap-1">
+        <Label>Usuario:</Label>
+        <SelectUser userId={userId} setUserId={SetUserId} />
+
+      </div>
+
+      {/* TODO: Filtrar por estado del pedido */}
+      <div className="flex flex-col gap-1">
+        <Label>Estado:</Label>
+        <SelectOrderStatus orderStatusId={orderStatusId} setOrderStatusId={setOrderStatusId} />
+      </div>
 
       {/* Button para cargar Datos */}
       <Button onClick={downloadReport} className='mt-5' disabled={isFetching}>{isFetching ? "Descargando..." : "Descargar Excel"}</Button>

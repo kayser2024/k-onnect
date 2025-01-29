@@ -9,7 +9,7 @@ import { ContainerReport } from './container-report'
 
 
 export const metadata: Metadata = {
-    title: 'Reporte de órdenes',
+    title: 'ALMACEN | Reporte de órdenes',
     icons: '/kayser.ico'
 }
 const ExportDataPage = () => {

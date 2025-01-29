@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   Table,
@@ -37,6 +37,12 @@ import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/down
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Check, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
+
+
+// import io from "socket.io-client";
+
+
+// const socket = io("http://localhost:4000"); // URL del backend
 
 interface OrderWitHIncidence {
   OrderID: number,
@@ -233,8 +239,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
       console.log(data, '👉👉👉')
       // Isertar la NC y Boleta de la incidencia
-      const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
-
+      // const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
+      const result = "OK: Incidencia actualizada correctamente";
 
       // si es exitoso cerrar el modal
       if (result?.includes("ERROR:")) {
@@ -244,6 +250,9 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         refetch(); // obtener los datos actualizados
         toast.success(result);
         setOpenInputModal(false)
+
+
+
       }
 
     } catch (error: any) {
@@ -279,6 +288,22 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     setOpenDropdown(null)
   }
 
+
+
+  // useEffect(() => {
+  //   // emit el evento, si es posible enviar alguna información
+  //   // socket.emit('evento1',data);
+
+
+  //   // escuchar el evento 
+  //   // socket.on('enveto2',(mensaje)=>{
+  //   // console.log('evento escuchado',mensaje)
+  //   // });
+
+  //   return () => {
+  //     socket.off("evento2")//desactivar el evento cuando se desmonta el componente
+  //   }
+  // }, [])
 
   return (
     <div className="w-full">

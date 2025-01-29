@@ -39,6 +39,14 @@ export const columns: ColumnDef<any>[] = [
 
     },
     {
+        accessorKey: 'status',
+        header: 'Estado',
+        cell: ({ row }) => {
+            return <div className='text-sm'>{row.original.OrderStatus.Description}</div>
+        },
+
+    },
+    {
         accessorKey: 'date',
         header: 'Fecha Carga',
         cell: ({ row }) => {

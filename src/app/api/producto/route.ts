@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
 
-    console.log('======= API PRODUCTO =======');
+    // console.log('======= API PRODUCTO =======');
     const { data }: { data: string[] } = await req.json()
 
     let sap_list: string[] = []
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         }
     }
 
-    console.log('RESPUESTA => ', sap_list);
+    // console.log('RESPUESTA => ', sap_list);
 
     return NextResponse.json(sap_list)
 }
