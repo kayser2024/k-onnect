@@ -9,11 +9,18 @@ import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
+import { DataTableAll } from "./data-table-all";
+import { useQuery } from "@tanstack/react-query";
+import { getOrderByPickupPoint } from "@/actions/order/getOrderByPickupPoint";
 
 function RecepcionOrder() {
     const session = useSession();
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
+
+
+    const PickupPointID = session.data?.user.PickupPointID
+    // console.log(session.data?.user.PickupPointID)
 
     const [order, setOrder] = useState("");
     const [orderList, setOrderList] = useState<{ order: string, destino: OptionOrder }[]>([]);
@@ -138,10 +145,23 @@ function RecepcionOrder() {
 
 
 
+    const { data, isError, isLoading: orderLoading } = useQuery({
+        queryKey: ["ordersByPickupPoint", PickupPointID],
+        queryFn: async () => {
+            if (PickupPointID) {
+                const response = await getOrderByPickupPoint(PickupPointID)
+                return response.data
+            }
+        },
+        staleTime: 1000 * 60 * 5,//5 minutos
+    });
+
+
+
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
-
+    // console.log(data)
 
 
     return (
@@ -163,6 +183,13 @@ function RecepcionOrder() {
                     <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Eliminar Seleccionado(s)</Button>
                     <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Recepcionar"}</Button>
                 </div>
+
+                {/* Table with orders */}
+                {orderLoading
+                    ? <Loader />
+                    : <DataTableAll data={data} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+                }
+
 
                 {/* TABLE */}
                 <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} />
