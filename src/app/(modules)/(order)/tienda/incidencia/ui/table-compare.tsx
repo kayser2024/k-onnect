@@ -13,12 +13,14 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 
 interface IncidentProduct {
     CodProd: string,
     CodEan: string,
     ProdQuantity: number,
+    ImageURL?: string
 }
 
 
@@ -49,6 +51,7 @@ export interface IncidenceLog {
     ProdQuantity: number;
     ProdSubtotal: number;
     Description: string;
+    ImageURL?: string
     CreatedAt: Date;
 }
 
@@ -64,7 +67,7 @@ interface TableCompareProps {
     setMessage: (message: string) => void
 }
 export const TableCompare = ({ productsIncidence, products, type, handleSubmit, handleCleanList, cod, setCod, setMessage }: TableCompareProps) => {
-
+    console.log(productsIncidence)
     return (
         <div className="flex flex-col gap-2">
 
@@ -77,21 +80,30 @@ export const TableCompare = ({ productsIncidence, products, type, handleSubmit, 
                 <Button variant='destructive' className='mt-6' onClick={handleCleanList}>Limpiar Lista</Button>
             </div>
             <div className="flex flex-row gap-2 mt-2">
-                <Table className='min-h-64'>
+                <Table className='max-h-64'>
                     <TableCaption>Lista de Productos Originales.</TableCaption>
                     <TableHeader>
                         <TableRow className='bg-slate-500 hover:bg-slate-600'>
-                            <TableHead className='text-white uppercase'>Cod. Sap</TableHead>
-                            <TableHead className='text-white uppercase'>Cod. Ean</TableHead>
-                            <TableHead className="text-white text-right uppercase">Cant.</TableHead>
+                            <TableHead className='text-white'>PRODUCTO</TableHead>
+                            <TableHead className="text-white text-center">CANT.</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {productsIncidence?.IncidenceLogs?.filter((p: any) => p.Description === type).map((p: IncidentProduct) =>
-                            <TableRow key={p.CodEan} className='bg-slate-100'>
-                                <TableCell className='text-xs'>{p.CodProd}</TableCell>
-                                <TableCell className='text-xs'>{p.CodEan}</TableCell>
-                                <TableCell className="text-xs text-right">{p.ProdQuantity}</TableCell>
+                            <TableRow key={p.CodEan} className='bg-slate-100 border border-red-700'>
+                                <TableCell className='flex gap-1'>
+                                    <Image height={80} width={80} src={p.ImageURL || `https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png`} alt={p.CodProd} className='object-cover' />
+                                    <div className="flex flex-col gap-1">
+                                        <p className='text-sm font-semibold'>Cod. Sap:</p>
+                                        <span className='text-xs'>{p.CodProd}</span>
+
+
+                                        <p className='text-sm font-semibold'>Cod. Ean:</p>
+                                        <span className='text-xs'>{p.CodEan}</span>
+
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-xs text-center font-semibold">{p.ProdQuantity}</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -101,7 +113,7 @@ export const TableCompare = ({ productsIncidence, products, type, handleSubmit, 
                 <Separator orientation='vertical' />
 
 
-                <Table className='min-h-64'>
+                <Table className='max-h-64'>
                     <TableCaption>Lista de Productos Ingresados.</TableCaption>
                     <TableHeader>
                         <TableRow className='bg-slate-500 text-white hover:bg-slate-600'>

@@ -9,7 +9,7 @@ interface IncidenceProps {
     orden: string,
     invoiceOrigin: string,
     invoiceIncidence: string,
-    product: { codeEan: string, quantity: number, codeSap: string, text: string, subtotal: number }[],
+    product: { codeEan: string, quantity: number, codeSap: string, text: string, subtotal: number, imageURL: string }[],
     comment: string,
     typeIncidence: number,
     reason?: string
@@ -89,6 +89,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
             ProdSubtotal: item.subtotal,
             InvoiceOriginal: invoiceOrigin,
             InvoiceIncidence: invoiceIncidence,
+            ImageURL:item.imageURL,
             Description: item.text || "Sin descripción",
             CreatedAt: now,
         }));
@@ -141,10 +142,16 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
                     });
 
                     const orderData = await prisma.orders.findUnique({
-                        where: { OrderID: item.OrdenID! },
+                        where: {
+                            OrderID: item.OrdenID!,
+                            // SReceivedDate: {
+                            //     not: null,
+                            // },
+                        },
                         select: {
                             OrderNumber: true,
                             PickupPoint: true,
+                            SReceivedDate: true,
                             OrderStatus: {
                                 select: {
                                     Description: true,
@@ -165,6 +172,7 @@ export const getAllIncidence = async (pickupPickupPointID?: number) => {
                             Destiny: "",
                             OrderStatusDescription: orderData.OrderStatus?.Description || null,
                             TypeIncidenceCount: incompleteCount,
+                            SReceivedDate: orderData.SReceivedDate
                         };
                     }
                     return null; // Si no hay datos relacionados, retorna null
@@ -387,6 +395,7 @@ export const detailOrder = async (orden: number, isStore: boolean = false) => {
                 Comments: true,
                 IsConfirmed: true,
 
+
                 IncidenceLogs: {
                     select: {
                         CodEan: true,
@@ -394,6 +403,7 @@ export const detailOrder = async (orden: number, isStore: boolean = false) => {
                         ProdQuantity: true,
                         ProdSubtotal: true,
                         Description: true,
+                        ImageURL: true,
                         CreatedAt: true
                     }
                 },

@@ -71,6 +71,7 @@ interface ProductSelect {
     sku: string;
     quantity: number
     price: number
+    imageURL?: string;
 }
 export function DataTableProductos({ data, orden, comprobante, persona, isPermited }: DataTableProps) {
 
@@ -213,12 +214,13 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
         const ordenFilter = orden.detalle_pedido.filter(p => {
             return listaEans.includes(p.sku)
         })
-
+        console.log(ordenFilter)
         const productSelect = ordenFilter.map((p, index) => ({
             codeEan: p.sku,
             codeSap: listCodSap[index],
             quantity: p.quantity_sku,
             subtotal: p.subtotal_sku,
+            imageURL: p.url_imagen_sku,
             text: "RETURN"
         }))
 
@@ -483,13 +485,14 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
             // toast.success('Notificacion Enviada a Discord')
 
-
+            console.log(productsSelect)
             const productCombined = [
                 ...productsSelect.map((p, index) => ({
                     codeEan: p.sku,
                     quantity: p.quantity,
                     codeSap: prendasOriginalesSAP[index],
                     subtotal: p.quantity * p.price,
+                    imageURL: p.imageURL || '',
                     text: "ORIGIN",
                 })),
                 ...newProducts.map(p => ({
@@ -497,6 +500,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                     quantity: p.quantity,
                     codeSap: p.codigoSap,
                     subtotal: p.quantity * p.priceSale,
+                    imageURL: p.url_foto || '',
                     text: "CHANGE",
                 })),
             ];

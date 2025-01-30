@@ -10,7 +10,6 @@ interface Option {
 }
 
 export const onChangeStatusSend = async (orderList: { order: string; destino: Option }[], estado: string, path: string) => {
-
     const session = await auth();
     const userId = session?.user.UserID;
 
@@ -167,6 +166,9 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
                 }
             }
 
+            if (estado === 'recibido_tienda') {
+                orderNumber = order;
+            }
             // Actualizar orden en la API
             await updateOrderInAPI(orderNumber, estado);
 

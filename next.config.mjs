@@ -23,6 +23,11 @@ const nextConfig = {
                 hostname: 'resources-sami4.s3.us-west-1.amazonaws.com',
                 pathname: '**',
             },
+            {
+                protocol: 'https',
+                hostname: 'www.smarttools.com.mx',
+                pathname: '**',
+            },
         ]
     }
 };

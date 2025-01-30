@@ -79,6 +79,9 @@ model Orders {
   UserUpdaterID     Int?
   CreatedAt         DateTime        @default(now()) @db.Timestamp(0)
   UpdatedAt         DateTime?       @default(now()) @db.Timestamp(0)
+  WHSendDate        DateTime?       @db.Timestamp(0)
+  SReceivedDate     DateTime?       @db.Timestamp(0)
+  SDispatchedDate   DateTime?       @db.Timestamp(0)
   Incidence         Incidence[]
   OrderStatus       OrderStatus     @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
   Users             Users           @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
@@ -123,24 +126,26 @@ model TypesDoc {
 }
 
 model Users {
-  UserID        Int           @id @default(autoincrement())
-  Email         String        @unique(map: "Email") @db.VarChar(255)
-  Password      String        @db.VarChar(255)
-  Name          String        @db.VarChar(100)
-  Status        Boolean       @default(true)
-  TypeDocID     Int
-  NroDoc        String        @unique(map: "NroDoc") @db.VarChar(16)
-  RoleID        Int
-  LastName      String?       @db.VarChar(255)
-  PickupPointID Int?
-  CreatedAt     DateTime?     @default(now()) @db.Timestamp(0)
-  UpdatedAt     DateTime?     @default(now()) @db.Timestamp(0)
-  Incidence     Incidence[]
-  OrderLogs     OrderLogs[]
-  Orders        Orders[]
-  TypesDoc      TypesDoc      @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
-  Roles         Roles         @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
-  PickupPoints  PickupPoints? @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_3")
+  UserID                                            Int             @id @default(autoincrement())
+  Email                                             String          @unique(map: "Email") @db.VarChar(255)
+  Password                                          String          @db.VarChar(255)
+  Name                                              String          @db.VarChar(100)
+  Status                                            Boolean         @default(true)
+  TypeDocID                                         Int
+  NroDoc                                            String          @unique(map: "NroDoc") @db.VarChar(16)
+  RoleID                                            Int
+  LastName                                          String?         @db.VarChar(255)
+  PickupPointID                                     Int?
+  CreatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
+  UpdatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
+  Incidence                                         Incidence[]
+  Notifications_Notifications_SenderUserIDToUsers   Notifications[] @relation("Notifications_SenderUserIDToUsers")
+  Notifications_Notifications_ReceptorUserIDToUsers Notifications[] @relation("Notifications_ReceptorUserIDToUsers")
+  OrderLogs                                         OrderLogs[]
+  Orders                                            Orders[]
+  TypesDoc                                          TypesDoc        @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
+  Roles                                             Roles           @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
+  PickupPoints                                      PickupPoints?   @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_3")
 
   @@index([RoleID], map: "RoleID")
   @@index([TypeDocID], map: "TypeDocID")
@@ -211,6 +216,7 @@ model IncidenceLogs {
   InvoiceIncidence String?   @db.VarChar(25)
   Description      String?   @db.VarChar(255)
   CreatedAt        DateTime? @db.Timestamp(0)
+  ImageURL         String?   @db.VarChar(255)
   Incidence        Incidence @relation(fields: [IncidenceID], references: [IncidenceID], onDelete: Cascade, map: "FK_IncidenceID")
 
   @@index([IncidenceID], map: "FK_IncidenceID")
@@ -266,4 +272,20 @@ model DataFacturation {
   PhoneFacturation      String?  @db.VarChar(20)
   Currency              String?  @db.VarChar(5)
   Orders                Orders[]
+}
+
+model Notifications {
+  NotificationID                            Int       @id @default(autoincrement())
+  Title                                     String    @db.VarChar(100)
+  Description                               String    @db.VarChar(255)
+  SenderUserID                              Int
+  ReceptorUserID                            Int
+  ReadDate                                  DateTime? @db.Timestamp(0)
+  CreatedAt                                 DateTime? @db.Timestamp(0)
+  Status                                    Boolean?  @default(false)
+  Users_Notifications_SenderUserIDToUsers   Users     @relation("Notifications_SenderUserIDToUsers", fields: [SenderUserID], references: [UserID], onDelete: Cascade, map: "fk_notification_users")
+  Users_Notifications_ReceptorUserIDToUsers Users     @relation("Notifications_ReceptorUserIDToUsers", fields: [ReceptorUserID], references: [UserID], onDelete: Cascade, map: "fk_notification_users2")
+
+  @@index([SenderUserID], map: "fk_notification_users")
+  @@index([ReceptorUserID], map: "fk_notification_users2")
 }

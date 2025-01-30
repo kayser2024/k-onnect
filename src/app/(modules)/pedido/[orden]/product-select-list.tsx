@@ -10,6 +10,7 @@ interface ProductsSelect {
     sku: string,
     quantity: number,
     price: number
+    imageURL?: string
 }
 
 interface ProductsSelectListProps {
@@ -21,8 +22,9 @@ interface ProductsSelectListProps {
 
 
 export const ProductSelectList = ({ productsSelect, setProductsSelect, setProdOriginSubtotal }: ProductsSelectListProps) => {
+    console.log(productsSelect)
 
-    const initSelect = productsSelect.map((product: DetallePedido) => ({ sku: product.sku, quantity: product.quantity_sku, price: product.sale_price }))
+    const initSelect = productsSelect.map((product: DetallePedido) => ({ sku: product.sku, quantity: product.quantity_sku, price: product.sale_price, imageURL: product.url_imagen_sku }))
 
     // Sincronizamos el estado local con el estado del padre
     const [products, setProducts] = useState<ProductsSelect[]>(initSelect);

@@ -211,7 +211,10 @@ DROP PROCEDURE IF	EXISTS sp_UpdateOrders$$ CREATE PROCEDURE sp_UpdateOrders (
 			ELSE 
 				-- Actualizar el estado
 				UPDATE Orders 
-				SET StatusID = p_StatusID, UserUpdaterID = p_UserID, UpdatedAt = NOW() 
+				SET StatusID = p_StatusID, UserUpdaterID = p_UserID, UpdatedAt = NOW() ,
+				 	SDispatchedDate = IF(p_StatusID = 5, NOW(), SDispatchedDate),
+                	SReceivedDate = IF(p_StatusID = 4, NOW(), SReceivedDate),
+                	WHSendDate = IF(p_StatusID = 3, NOW(), WHSendDate)
 				WHERE OrderNumber = p_OrderNumber;
 
 				-- Insertar el log del estado

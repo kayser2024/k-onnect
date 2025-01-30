@@ -36,6 +36,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Check, MoreVertical } from 'lucide-react'
 import { ValidatorProductModal } from './ui/validatorProduct-modal'
 import { Incidence, IncidenceLog, ResponseAllIncidence } from '@/types/IncidenceDB'
+import Image from 'next/image'
 
 
 interface OrderProps {
@@ -281,7 +282,8 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                           .filter((incidence: IncidenceLog) => incidence.Description !== 'CHANGE')
                                           .map((incidence: IncidenceLog, index: number) => {
                                             return (
-                                              <li key={`${index}`}>
+                                              <li key={`${index}`} className='flex flex-col gap-1'>
+                                                <Image height={70} width={70} src={incidence.ImageURL || "https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png"} alt={incidence.CodProd} className='object-cover' />
                                                 <span className='text-xs flex '>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
@@ -299,7 +301,8 @@ export const DataTable = ({ incidentList, EstablishmentID }: OrderProps) => {
                                           .filter((incidence: any) => incidence.Description === 'CHANGE')
                                           .map((incidence: any, index: number) => {
                                             return (
-                                              <li key={`${incidence.IncidenceLogID}-${index}`}>
+                                              <li key={`${incidence.IncidenceLogID}-${index}`} className='flex flex-col gap-1'>
+                                                <Image height={70} width={70} src={incidence.ImageURL || "https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png"} alt={incidence.CodProd} />
                                                 <span className='text-xs flex'>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>

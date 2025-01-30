@@ -133,13 +133,13 @@ export const SelectProductChange = ({ setNewProducts, newProducts, option }: Sel
                             <p className="text-xs">{selectedProduct.color}</p>
 
                         </div>
-                        <div className="flex gap-2">
+                        {/* <div className="flex gap-2">
                             <p className="text-xs font-bold">Stock:</p>
                             <p className="text-xs">{selectedProduct.quantity}</p>
 
-                        </div>
+                        </div> */}
                         <div className="flex gap-2">
-                            <Link className="text-sm flex items-center my-2 text-blue-400" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${selectedProduct.codigoEan}&tab=detail&page=1`}>
+                            <Link className="text-sm flex items-center my-2 font-bold text-blue-400" target="_blank" href={`https://tutati.com/pe/items-1/detail?uid_items_1=&id_items_1=&eid_items_1=&eid2_items_1=${selectedProduct.codigoEan}&tab=detail&page=1`}>
                                 {/* <EyeIcon size={20} /> */}
                                 Ver stock en Tutati
                             </Link>

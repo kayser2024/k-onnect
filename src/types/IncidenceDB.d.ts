@@ -24,6 +24,7 @@ export interface IncidenceLog {
     ProdQuantity: number;
     ProdSubtotal: number;
     Description: string;
+    ImageURL?: string;
     CreatedAt: Date;
 }
 
@@ -36,5 +37,6 @@ export interface ResponseAllIncidence {
     Destiny: string,
     OrderStatusDescription: string,
     TypeIncidenceCount: number
+    SReceivedDate: Date | null
 
 }
