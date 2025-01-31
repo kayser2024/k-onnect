@@ -204,17 +204,12 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
         // navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
 
-        // Agregar Comentario a la BD
-        const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
-        toast.warning(JSON.stringify(responseDB, null, 2))
-
-        navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
-        toast.success("Devolucion Copiada al Portapapeles")
 
         const ordenFilter = orden.detalle_pedido.filter(p => {
             return listaEans.includes(p.sku)
         })
-        console.log(ordenFilter)
+
+        // console.log(ordenFilter)
         const productSelect = ordenFilter.map((p, index) => ({
             codeEan: p.sku,
             codeSap: listCodSap[index],
@@ -245,12 +240,25 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                 return
             }
 
+            // Agregar Comentario a la BD
+            const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+            if (!responseDB.ok) {
+                toast.error("No se pudo actualizar la observación en la base de datos")
+                return
+            }
+
+            // Copiar en el portapapeles 
+            navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
+            toast.success("Devolucion Copiada al Portapapeles")
+
+
             setDropdownOpen(false)
             setStore("")
             setCommentDevol("")
 
         } catch (error: any) {
-            console.log(error.message)
+            toast.error(error.message)
+            // console.log(error.message)
         } finally {
             setLoading(false);
         }
@@ -440,9 +448,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
         // console.log(antes, despues)
 
-        // Copiar al portapapeles
-        navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${""}\t${enviarA}\t${situacionDelCambio}`)
-        toast.success("Copiado al portapapeles")
+
 
 
 
@@ -485,6 +491,8 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
             // toast.success('Notificacion Enviada a Discord')
 
+
+
             console.log(productsSelect)
             const productCombined = [
                 ...productsSelect.map((p, index) => ({
@@ -524,6 +532,11 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                 toast.error(resultIncidence.message);
                 return
             }
+            toast.success("Incidencia creada con éxito")
+
+            // Copiar al portapapeles
+            navigator.clipboard.writeText(`${fechaSolicitud}\t${encargada}\t${cliente}\t${nroOrden}\t${dni}\t${enviado}\t${lugar === "Lima" ? "Lima" : "Provincia"}\t${boleta}\t${nc}\t${nuevaBoleta}\t${plazoMaximo}\t${antes}\t${despues}\t${ean}\t${motivo}\t${""}\t${enviarA}\t${situacionDelCambio}`)
+            toast.success("Copiado al portapapeles")
 
             setMotivoCambio("")
             setRowSelection({})
