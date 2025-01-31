@@ -37,6 +37,7 @@ import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/down
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Check, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
+import Image from 'next/image'
 
 
 // import io from "socket.io-client";
@@ -82,7 +83,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     },
     enabled: enabled,
   })
-
+  console.log(data)
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -390,6 +391,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                           .map((incidence: any, index: number) => {
                                             return (
                                               <li key={`${incidence.IncidenceLogID}-${index}`}>
+                                                < Image src={incidence.ImageURL || 'https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png'} alt={incidence.CodProd} width={50} height={50} />
                                                 <span className='text-xs flex'>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
@@ -408,6 +410,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
                                           .map((incidence: any, index: number) => {
                                             return (
                                               <li key={`${incidence.IncidenceLogID}-${index}`}>
+                                                < Image src={incidence.ImageURL || 'https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png'} alt={incidence.CodProd} width={50} height={50} />
                                                 <span className='text-xs flex'>
                                                   {incidence.CodProd} ({incidence.ProdQuantity || 1})
                                                 </span>
