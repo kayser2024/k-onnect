@@ -9,9 +9,15 @@ import { DataTable } from "./data-table";
 import { Loader } from "@/components/loader";
 import { onChangeStatusSend } from "@/actions/envio/changeStatus";
 import { OptionOrder } from "@/types/Option";
+import { useQuery } from "@tanstack/react-query";
+import { getOrderByPickupPoint } from "@/actions/order/getOrderByPickupPoint";
+import { getAllOrderReceived } from "@/actions/order/getOrderAllReceived";
+import { DataTableAll } from "./data-table-all";
 
 function EntregaOrder() {
     const session = useSession();
+    const PickupPointID = session.data?.user.PickupPointID
+
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
@@ -71,7 +77,22 @@ function EntregaOrder() {
         setOrder("");
     };
 
+    const { data, isLoading: orderReceivedLoading, isFetching, isError } = useQuery({
+        queryKey: ["getAllOrderReceived",PickupPointID],
+        queryFn: async () => {
+            const resulOrdersReceived = await getAllOrderReceived(4, PickupPointID || 0)//4=>recibido_tienda, 3=>Lurin
 
+            if (!resulOrdersReceived.ok) {
+                return []
+            }
+            return resulOrdersReceived.data
+        }
+    })
+
+    if (orderReceivedLoading) {
+        return <Loader />
+    }
+    console.log(data)
 
     // Cambiar estado de las ordenes
     const handleChangeStatusOrders = async () => {
@@ -138,6 +159,8 @@ function EntregaOrder() {
 
 
 
+
+
     if (isSessionLoading) { return <Loader /> }
     if (isUnauthenticated) { return <p>Sin acceso</p> }
 
@@ -162,8 +185,10 @@ function EntregaOrder() {
                     <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Entregar Cliente"}</Button>
                 </div>
 
+                <DataTableAll data={data} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+
                 {/* TABLE */}
-                <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+                {/* <DataTable orderList={orderList} rowSelection={rowSelection} setRowSelection={setRowSelection} /> */}
             </main>
         </>
     );
