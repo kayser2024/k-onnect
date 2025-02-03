@@ -21,7 +21,6 @@ function RecepcionOrder() {
     const isSessionLoading = session.status === "loading";
     const isUnauthenticated = session.status === "unauthenticated";
 
-
     const PickupPointID = session.data?.user.PickupPointID
     // console.log(session.data?.user.PickupPointID)
 
@@ -58,7 +57,7 @@ function RecepcionOrder() {
 
     // Cambiar estado de las ordenes
     const handleChangeStatusOrders = async () => {
-        // TODO: Obtener todos los productos seleccionados. 🚩
+        // Obtener todos los productos seleccionados. 🚩
         const selectedRows = getSelectedRows();
         // console.log(selectedRows)
 
@@ -131,21 +130,17 @@ function RecepcionOrder() {
     };
 
 
-
-
     const handleSearchFilter = async () => {
         refetch()
     }
 
-    if (isRefetching) {
-        return <Loader />
-    }
+    if (isRefetching) { return <Loader /> }
 
     // función para agregar Selección a la tabla
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // TODO: validar si está dentro de la tabla cargada🚩
+        //  validar si está dentro de la tabla cargada🚩
         const newSelection = { ...rowSelection }
         const existInDataTable = data?.some((o, index) => {
             if (o.OrderNumber === order || o.Invoice === order) {

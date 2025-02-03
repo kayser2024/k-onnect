@@ -3,12 +3,13 @@ import { OptionOrder } from "@/types/Option"
 
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { es } from "date-fns/locale"
 
 interface responseData {
     OrderID: number,
     OrderNumber: string,
     Invoice: string,
-    OrderCreatedAtUTC: Date,
+    OrderCreatedAtUTC: Date | null,
     StatusID: number,
     UserID: number,
     PickupPointID: number,
@@ -24,7 +25,7 @@ interface responseData {
     SReceivedDate: Date | null,
     SDispatchedDate: Date | null,
 }
-export const columnsAll: ColumnDef<responseData>[] = [
+export const columnsAll: ColumnDef<responseData, any>[] = [
     {
         id: "select",
         header: ({ table }: any) => (
@@ -65,8 +66,16 @@ export const columnsAll: ColumnDef<responseData>[] = [
         accessorKey: "receivedDate",
         header: "FEC. RECEPCIÓN",
         cell: ({ row }) => {
-            console.log(row.original)
-            return <>{format(new Date(row.original.SReceivedDate || ""), 'dd-MM-yyyy hh:mm')}</>
+            const receivedDate = row.original.SReceivedDate;
+            if (!receivedDate) {
+                return <>--/--/--</>
+            }
+            const localDate = new Date(receivedDate);
+            const adjustedDate = new Date(localDate.getTime() + (localDate.getTimezoneOffset() * 60000));
+
+
+            return <div className="text-sm">{format(adjustedDate, 'dd-MM-yyyy HH:mm', { locale: es })}</div>;
+
         }
     },
     {
@@ -77,7 +86,10 @@ export const columnsAll: ColumnDef<responseData>[] = [
             if (!dispatechedDate) {
                 return <>--/--/--</>
             }
-            return <>{format(new Date(row.original.SDispatchedDate || ""), 'dd-MM-yyyy hh:mm')}</>
+            const localDate = new Date(dispatechedDate);
+            const adjustedDate = new Date(localDate.getTime() + (localDate.getTimezoneOffset() * 60000));
+
+            return <div className="text-sm">{format(adjustedDate, 'dd-MM-yyyy HH:mm', { locale: es })}</div>;
 
         }
     },

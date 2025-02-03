@@ -169,6 +169,11 @@ export const onChangeStatusSend = async (orderList: { order: string; destino: Op
             if (estado === 'recibido_tienda') {
                 orderNumber = order;
             }
+
+            if (estado === 'entregado_cliente') {
+                orderNumber = order;
+            }
+
             // Actualizar orden en la API
             await updateOrderInAPI(orderNumber, estado);
 

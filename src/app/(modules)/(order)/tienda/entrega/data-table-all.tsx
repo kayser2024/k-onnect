@@ -28,13 +28,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { OptionOrder } from '@/types/Option'
 import { columnsAll } from './columns-all'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface responseData {
     OrderID: number,
     OrderNumber: string,
     Invoice: string,
-    OrderCreatedAtUTC: Date,
+    OrderCreatedAtUTC: Date | null,
     StatusID: number,
     UserID: number,
     PickupPointID: number,
@@ -52,7 +52,8 @@ interface responseData {
 }
 
 interface OrderProps {
-    data: responseData[];
+    // data: responseData[] | undefined;
+    data: any;
     rowSelection: RowSelectionState;
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>
 }
@@ -60,8 +61,11 @@ export const DataTableAll = ({ data, rowSelection, setRowSelection }: OrderProps
     const [sorting, setSorting] = useState<SortingState>([])
 
 
+    // console.log(data)
+
+
     const table = useReactTable({
-        data: data,
+        data: data ?? [],
         columns: columnsAll,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -143,7 +147,7 @@ export const DataTableAll = ({ data, rowSelection, setRowSelection }: OrderProps
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                       <ChevronLeft />
+                        <ChevronLeft />
                     </Button>
                     <Button
                         variant="outline"
@@ -151,7 +155,7 @@ export const DataTableAll = ({ data, rowSelection, setRowSelection }: OrderProps
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        <ChevronLeft />
+                        <ChevronRight />
                     </Button>
                 </div>
             </div>

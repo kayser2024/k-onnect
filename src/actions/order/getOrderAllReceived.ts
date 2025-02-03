@@ -8,7 +8,9 @@ export const getAllOrderReceived = async (status: number, pickupPoint: number) =
     try {
         result = await prisma.orders.findMany({
             where: {
-                StatusID: status,
+                StatusID: {
+                    in: [4, 5]
+                },
                 PickupPointID: pickupPoint,
                 HasIncidence: false
             },
