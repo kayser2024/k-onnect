@@ -6,7 +6,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 import { useUIStore } from '@/store';
-import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, ListRestart, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown, Store, User, Headphones, Scroll } from 'lucide-react';
+import { BaggageClaim, Box, Building, ClipboardCheck, FileBox, Power, ScanEye, Search, FileWarning, TriangleAlert, Truck, UserCog, Warehouse, FileDown, Store,  PackageSearch, FileText } from 'lucide-react';
 import { Monitor } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
@@ -73,8 +73,10 @@ export const Sidebar = () => {
             roles: [1, 2, 6],
             children: [
                 { nombre: 'Recepción Orden', ruta: '/tienda/recepcion', icon: <Box /> },
-                { nombre: 'Entregar Orden (Tienda)', ruta: '/tienda/entrega', icon: <ClipboardCheck /> },
-                { nombre: 'Incidencias (Tienda)', ruta: '/tienda/incidencia', icon: <FileWarning /> },
+                { nombre: 'Entregar Orden', ruta: '/tienda/entrega', icon: <ClipboardCheck /> },
+                { nombre: 'Incidencias', ruta: '/tienda/incidencia', icon: <FileWarning /> },
+                { nombre: 'Guias', ruta: '/tienda/guia', icon: <FileText /> },
+                { nombre: 'Stock', ruta: '/tienda/stock', icon: <PackageSearch /> },
             ]
 
 
