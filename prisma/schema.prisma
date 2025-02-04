@@ -97,20 +97,24 @@ model Orders {
 }
 
 model PickupPoints {
-  PickupPointID Int            @id @default(autoincrement())
-  Description   String?        @db.VarChar(100)
-  District      String?        @db.VarChar(100)
-  Province      String?        @db.VarChar(100)
-  Department    String?        @db.VarChar(100)
-  LocationCode  String?        @db.VarChar(10)
-  Place         String?        @db.VarChar(255)
-  Address       String?        @db.VarChar(255)
-  Grouped       String?        @db.VarChar(20)
-  Incidence     Incidence[]
-  InfoShipping  InfoShipping[]
-  Orders        Orders[]
-  Users         Users[]
-  usuarios      usuarios[]
+  PickupPointID     Int            @id @default(autoincrement())
+  Description       String?        @db.VarChar(100)
+  District          String?        @db.VarChar(100)
+  Province          String?        @db.VarChar(100)
+  Department        String?        @db.VarChar(100)
+  LocationCode      String?        @db.VarChar(10)
+  Place             String?        @db.VarChar(255)
+  Address           String?        @db.VarChar(255)
+  Grouped           String?        @db.VarChar(20)
+  IsActive          Boolean?       @default(true)
+  IsAvailablePickup Boolean?       @default(true)
+  CodWareHouse      String?        @db.VarChar(10)
+  Incidence         Incidence[]
+  InfoShipping      InfoShipping[]
+  NotesGuides       NotesGuides[]
+  Orders            Orders[]
+  Users             Users[]
+  usuarios          usuarios[]
 }
 
 model Roles {
@@ -139,6 +143,7 @@ model Users {
   CreatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
   UpdatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
   Incidence                                         Incidence[]
+  NotesGuides                                       NotesGuides[]
   Notifications_Notifications_SenderUserIDToUsers   Notifications[] @relation("Notifications_SenderUserIDToUsers")
   Notifications_Notifications_ReceptorUserIDToUsers Notifications[] @relation("Notifications_ReceptorUserIDToUsers")
   OrderLogs                                         OrderLogs[]
@@ -288,4 +293,51 @@ model Notifications {
 
   @@index([SenderUserID], map: "fk_notification_users")
   @@index([ReceptorUserID], map: "fk_notification_users2")
+}
+
+model NotesGuides {
+  NoteGuideID       Int                 @id @default(autoincrement())
+  NumberDoc         String?             @db.VarChar(15)
+  UserID            Int
+  PickupPointID     Int
+  Observation       String?             @db.VarChar(255)
+  IsOpen            Boolean             @default(true)
+  CreatedAt         DateTime            @default(now()) @db.Timestamp(0)
+  UpdatedAt         DateTime?           @db.Timestamp(0)
+  NoteGuideDetails  NoteGuideDetails[]
+  PickupPoints      PickupPoints        @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: Cascade, map: "fk_notesguides_pickuppoints")
+  Users             Users               @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_notesguides_users")
+  ProdReceptionGuia ProdReceptionGuia[]
+
+  @@index([PickupPointID], map: "fk_notesguides_pickuppoints")
+  @@index([UserID], map: "fk_notesguides_users")
+}
+
+model ProdReceptionGuia {
+  ProdRecepGuiaID Int         @id @default(autoincrement())
+  NotesGuideID    Int
+  CodBar          String      @db.VarChar(30)
+  CodProd         String      @db.VarChar(30)
+  Description     String      @db.VarChar(255)
+  ImageURL        String      @db.VarChar(255)
+  Quantity        Int         @default(1)
+  CreatedAt       DateTime?   @default(now()) @db.Timestamp(0)
+  NotesGuides     NotesGuides @relation(fields: [NotesGuideID], references: [NoteGuideID], onDelete: Cascade, map: "fk_prodreceptionguides_notesguides")
+
+  @@index([NotesGuideID], map: "fk_prodreceptionguide_notesguide")
+}
+
+model NoteGuideDetails {
+  NoteGuideDetailsID Int         @id @default(autoincrement())
+  NoteGuideID        Int
+  Description        String      @db.VarChar(255)
+  BarCode            String      @db.VarChar(30)
+  ProductCode        String      @db.VarChar(30)
+  Image1             String      @db.VarChar(255)
+  Quantity           Int
+  QuantityPicks      Int?        @default(0)
+  ExistInGuide       Boolean?    @default(true)
+  NotesGuides        NotesGuides @relation(fields: [NoteGuideID], references: [NoteGuideID], onDelete: Cascade, map: "fk_noteguidedetails_noteguide")
+
+  @@index([NoteGuideID], map: "fk_noteguidedetails_noteguide")
 }

@@ -26,6 +26,7 @@ export const SearchGuia = ({ setData, setLoading }: Props) => {
                 return []
             }
             setData(responseGuia.data)
+
             console.log(responseGuia.data)
             return responseGuia.data
 
