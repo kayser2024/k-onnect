@@ -83,7 +83,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     },
     enabled: enabled,
   })
-  console.log(data)
+  // console.log(data)
   // se ejecutará cuando se hace click
   const getDetailOrden = (orden: number) => {
     setOrder(orden)
@@ -240,8 +240,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
       console.log(data, '👉👉👉')
       // Isertar la NC y Boleta de la incidencia
-      // const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
-      const result = "OK: Incidencia actualizada correctamente";
+      const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
+      // const result = "OK: Incidencia actualizada correctamente";
 
       // si es exitoso cerrar el modal
       if (result?.includes("ERROR:")) {
