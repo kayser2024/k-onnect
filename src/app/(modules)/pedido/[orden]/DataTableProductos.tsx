@@ -256,9 +256,9 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                 observacion = "Devolucion Total a pedido del cliente"
 
 
-                // const resultUpdateStatusCancel = await updateStatusPayment(nroOrden, "cancelado");🚩
+                const resultUpdateStatusCancel = await updateStatusPayment(nroOrden, "cancelado");
 
-                // console.log(resultUpdateStatusCancel)
+                console.log(resultUpdateStatusCancel)
             }
 
 
