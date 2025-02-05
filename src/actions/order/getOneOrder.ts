@@ -25,10 +25,10 @@ export const getOneOrderLogs = async (order: string) => {
                         }
                     }
                 },
-                
+
 
             }
-            
+
         })
 
     } catch (error: any) {
@@ -55,4 +55,35 @@ export const getOrder = async (order: string) => {
 
     return result;
 
+}
+
+export const getInvoice = async (invoice: string) => {
+    try {
+        const resultInvoice = await prisma.orders.findFirst({
+            where: {
+                Invoice: invoice
+            }
+        })
+
+        if (resultInvoice) {
+            return {
+                ok: true,
+                message: "Invoice Encontrado con éxito",
+                data: resultInvoice
+            }
+        } else {
+            return {
+                ok: false,
+                message: "Boleta no encontrado en la BD, contáctase con el Área de DESARROLLO",
+                data: null
+            }
+        }
+
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: error.message,
+            data: null
+        }
+    }
 }

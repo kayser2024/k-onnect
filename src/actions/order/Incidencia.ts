@@ -49,7 +49,7 @@ export const createIncidence = async ({ orden, invoiceOrigin, invoiceIncidence, 
         if (!OrderId) {
             return result = {
                 ok: false,
-                message: "No se encontró la orden, Contacte con el Área correspondinte"
+                message: "No se encontró la orden, Contactese con el Área de DESARROLLO"
             }
             // throw new Error(`Orden no encontrada: ${orden}`);
         }

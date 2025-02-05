@@ -47,6 +47,7 @@ import { SelectStore } from "./ui/select-store"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmContinue } from "./ui/confirm-continue"
 import { Textarea } from "@/components/ui/textarea"
+import { getInvoice } from "@/actions/order/getOneOrder"
 
 interface DataTableProps {
     data: any,
@@ -134,8 +135,17 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
         // Verificar si la Boleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
-        if (pagado !== "pagado") {
-            toast.error(`El estado de pago: ${pagado}`)
+        // if (pagado !== "pagado") {
+        //     toast.error(`El estado de pago: ${pagado}`)
+        //     return
+        // }
+
+        // verificar si existe la boleta en la BD antes de realizar la operación🚩
+        const ExistInvoice = await getInvoice(docActual)
+        console.log(ExistInvoice)
+        if (!ExistInvoice.ok) {
+            setLoading(false);
+            toast.error(`${ExistInvoice.message}`)
             return
         }
 
@@ -178,30 +188,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
         }).then(res => res.json())
         listCodSap = res;
 
-        if (tipoExtorno !== "TOTAL") {
 
-            //Creamos objeto que tendra como key el sap y como value la cantidad para evitar duplicados
-            const obj = res.reduce((acc: any, sap: string) => {
-                if (acc[sap]) {
-                    acc[sap]++
-                } else {
-                    acc[sap] = 1
-                }
-                return acc
-            }, {})
-
-            console.log('Cantidad total : ', obj)
-            // lo ponemos en observacion
-            for (const key in obj) {
-                observacion += `${key} (${obj[key]}) / `
-            }
-
-        } else {
-            console.log("ACTUALIZAR EL ESTADO A CANCELADO")
-            observacion = "Devolucion Total a pedido del cliente"
-            // Actualizar API situación de Pago CANCELADO 🚩
-            await updateStatusPayment(nroOrden, "cancelado");
-        }
 
         // navigator.clipboard.writeText(`x\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t-\t${fechaSolicitud}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${notaAdicional}\t-\t${observacion}`)
 
@@ -231,9 +218,13 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
             pickupPoint: store,
             reason: `DEVOLUCIÓN ${tipoExtorno}`
         }
-        console.log(data)
+
 
         try {
+
+
+
+            // crear incidencia en la BD
             const resultIncidence = await createIncidence(data);
             console.log(resultIncidence)
 
@@ -242,7 +233,37 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                 return
             }
 
-            // Agregar Comentario a la API
+            if (tipoExtorno !== "TOTAL") {
+
+                //Creamos objeto que tendra como key el sap y como value la cantidad para evitar duplicados
+                const obj = res.reduce((acc: any, sap: string) => {
+                    if (acc[sap]) {
+                        acc[sap]++
+                    } else {
+                        acc[sap] = 1
+                    }
+                    return acc
+                }, {})
+
+                console.log('Cantidad total : ', obj)
+                // lo ponemos en observacion
+                for (const key in obj) {
+                    observacion += `${key} (${obj[key]}) / `
+                }
+
+            } else {
+                console.log("ACTUALIZAR EL ESTADO A CANCELADO")
+                observacion = "Devolucion Total a pedido del cliente"
+
+
+                // const resultUpdateStatusCancel = await updateStatusPayment(nroOrden, "cancelado");🚩
+
+                // console.log(resultUpdateStatusCancel)
+            }
+
+
+
+            // Agregar OBSERVACIONES a la API
             // const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
             // if (!responseDB.ok) {
             //     toast.error("No se pudo actualizar la observación en la base de datos")
