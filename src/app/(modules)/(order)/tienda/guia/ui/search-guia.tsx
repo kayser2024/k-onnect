@@ -3,37 +3,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Detail, ResponseGuia } from '@/types/Guia'
-import { useQuery } from '@tanstack/react-query'
+import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 
 interface Props {
-    setData: (value: any) => void
+    searchValue: string,
+    setSearchValue: (value: string) => void,
+    setData: (value: Detail | []) => void
     setLoading: (value: boolean) => void
+    refetch: () => Promise<QueryObserverResult<Detail[]>>
 }
-export const SearchGuia = ({ setData, setLoading }: Props) => {
-    const [searchValue, setSearchValue] = useState("")
-    const [enabled, setEnabled] = useState(false)
-
-
-    const { data: dataGuias, isLoading, refetch } = useQuery({
-        queryKey: ["AllGuiasBySearchValue"],
-        queryFn: async () => {
-            const responseGuia = await getGuiasByValue(searchValue.trim(), 'ALM157')
-            if (!responseGuia.ok) {
-                toast.error(`${responseGuia.message}`)
-                return []
-            }
-            setData(responseGuia.data)
-
-            console.log(responseGuia.data)
-            return responseGuia.data
-
-        },
-        // staleTime: 1000 * 60, // 1 minute
-        enabled: enabled
-    })
+export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearchValue }: Props) => {
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -46,8 +28,9 @@ export const SearchGuia = ({ setData, setLoading }: Props) => {
         }
 
         try {
-            setEnabled(true)
-            await refetch()
+            const result = await refetch()
+            console.log(result)
+            // setData(result.data | [])
         } catch (error: any) {
             toast.error(error.message)
             setData([])
@@ -57,7 +40,6 @@ export const SearchGuia = ({ setData, setLoading }: Props) => {
     }
 
 
-    console.log(dataGuias)
     return (
         <div className='bg-slate-100 p-2 rounded-md'>
             <form className="flex gap-2 w-full" onSubmit={(e) => handleSearch(e)}>

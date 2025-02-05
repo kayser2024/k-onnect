@@ -46,6 +46,7 @@ import { CascadingSelect } from "@/components/select/CascadingSelect"
 import { SelectStore } from "./ui/select-store"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmContinue } from "./ui/confirm-continue"
+import { Textarea } from "@/components/ui/textarea"
 
 interface DataTableProps {
     data: any,
@@ -230,22 +231,23 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
             pickupPoint: store,
             reason: `DEVOLUCIÓN ${tipoExtorno}`
         }
-
+        console.log(data)
 
         try {
             const resultIncidence = await createIncidence(data);
+            console.log(resultIncidence)
 
             if (!resultIncidence.ok) {
                 toast.error(resultIncidence.message);
                 return
             }
 
-            // Agregar Comentario a la BD
-            const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
-            if (!responseDB.ok) {
-                toast.error("No se pudo actualizar la observación en la base de datos")
-                return
-            }
+            // Agregar Comentario a la API
+            // const responseDB = await onUpdateObservaciones(nroOrden, observacion, 'Devolucion', observacionTotal)
+            // if (!responseDB.ok) {
+            //     toast.error("No se pudo actualizar la observación en la base de datos")
+            //     return
+            // }
 
             // Copiar en el portapapeles 
             navigator.clipboard.writeText(`${fechaSolicitud}\t${dni}\t${cliente}\t${formaDevolucion}\t${operacion}\t${tipoExtorno}\t${fechaVenta}\t${boleta}\t${montoPago}\t${nc}\t${montoExtorno}\t${plazoMaximo}\t${ordenCompra}\t${correoCliente}\t${encargado}\t${observacion}\t${notaAdicional}`)
@@ -792,7 +794,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                                 <div className="">
                                     <span>Comentario:</span>
                                     <div className="">
-                                        <Input placeholder="Comentario" className="" onChange={(e) => setCommentDevol(e.target.value)} value={commentDevol} />
+                                        <Textarea placeholder="Comentario" className="" onChange={(e) => setCommentDevol(e.target.value)} value={commentDevol} />
                                     </div>
 
                                 </div>

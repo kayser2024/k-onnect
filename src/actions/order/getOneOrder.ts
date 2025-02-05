@@ -24,8 +24,11 @@ export const getOneOrderLogs = async (order: string) => {
                             }
                         }
                     }
-                }
+                },
+                
+
             }
+            
         })
 
     } catch (error: any) {

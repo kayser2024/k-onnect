@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from "@/lib/prisma"
+import { revalidatePath } from "next/cache";
 
 interface Props {
     NoteGuideID: number;
@@ -27,6 +28,7 @@ export const insertProductNotFoundDetail = async (productNotFoundInGuide: Props)
                 ExistInGuide: productNotFoundInGuide.ExistInGuide,      //false
             }
         })
+        revalidatePath('/tienda/guia')
         return {
             ok: true,
             data: resultNewDetails,

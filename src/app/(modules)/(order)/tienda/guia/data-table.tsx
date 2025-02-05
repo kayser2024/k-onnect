@@ -33,14 +33,17 @@ import { toast } from 'sonner'
 import { insertProductGuide } from '@/actions/guia/insertProductGuia'
 import { getProductBySearchCode } from '@/actions/product/getProduct'
 import { insertProductNotFoundDetail } from '@/actions/guia/insertProductDetail'
+import { Detail } from '@/types/Guia'
+import { QueryObserverResult } from '@tanstack/react-query'
 
 
 interface OrderProps {
     data: any;
     rowSelection: RowSelectionState;
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>
+    refetch: () => Promise<QueryObserverResult<Detail[]>>
 }
-export const DataTable = ({ data, rowSelection, setRowSelection }: OrderProps) => {
+export const DataTable = ({ data, rowSelection, setRowSelection, refetch }: OrderProps) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [searchCode, setSearchCode] = useState("");
 
@@ -84,32 +87,37 @@ export const DataTable = ({ data, rowSelection, setRowSelection }: OrderProps) =
                 toast.warning("El Producto no existe")
                 return;
             }
-         
-              // Obtener el NoteGuideID de la guía actual
-              const noteGuideID = data[0]?.NoteGuideID;
 
-              if (!noteGuideID) {
-                  toast.error("No se pudo obtener el NoteGuideID");
-                  return;
-              }
-  
-            const productFound = {
-                NoteGuideID: noteGuideID,
-                Description: "Producto AGREGADO",
-                BarCode: existProductInBD?.data?.codigoEan || "",
-                // Description: existProductInBD.data.descripcion,
-                ProductCode: existProductInBD.data?.codigoSap || "",
-                ImageURL: existProductInBD.data?.url_foto || "",
-                Quantity: 0,
-                QuantityPicks: 1,
-                ExistInGuide: false,
+            // Obtener el NoteGuideID de la guía actual
+            const noteGuideID = data[0]?.NoteGuideID;
+
+            if (!noteGuideID) {
+                toast.error("No se pudo obtener el NoteGuideID");
+                return;
             }
+
+
 
             // TODO: insertar producto encontrado en la tabla GuideDetails 🚩
             // ExistInGuide:False,
             // Quantity:0,
             // QuantityPicks:1
-            const resultNewProduct = await insertProductNotFoundDetail(productFound)
+
+            // const productFound = {
+            //     NoteGuideID: noteGuideID,
+            //     Description: "Producto AGREGADO",
+            //     BarCode: existProductInBD?.data?.codigoEan || "",
+            //     // Description: existProductInBD.data.descripcion,
+            //     ProductCode: existProductInBD.data?.codigoSap || "",
+            //     ImageURL: existProductInBD.data?.url_foto || "",
+            //     Quantity: 0,
+            //     QuantityPicks: 1,
+            //     ExistInGuide: false,
+            // }
+
+
+            const resultNewProduct = await insertProductNotFoundDetail({} as any)
+            await refetch()
 
             console.log(resultNewProduct)
 
@@ -169,7 +177,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection }: OrderProps) =
                                     {row.getVisibleCells().map((cell) => {
                                         // console.log(cell.row.original.ExistInBox)
                                         const existInBox = cell.row.original.ExistInGuide;
-                                        return <TableCell key={cell.id} className={`${existInBox ? '' : 'bg-orange-200'}`}>
+                                        return <TableCell key={cell.id} className={`${existInBox ? '' : 'bg-orange-100'}`}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()

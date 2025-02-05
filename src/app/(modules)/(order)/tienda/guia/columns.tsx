@@ -44,7 +44,7 @@ export const columns: ColumnDef<Detail, any>[] = [
         cell: ({ row }) => {
 
             return <div className="flex items-center justify-center gap-1">
-                <Button size="sm" variant="outline">-</Button>
+                <Button size="sm" variant="outline" disabled={row.original.QuantityPicks < 1}>-</Button>
 
                 <span className="text-lg text-center">{row.original.QuantityPicks}</span>
 

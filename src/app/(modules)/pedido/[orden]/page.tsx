@@ -19,6 +19,7 @@ import { TimeLine } from "./TimeLine"
 import { TimeLineHorizontal } from "./TimeLineHorizontal"
 import { Collapisble } from "./ui/Collapisble"
 import { ModalEditEnvio } from "./ui/modal-edit-envio"
+import { IncidenceComments } from "./ui/incidence-comments"
 
 setDefaultOptions({ locale: es })
 
@@ -325,6 +326,9 @@ async function HomeOrden({ params }: Props) {
                     <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
                         {situacion_facturacion.link_doc2 && <CardComentarios comentarios={situacion_facturacion.link_doc2} />}
                     </Suspense>
+
+                    {/* Comentarios */}
+                    <IncidenceComments order={orden} />
                 </div>
 
                 {/* COLUMN 2*/}
