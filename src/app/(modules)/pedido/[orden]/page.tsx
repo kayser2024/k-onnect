@@ -221,8 +221,7 @@ async function HomeOrden({ params }: Props) {
                         <h1 className="font-bold text-xl md:text-2xl">{cabecera_pedido?.numero_orden}</h1>
                         <Badge >{cabecera_pedido?.estado_pedido}</Badge>
                     </div>
-                    {/* <div className="w-full flex justify-around sm:w-auto sm:justify-normal gap-5 bg-red-300">
-                    </div> */}
+                   
                 </div>
                 <span className="text-xs md:text-lg">{new Date(ordenes.created_at).toLocaleString()}</span>
             </section>
