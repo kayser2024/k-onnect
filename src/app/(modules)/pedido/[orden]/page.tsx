@@ -323,9 +323,9 @@ async function HomeOrden({ params }: Props) {
 
 
                     {/* Observaciones */}
-                    <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
+                    {/* <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
                         {situacion_facturacion.link_doc2 && <CardComentarios comentarios={situacion_facturacion.link_doc2} />}
-                    </Suspense>
+                    </Suspense> */}
 
                     {/* Comentarios */}
                     <IncidenceComments order={orden} />
