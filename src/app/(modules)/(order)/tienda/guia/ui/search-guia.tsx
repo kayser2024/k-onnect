@@ -1,4 +1,3 @@
-import { getGuiasByValue } from '@/actions/guia/getGuia'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,8 +13,9 @@ interface Props {
     setData: (value: Detail | []) => void
     setLoading: (value: boolean) => void
     refetch: () => Promise<QueryObserverResult<Detail[]>>
+    isGuideOpen: boolean
 }
-export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearchValue }: Props) => {
+export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearchValue, isGuideOpen }: Props) => {
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -29,7 +29,7 @@ export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearc
 
         try {
             const result = await refetch()
-            console.log(result)
+
             // setData(result.data | [])
         } catch (error: any) {
             toast.error(error.message)
@@ -46,9 +46,9 @@ export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearc
 
                 <div className="w-full">
                     <Label>Buscar GUIA</Label>
-                    <Input placeholder='T100-1234' onChange={e => setSearchValue(e.target.value)} />
+                    <Input placeholder='T100-1234' onChange={e => setSearchValue(e.target.value)} value={searchValue} disabled={isGuideOpen} />
                 </div>
-                <Button className='mt-6' type='submit'>Buscar</Button>
+                <Button className='mt-6' type='submit' disabled={isGuideOpen}>Buscar</Button>
             </form>
 
 

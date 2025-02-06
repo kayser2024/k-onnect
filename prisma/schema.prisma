@@ -304,6 +304,7 @@ model NotesGuides {
   IsOpen            Boolean             @default(true)
   CreatedAt         DateTime            @default(now()) @db.Timestamp(0)
   UpdatedAt         DateTime?           @db.Timestamp(0)
+  IsCompleted       Boolean             @default(false)
   NoteGuideDetails  NoteGuideDetails[]
   PickupPoints      PickupPoints        @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: Cascade, map: "fk_notesguides_pickuppoints")
   Users             Users               @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_notesguides_users")
@@ -335,8 +336,8 @@ model NoteGuideDetails {
   ProductCode        String      @db.VarChar(30)
   Image1             String      @db.VarChar(255)
   Quantity           Int
-  QuantityPicks      Int?        @default(0)
-  ExistInGuide       Boolean?    @default(true)
+  QuantityPicks      Int         @default(0)
+  ExistInGuide       Boolean     @default(true)
   NotesGuides        NotesGuides @relation(fields: [NoteGuideID], references: [NoteGuideID], onDelete: Cascade, map: "fk_noteguidedetails_noteguide")
 
   @@index([NoteGuideID], map: "fk_noteguidedetails_noteguide")

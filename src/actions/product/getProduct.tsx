@@ -11,7 +11,6 @@ export const getProductBySearchCode = async (searchCode: string) => {
                 codigoEan: searchCode
             }
         })
-
         return {
             ok: true,
             message: "Producto encontrado",

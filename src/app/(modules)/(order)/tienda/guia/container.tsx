@@ -1,12 +1,12 @@
 'use client'
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { DataTable } from "./data-table"
 import { SearchGuia } from "./ui/search-guia"
 import { Loader } from "@/components/loader"
 import { Detail, ResponseGuia } from "@/types/Guia"
 import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { getGuiasByValue } from "@/actions/guia/getGuia"
+import { getDataGuideOpen, getGuiasByValue } from "@/actions/guia/getGuia"
 
 export const Container = () => {
 
@@ -14,43 +14,95 @@ export const Container = () => {
     const [loading, setLoading] = useState(false)
     const [searchValue, setSearchValue] = useState("")
     const [data, setData] = useState<Detail | []>([])
+    const [isGuideOpen, setIsGuideOpen] = useState(false)
 
-    const { data: dataGuias, isLoading, refetch } = useQuery({
-        queryKey: ["AllGuiasBySearchValue",searchValue],
+    // Primero obtener la guia abierta de la tienda
+
+
+    const { data: dataGuias, isLoading, refetch, isRefetching, isFetching } = useQuery({
+        queryKey: ["AllGuiasBySearchValue", searchValue],
         queryFn: async () => {
             const responseGuia = await getGuiasByValue(searchValue.trim(), 'ALM157')
             if (!responseGuia.ok) {
                 toast.error(`${responseGuia.message}`)
                 return []
             }
-            // setData(responseGuia.data)
 
-            console.log(responseGuia.data)
-            return responseGuia.data
+            setData(responseGuia.data)
+
+            if (responseGuia.isCompleted) {
+                toast.warning("La Guía ya se ecuentra Completado");
+                setData([])
+                // setIsGuideCompleted(true)
+                setIsGuideOpen(false)
+                return [];
+            } else {
+                // setIsGuideCompleted(false)
+                setIsGuideOpen(true)
+                return responseGuia.data
+            }
+            // console.log(responseGuia.data)
 
         },
         // staleTime: 1000 * 60, // 1 minute
-        enabled: false,        
+        enabled: false,
+    })
+
+    const { data: DataGuideOpen, isLoading: isLoadingData } = useQuery({
+        queryKey: ["InitData"],
+        queryFn: async () => {
+
+            const result = await getDataGuideOpen();
+            console.log(result)
+            if (result.data) {
+                setSearchValue(result.data.NumberDoc)
+                setIsGuideOpen(true)
+
+            } else {
+                setIsGuideOpen(false)
+            }
+            // setData(result.data)
+            return result.data
+        },
+        // enabled: false
     })
 
 
+    useEffect(() => {
+        if (DataGuideOpen) {
+            refetch()
+        }
+    }, [DataGuideOpen, refetch])
 
     const tableData = useMemo(() => data || [], [data]);
     return (
-        <>
-        </>
-        // <div className="flex flex-col gap-2">
-        //     {/* FORMUlARIO PARA BUSCAR GUIAS */}
-        //     <SearchGuia setData={setData} setLoading={setLoading} searchValue={searchValue} setSearchValue={setSearchValue} refetch={refetch}/>
 
+        <div className="flex flex-col gap-2">
+            {/* FORMUlARIO PARA BUSCAR GUIAS */}
+            <SearchGuia
+                setData={setData}
+                setLoading={setLoading}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+                refetch={refetch}
+                isGuideOpen={isGuideOpen}
+            />
 
-        //     {/* tabla */}
-        //     {
-        //         loading
-        //             ? <Loader />
-        //             : <DataTable data={tableData} rowSelection={rowSelection} setRowSelection={setRowSelection} refetch={refetch} />
-        //     }
+            {/* tabla */}
+            {
+                isLoading
+                    ? <Loader />
+                    : <DataTable
+                        data={tableData}
+                        rowSelection={rowSelection}
+                        setRowSelection={setRowSelection}
+                        refetch={refetch}
+                        guide={searchValue}
+                        setData={setData}
+                        setIsGuideOpen={setIsGuideOpen}
+                    />
+            }
 
-        // </div>
+        </div>
     )
 }

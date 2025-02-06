@@ -1,5 +1,6 @@
 'use server'
 
+import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
 
 export interface ResponseGuia {
@@ -22,6 +23,15 @@ export interface Detail {
 
 
 export const getGuiasByValue = async (value: string, codEstablec: string) => {
+
+    const session = await auth()
+    const UserID = session?.user.UserID;
+    // const whCode=session?.user.WareHouseCode🚩
+
+    if (!UserID) {
+        throw new Error("Usuario no autenticado")
+    }
+    console.log(value)
 
     try {
         const response = await fetch(`http://192.168.0.244:5050/api/Transfer?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {
@@ -48,6 +58,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
                 NumberDoc: value
             }
         })
+        console.log(existGuide)
         if (!existGuide) {
             // Ajustar la zona horaria
             const createdAt = new Date();
@@ -57,10 +68,12 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
             newNoteGuide = await prisma.notesGuides.create({
                 data: {
                     NumberDoc: value,
-                    UserID: 1,
+                    UserID: UserID,
                     PickupPointID: 62,
                     Observation: null,
                     CreatedAt: createdAt,
+                    IsOpen: true,
+                    IsCompleted: false,
                 }
             })
 
@@ -70,14 +83,15 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
                 BarCode: item.BarCode,
                 ProductCode: item.ProductCode,
                 Description: item.Description,
-                Image1: item.Image1,
+                Image1: item.Image1 || "https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png",
                 Quantity: Number(item.Quantity),
             }))
 
             await prisma.noteGuideDetails.createMany({
                 data: details
             });
-            
+
+
             dataDetails = await prisma.noteGuideDetails.findMany({
                 where: {
                     NoteGuideID: newNoteGuide!.NoteGuideID
@@ -93,13 +107,13 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
 
         }
 
-
         // Guarder los datos en la tabla
-        console.log(data)
         return {
             ok: true,
             message: 'Guia encontrada',
-            data: dataDetails
+            data: dataDetails,
+            isOpen: existGuide?.IsOpen,
+            isCompleted: existGuide?.IsCompleted
         }
     } catch (error: any) {
         return {
@@ -108,4 +122,74 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
             data: []
         }
     }
+}
+
+// Función para obtener la data si la guía está en estado Completed
+export const getDataGuideOpen = async () => {
+    const session = await auth()
+
+    const PickupPointID = session?.user.PickupPointID
+
+    if (!PickupPointID) {
+        throw new Error(`No PickupPointID`);
+    }
+
+    try {
+        const dataGuideOpen = await prisma.notesGuides.findFirst({
+            where: {
+                IsOpen: true,
+                PickupPointID: PickupPointID
+            }
+        })
+
+
+        return {
+            ok: true,
+            message: 'Guia abierta encontrada',
+            data: dataGuideOpen,
+        }
+
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: []
+        }
+    }
+}
+
+
+// función para obtener todas las guías del establecimiento
+export const getAllGuidesByEstablec = async () => {
+
+
+    const session = await auth()
+    const PickupPointID = session?.user.PickupPointID
+
+    if (!PickupPointID) {
+        throw new Error(`No PickupPointID`);
+    }
+
+    try {
+        const allGuides = await prisma.notesGuides.findMany({
+            where: {
+                PickupPointID: PickupPointID
+            }
+        })
+
+        return {
+            ok: true,
+            message: 'Guias encontradas',
+            data: allGuides
+        }
+    } catch (error: any) {
+
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: []
+        }
+
+    }
+
 }

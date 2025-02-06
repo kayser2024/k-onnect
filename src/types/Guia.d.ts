@@ -8,6 +8,7 @@ export interface ResponseGuia {
 }
 
 export interface Detail {
+    NoteGuideDetailsID:number;
     BarCode: string;
     ProductCode: string;
     Description: string;

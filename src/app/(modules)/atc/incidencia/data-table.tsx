@@ -221,10 +221,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     }
 
 
-    // setIncidenceId(incidenceId)
-    // setIsOpen((prev) => !prev)  //abrir modal
-    // setOpenDropdown(null)  //cerrar drowpDown
-
   }
 
   // Función para Descargar Excel
@@ -238,10 +234,8 @@ export const DataTable = ({ incidentList }: OrderProps) => {
     setLoading(true)
     try {
 
-      console.log(data, '👉👉👉')
       // Isertar la NC y Boleta de la incidencia
       const result = await updateIncidence({ ...data, incidenceId: incidenceId }, 'incidencia')
-      // const result = "OK: Incidencia actualizada correctamente";
 
       // si es exitoso cerrar el modal
       if (result?.includes("ERROR:")) {
@@ -251,9 +245,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
         refetch(); // obtener los datos actualizados
         toast.success(result);
         setOpenInputModal(false)
-
-
-
       }
 
     } catch (error: any) {
