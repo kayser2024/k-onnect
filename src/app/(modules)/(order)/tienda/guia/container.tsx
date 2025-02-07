@@ -8,12 +8,23 @@ import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { getDataGuideOpen, getGuiasByValue } from "@/actions/guia/getGuia"
 
+interface GuideData {
+    NoteGuideID: number;
+    NumberDoc: string | null;
+    UserID: number;
+    PickupPointID: number;
+    Observation: string | null;
+    IsOpen: boolean;
+    CreatedAt: Date;
+    UpdatedAt: Date | null;
+    IsCompleted: boolean;
+}
 export const Container = () => {
 
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [loading, setLoading] = useState(false)
     const [searchValue, setSearchValue] = useState("")
-    const [data, setData] = useState<Detail | []>([])
+    const [data, setData] = useState<Detail[]>([])
     const [isGuideOpen, setIsGuideOpen] = useState(false)
 
     // Primero obtener la guia abierta de la tienda
@@ -54,8 +65,8 @@ export const Container = () => {
 
             const result = await getDataGuideOpen();
             console.log(result)
-            if (result.data) {
-                setSearchValue(result.data.NumberDoc)
+            if (result.data && 'NumberDoc' in result.data) {
+                setSearchValue(result.data.NumberDoc || "")
                 setIsGuideOpen(true)
 
             } else {

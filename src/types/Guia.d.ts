@@ -9,11 +9,12 @@ export interface ResponseGuia {
 
 export interface Detail {
     NoteGuideDetailsID:number;
+    NoteGuideID:number;
     BarCode: string;
     ProductCode: string;
     Description: string;
     Image1: string;
-    Quantity: string;
+    Quantity: number;
     QuantityPicks: number;
     ExistInGuide: boolean;
 }

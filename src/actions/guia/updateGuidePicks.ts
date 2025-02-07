@@ -59,31 +59,38 @@ export const updateIncrementPicks = async (noteGuideDetailsID: number, increment
 
             },
             data: {
-                QuantityPicks: {
-                    increment: increment
-                }
+                QuantityPicks: increment
             }
         })
 
-        // eliminar registro
-        if (resultUpdate.QuantityPicks <= 0) {
-            await prisma.noteGuideDetails.delete({
-                where: {
-                    NoteGuideDetailsID: noteGuideDetailsID,
-                    ExistInGuide: false
-                }
-            })
 
-            return {
-                ok: true,
-                message: 'Item eliminado con éxito',
-                data: null
-            };
-        }
 
         return {
             ok: true,
             message: 'Incremento realizado con exito',
+            data: resultUpdate
+        }
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: error.message,
+            data: []
+        }
+    }
+}
+export const deleteGuideProduct = async (noteGuideDetailsID: number) => {
+    try {
+        const resultUpdate = await prisma.noteGuideDetails.delete({
+            where: {
+                NoteGuideDetailsID: noteGuideDetailsID,
+
+            }
+        })
+
+
+        return {
+            ok: true,
+            message: 'Eliiminacion realizado con exito',
             data: resultUpdate
         }
     } catch (error: any) {

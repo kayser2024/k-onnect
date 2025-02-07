@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 
-export const updateGuideCompleted = async (NoteGuideID: number) => {
+export const updateGuideCompleted = async (NoteGuideID: number, observations: string) => {
     // Update the guide completed status in the database
     const fecha = new Date();
     fecha.setHours(fecha.getHours() - 5);
@@ -14,7 +14,8 @@ export const updateGuideCompleted = async (NoteGuideID: number) => {
             data: {
                 IsOpen: false,
                 IsCompleted: true,
-                UpdatedAt: fecha
+                UpdatedAt: fecha,
+                Observation: observations
             }
         })
 

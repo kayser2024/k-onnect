@@ -1,16 +1,16 @@
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Detail, ResponseGuia } from '@/types/Guia'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
-import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 
 interface Props {
     searchValue: string,
     setSearchValue: (value: string) => void,
-    setData: (value: Detail | []) => void
+    setData: (value: Detail[]) => void
     setLoading: (value: boolean) => void
     refetch: () => Promise<QueryObserverResult<Detail[]>>
     isGuideOpen: boolean

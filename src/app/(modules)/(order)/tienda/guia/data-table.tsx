@@ -36,10 +36,11 @@ import { Detail } from '@/types/Guia'
 import { QueryObserverResult } from '@tanstack/react-query'
 import { getProductBySearchCode } from '@/actions/product/getProduct'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { updateIncrementPicks, updatOneItemPicks } from '@/actions/guia/updateGuidePicks'
+import { deleteGuideProduct, updateIncrementPicks, updatOneItemPicks } from '@/actions/guia/updateGuidePicks'
 import { Loader } from '@/components/loader'
 import { updateGuideCompleted } from '@/actions/guia/updateGuideComplete'
 import { ModalGuideCompleted } from './ui/modal-guide-complete'
+import { Label } from '@/components/ui/label'
 
 
 interface OrderProps {
@@ -51,17 +52,23 @@ interface OrderProps {
     setData: (value: any) => void
     setIsGuideOpen: (value: boolean) => void
 }
+interface ProductFromAPI {
+    codigoEan: string | null;
+    codigoSap: string | null;
+    url_foto: string | null;
+    id: number;
+}
 export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide, setData, setIsGuideOpen }: OrderProps) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [searchCode, setSearchCode] = useState("");
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [observations, setObservations] = useState("");
+
 
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false)
 
-    console.log(data)
     const tableData = useMemo(() => {
-        // return data && data[0] ? data[0].Details : [];
         return data && data ? data : [];
     }, [data]);
 
@@ -71,7 +78,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
         console.log({ NoteGuideDetailsID, increment })
         try {
             const resultUpdateItem = await updateIncrementPicks(NoteGuideDetailsID, increment)
-            console.log(resultUpdateItem)
+            // console.log(resultUpdateItem)
         } catch (error: any) {
             toast.warning(error.message)
         } finally {
@@ -80,11 +87,27 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
         }
     }
 
+    const handleDeleteProduct = async (NoteGuideDetailsID: number) => {
+        setLoading(true)
+        try {
+            const resultDeleteItem = await deleteGuideProduct(NoteGuideDetailsID)
+            console.log(resultDeleteItem)
+
+        } catch (error: any) {
+            toast.warning(error.message)
+        } finally {
+            setLoading(false)
+            await refetch()
+        }
+
+    }
+
+
 
     // Verificar que data y data[0] no sean undefined
     const table = useReactTable({
         data: tableData,
-        columns: columns(handleIncrement),
+        columns: columns(handleIncrement, handleDeleteProduct),
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -112,7 +135,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
             if (!product) {
                 // realizar busqueda del producto en la api para relizar el insert
                 const existProductInBD = await getProductBySearchCode(searchCode);
-                console.log(existProductInBD)
+
                 if (!existProductInBD.data) {
                     toast.warning("El Producto no existe")
                     setLoading(false);
@@ -129,9 +152,6 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                 }
 
                 // insertar producto encontrado en la tabla GuideDetails 🚩
-                // ExistInGuide:False,
-                // Quantity:0,
-                // QuantityPicks:1
                 const productFound = {
                     NoteGuideID: noteGuideID,
                     Description: "Producto AGREGADO",
@@ -171,12 +191,14 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
         setIsSaving(true)
         try {
             //  Guardar en la BD la finalización
-            await updateGuideCompleted(data[0].NoteGuideID)
+            await updateGuideCompleted(data[0].NoteGuideID, observations)
             toast.success("Guía completado con Éxito")
 
             // vaciar la tabla cargada 🚩
             setData([])
             setIsGuideOpen(false)
+            setObservations("")
+            setSearchCode("")
         } catch (error: any) {
             toast.error(error.message)
         } finally {
@@ -200,6 +222,17 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
         setIsOpen(false)
     }
 
+
+    const totals = data.reduce((acc: any, item: any) => {
+        acc.total += item.Quantity;
+        if (item.ExistInGuide) {
+            acc.sobrantes += item.Quantity < item.QuantityPicks ? item.QuantityPicks - item.Quantity : 0;
+            acc.fatantes += item.Quantity > item.QuantityPicks ? item.Quantity - item.QuantityPicks : 0;
+        }
+        acc.noListados += !item.ExistInGuide ? item.QuantityPicks : 0;
+        acc.picking += item.QuantityPicks ? item.QuantityPicks : 0;
+        return acc;
+    }, { total: 0, faltantes: 0, sobrantes: 0, noListados: 0, picking: 0 });
 
     return (
         <div className="w-full flex flex-col gap-2 mt-4">
@@ -243,7 +276,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                                             // console.log(cell.row.original.ExistInBox)
                                             const existInBox = cell.row.original.ExistInGuide;
                                             return (
-                                                <TableCell key={cell.id} className={`${existInBox ? '' : 'bg-orange-1   00'}`} >
+                                                <TableCell key={cell.id} className={`${existInBox ? '' : 'bg-orange-50'}`} >
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
@@ -257,7 +290,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={columns.length}
+                                        colSpan={columns.length + 1}
                                         className="h-24 text-center"
                                     >
                                         Ningún elemento encontrado
@@ -270,14 +303,22 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                 </ScrollArea>
             </div>
 
-            <div className=" flex justify-between">
-                <div className="">
-                    <p className='text-sm'>Total: </p>
-                    <p className='text-sm'>Faltantes: </p>
-                    <p className='text-sm'>Restantes: </p>
+            <div className="flex flex-col justify-between">
+                <div className="flex items-center justify-between text-slate-500">
+                    <p className='text-xs'>Total : {totals.total}</p>|
+                    <p className='text-xs'>Faltantes: {totals.faltantes}</p>|
+                    <p className='text-xs'>Sobrantes: {totals.sobrantes}</p>|
+                    <p className='text-xs'>Picking: {totals.picking}</p>|
+                    <p className='text-xs'>No listados: {totals.noListados}</p>
 
                 </div>
-                <Button onClick={openModalAccept}>Guardar</Button>
+                <div className="flex mt-4 gap-2">
+                    <div className="w-full ">
+                        <Label>Observaciones:</Label>
+                        <Input placeholder='Ingresar observaciones' value={observations} onChange={(e) => setObservations(e.target.value)}></Input>
+                    </div>
+                    <Button onClick={openModalAccept} className='mt-6'>Guardar</Button>
+                </div>
             </div>
 
             {loading && <Loader />}

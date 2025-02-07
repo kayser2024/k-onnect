@@ -2,7 +2,19 @@
 
 import prisma from "@/lib/prisma"
 
-export const getProductBySearchCode = async (searchCode: string) => {
+interface ProductFromAPI {
+    codigoEan: string | null;
+    codigoSap: string | null;
+    url_foto: string | null;
+    id: number;
+}
+
+interface ApiResponse<T> {
+    ok: boolean;
+    message: string;
+    data: T;
+}
+export const getProductBySearchCode = async (searchCode: string): Promise<ApiResponse<ProductFromAPI | null>> => {
 
 
     try {
@@ -11,6 +23,8 @@ export const getProductBySearchCode = async (searchCode: string) => {
                 codigoEan: searchCode
             }
         })
+
+
         return {
             ok: true,
             message: "Producto encontrado",
@@ -21,7 +35,7 @@ export const getProductBySearchCode = async (searchCode: string) => {
         return {
             ok: false,
             message: `${error.message}`,
-            data: []
+            data: null
         }
     }
 }

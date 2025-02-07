@@ -34,7 +34,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
     console.log(value)
 
     try {
-        const response = await fetch(`http://192.168.0.244:5050/api/Transfer?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {
+        const response = await fetch(`${process.env.KAYSER_GUIA_API}?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
                 NumberDoc: value
             }
         })
-        console.log(existGuide)
+
         if (!existGuide) {
             // Ajustar la zona horaria
             const createdAt = new Date();
@@ -143,6 +143,11 @@ export const getDataGuideOpen = async () => {
         })
 
 
+        if (!dataGuideOpen) {
+            throw new Error('Guia no encontrada')
+        }
+
+        console.log(dataGuideOpen)
         return {
             ok: true,
             message: 'Guia abierta encontrada',
