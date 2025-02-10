@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { Truculenta } from "next/font/google";
 
 export interface ResponseGuia {
     GuideNumber: string;
@@ -147,7 +148,7 @@ export const getDataGuideOpen = async () => {
             throw new Error('Guia no encontrada')
         }
 
-        console.log(dataGuideOpen)
+        // console.log(dataGuideOpen)
         return {
             ok: true,
             message: 'Guia abierta encontrada',
@@ -165,36 +166,152 @@ export const getDataGuideOpen = async () => {
 
 
 // función para obtener todas las guías del establecimiento
+// export const getAllGuidesByEstablec = async () => {
+
+
+//     const session = await auth()
+//     const PickupPointID = session?.user.PickupPointID
+
+//     if (!PickupPointID) {
+//         throw new Error(`No PickupPointID`);
+//     }
+
+//     try {
+//         const allGuides = await prisma.notesGuides.findMany({
+//             where: {
+//                 PickupPointID: PickupPointID
+//             }
+//         })
+
+
+
+//         return {
+//             ok: true,
+//             message: 'Guias encontradas',
+//             data: allGuides
+//         }
+//     } catch (error: any) {
+
+//         return {
+//             ok: false,
+//             message: `${error.message}`,
+//             data: []
+//         }
+
+//     }
+
+// }
+
 export const getAllGuidesByEstablec = async () => {
-
-
-    const session = await auth()
-    const PickupPointID = session?.user.PickupPointID
+    const session = await auth();
+    const PickupPointID = session?.user.PickupPointID;
 
     if (!PickupPointID) {
         throw new Error(`No PickupPointID`);
     }
 
     try {
+        // Obtener todas las guías del establecimiento
         const allGuides = await prisma.notesGuides.findMany({
             where: {
-                PickupPointID: PickupPointID
+                PickupPointID: PickupPointID,
+            },
+        });
+
+        // Obtener los datos agregados para cada guía
+        const guidesWithAggregatedData = await Promise.all(
+            allGuides.map(async (guide) => {
+                const details = await prisma.noteGuideDetails.findMany({
+                    where: {
+                        NoteGuideID: guide.NoteGuideID,
+                    },
+                });
+
+                // Calcular los datos agregados
+                const Resumen = details.reduce(
+                    (acc, item) => {
+                        acc.total += item.Quantity;
+                        acc.totalpicks += item.QuantityPicks || 0; // Asegúrate de que QuantityPicks no sea null
+                        if (item.ExistInGuide) {
+                            acc.missing += item.QuantityPicks < item.Quantity ? item.Quantity - (item.QuantityPicks || 0) : 0;
+                            acc.plus += item.QuantityPicks > item.Quantity ? (item.QuantityPicks || 0) - item.Quantity : 0;
+                        }
+
+                        if (!item.ExistInGuide) {
+                            acc.noList += 1;
+                        }
+
+                        return acc;
+                    },
+                    {
+                        total: 0,
+                        totalpicks: 0,
+                        missing: 0,
+                        plus: 0,
+                        noList: 0,
+                    }
+                );
+
+                // Devolver la guía con los datos agregados
+                return {
+                    ...guide,
+                    Resumen,
+                };
+            })
+        );
+
+        console.log(guidesWithAggregatedData)
+
+        return {
+            ok: true,
+            message: "Guias encontradas",
+            data: guidesWithAggregatedData,
+        };
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: [],
+        };
+    }
+};
+
+export const getNoteGuideDetailByID = async (noteGuideID: number) => {
+
+    // const session = await auth();
+    // const PickupPointID = session?.user.PickupPointID;
+
+
+    try {
+
+        const result = await prisma.noteGuideDetails.findMany({
+            where: {
+                NoteGuideID: noteGuideID,
+
             }
-        })
+
+        });
+
+        console.log(result)
+        if (!result) {
+            return {
+                ok: false,
+                message: 'Guia no encontrada',
+                data: []
+            }
+        }
 
         return {
             ok: true,
             message: 'Guias encontradas',
-            data: allGuides
+            data: result
         }
-    } catch (error: any) {
 
+    } catch (error: any) {
         return {
             ok: false,
             message: `${error.message}`,
             data: []
         }
-
     }
-
 }

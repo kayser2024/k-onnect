@@ -111,7 +111,7 @@ export const columns = (handleIncrement: (id: number, increment: number) => void
                 }
             }
 
-            return <div className="flex items-center justify-center gap-2">
+            return <div className="flex items-center justify-evenly gap-2">
                 <span className="text-lg text-center">{row.original.QuantityPicks}</span>
                 <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                     <DropdownMenuTrigger><Ellipsis size={16} stroke="blue" /></DropdownMenuTrigger>

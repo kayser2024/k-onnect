@@ -41,8 +41,8 @@ export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearc
 
 
     return (
-        <div className='bg-slate-100 p-2 rounded-md'>
-            <form className="flex gap-2 w-full" onSubmit={(e) => handleSearch(e)}>
+        <div className='shadow-md border p-2 pb-4 rounded-md'>
+            <form className="flex gap-2 w-full shadow-sm" onSubmit={(e) => handleSearch(e)}>
 
                 <div className="w-full">
                     <Label>Buscar GUIA</Label>

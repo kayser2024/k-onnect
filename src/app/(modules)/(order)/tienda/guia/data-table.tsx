@@ -226,8 +226,10 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
     const totals = data.reduce((acc: any, item: any) => {
         acc.total += item.Quantity;
         if (item.ExistInGuide) {
-            acc.sobrantes += item.Quantity < item.QuantityPicks ? item.QuantityPicks - item.Quantity : 0;
-            acc.fatantes += item.Quantity > item.QuantityPicks ? item.Quantity - item.QuantityPicks : 0;
+            // acc.sobrantes += item.Quantity < item.QuantityPicks ? item.QuantityPicks - item.Quantity : 0;
+            // acc.fatantes += item.Quantity > item.QuantityPicks ? item.Quantity - item.QuantityPicks : 0;
+            acc.faltantes += item.QuantityPicks < item.Quantity ? item.Quantity - (item.QuantityPicks || 0) : 0;
+            acc.sobrantes += item.QuantityPicks > item.Quantity ? (item.QuantityPicks || 0) - item.Quantity : 0;
         }
         acc.noListados += !item.ExistInGuide ? item.QuantityPicks : 0;
         acc.picking += item.QuantityPicks ? item.QuantityPicks : 0;
@@ -235,10 +237,10 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
     }, { total: 0, faltantes: 0, sobrantes: 0, noListados: 0, picking: 0 });
 
     return (
-        <div className="w-full flex flex-col gap-2 mt-4">
+        <div className="w-full flex flex-col gap-4 mt-2 shadow-md border p-2 rounded-md bg-slate-50/50">
             <form action="" onSubmit={handleAddItem}>
 
-                <Input placeholder='Ingresar Cod Prod | Cod Barra' value={searchCode} onChange={(e) => setSearchCode(e.target.value)} />
+                <Input placeholder='Ingresar Cod Prod | Cod Barra'  className="shadow-sm mt-2 " value={searchCode} onChange={(e) => setSearchCode(e.target.value)} />
             </form>
             <div className="rounded-md border">
 
