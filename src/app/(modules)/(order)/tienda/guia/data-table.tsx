@@ -191,14 +191,73 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
         setIsSaving(true)
         try {
             //  Guardar en la BD la finalización
-            await updateGuideCompleted(data[0].NoteGuideID, observations)
-            toast.success("Guía completado con Éxito")
+            // await updateGuideCompleted(data[0].NoteGuideID, observations)
+            // toast.success("Guía completado con Éxito")
 
-            // vaciar la tabla cargada 🚩
-            setData([])
-            setIsGuideOpen(false)
-            setObservations("")
-            setSearchCode("")
+            // // vaciar la tabla cargada 🚩
+            // setData([])
+            // setIsGuideOpen(false)
+            // setObservations("")
+            // setSearchCode("")
+
+            // enviar correo si tiene sobrante o faltantes
+            const to = "victor.contreras@kayser.pe"
+            const subject = "Email-example"
+            const html = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Correo de prueba</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  color: #333;
+                }
+                .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  background-color: #fff;
+                  border-radius: 8px;
+                  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                  color: #007BFF;
+                }
+                .button {
+                  display: inline-block;
+                  padding: 10px 20px;
+                  background-color: #007BFF;
+                  color: #fff;
+                  text-decoration: none;
+                  border-radius: 5px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>¡Hola!</h1>
+                <p>Este es un correo de prueba enviado desde <strong>Nodemailer</strong>.</p>
+                <p>Puedes incluir enlaces, imágenes y más:</p>
+                <a href="https://example.com" class="button">Visitar Ejemplo</a>
+              </div>
+            </body>
+            </html>
+          `;
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ to, subject, html }),
+            });
+
+            const result = await response.json();
+            console.log(result);
+
         } catch (error: any) {
             toast.error(error.message)
         } finally {
@@ -237,14 +296,14 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
     }, { total: 0, faltantes: 0, sobrantes: 0, noListados: 0, picking: 0 });
 
     return (
-        <div className="w-full flex flex-col gap-4 mt-2 shadow-md border p-2 rounded-md bg-slate-50/50">
+        <div className="w-full flex flex-col gap-4 mt-2 shadow-md border p-2 rounded-md bg-slate-50/50 mb-4">
             <form action="" onSubmit={handleAddItem}>
 
-                <Input placeholder='Ingresar Cod Prod | Cod Barra'  className="shadow-sm mt-2 " value={searchCode} onChange={(e) => setSearchCode(e.target.value)} />
+                <Input placeholder='Ingresar Cod Prod | Cod Barra' className="shadow-sm mt-2 " value={searchCode} onChange={(e) => setSearchCode(e.target.value)} />
             </form>
             <div className="rounded-md border">
 
-                <ScrollArea className='h-[400px]'>
+                <ScrollArea className='h-[380px]'>
 
                     <Table>
                         <TableHeader className=''>
@@ -308,8 +367,8 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
             <div className="flex flex-col justify-between">
                 <div className="flex items-center justify-between text-slate-500">
                     <p className='text-xs'>Total : {totals.total}</p>|
-                    <p className='text-xs'>Faltantes: {totals.faltantes}</p>|
-                    <p className='text-xs'>Sobrantes: {totals.sobrantes}</p>|
+                    <p className={`${totals.faltantes > 0 ? ' text-red-600 font-semibold' : ''} text-xs`}>Faltantes: {totals.faltantes}</p>|
+                    <p className={`${totals.faltantes > 0 ? ' text-orange-300 font-semibold' : ''} text-xs`}>Sobrantes: {totals.sobrantes}</p>|
                     <p className='text-xs'>Picking: {totals.picking}</p>|
                     <p className='text-xs'>No listados: {totals.noListados}</p>
 
@@ -324,33 +383,6 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
             </div>
 
             {loading && <Loader />}
-
-
-            {/* PAGINATION */}
-            {/* <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} de{" "}
-                    {table.getFilteredRowModel().rows.length} Fila(s) Seleccionado(s).
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <ChevronLeft />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        <ChevronRight />
-                    </Button>
-                </div>
-            </div> */}
 
             <ModalGuideCompleted
                 handleAccept={handleAccept}
