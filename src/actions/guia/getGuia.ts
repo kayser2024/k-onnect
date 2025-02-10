@@ -238,7 +238,7 @@ export const getAllGuidesByEstablec = async () => {
                         }
 
                         if (!item.ExistInGuide) {
-                            acc.noList += 1;
+                            acc.noList += item.QuantityPicks;
                         }
 
                         return acc;
@@ -260,8 +260,6 @@ export const getAllGuidesByEstablec = async () => {
             })
         );
 
-        console.log(guidesWithAggregatedData)
-
         return {
             ok: true,
             message: "Guias encontradas",
@@ -276,37 +274,148 @@ export const getAllGuidesByEstablec = async () => {
     }
 };
 
+
 export const getNoteGuideDetailByID = async (noteGuideID: number) => {
+    const session = await auth();
+    const PickupPointID = session?.user.PickupPointID;
 
-    // const session = await auth();
-    // const PickupPointID = session?.user.PickupPointID;
-
+    if (!PickupPointID) {
+        throw new Error(`No PickupPointID`);
+    }
 
     try {
-
-        const result = await prisma.noteGuideDetails.findMany({
+        // Obtener los detalles de la guía específica
+        const details = await prisma.noteGuideDetails.findMany({
             where: {
                 NoteGuideID: noteGuideID,
-
-            }
-
+            },
         });
 
-        console.log(result)
-        if (!result) {
+        if (!details || details.length === 0) {
             return {
                 ok: false,
-                message: 'Guia no encontrada',
+                message: 'Guía no encontrada',
+                data: [],
+            };
+        }
+
+        // Calcular los datos agregados
+        const Resumen = details.reduce(
+            (acc, item) => {
+                acc.total += item.Quantity;
+                acc.totalpicks += item.QuantityPicks || 0; // Asegúrate de que QuantityPicks no sea null
+                if (item.ExistInGuide) {
+                    acc.missing += item.QuantityPicks < item.Quantity ? item.Quantity - (item.QuantityPicks || 0) : 0;
+                    acc.plus += item.QuantityPicks > item.Quantity ? (item.QuantityPicks || 0) - item.Quantity : 0;
+                }
+
+                if (!item.ExistInGuide) {
+                    acc.noList += item.QuantityPicks;
+                }
+
+                return acc;
+            },
+            {
+                total: 0,
+                totalpicks: 0,
+                missing: 0,
+                plus: 0,
+                noList: 0,
+            }
+        );
+
+        // Devolver los detalles de la guía con los datos agregados
+        return {
+            ok: true,
+            message: 'Guía encontrada',
+            data: details,
+            resumen: Resumen
+        };
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: `${error.message}`,
+            data: [],
+        };
+    }
+};
+
+// función para obtener la guía mediante un texto ingresado por el usuario
+
+export const getNoteGuideByText = async (text: string) => {
+    const session = await auth();
+    const PickupPointID = session?.user.PickupPointID;
+
+    if (!PickupPointID) {
+        throw new Error(`No PickupPointID`);
+    }
+
+    try {
+        const whereClause: any = { PickupPointID };
+        if (text) {
+            whereClause.NumberDoc = text;
+        }
+        const resutDataGuide = await prisma.notesGuides.findMany({
+            where: whereClause
+
+        })
+
+        if (resutDataGuide.length === 0 || !resutDataGuide) {
+            return {
+                ok: false,
+                message: 'Guía no encontrada',
                 data: []
             }
         }
 
+
+        // Obtener los datos agregados para cada guía
+        const guidesWithAggregatedData = await Promise.all(
+            resutDataGuide.map(async (guide) => {
+                const details = await prisma.noteGuideDetails.findMany({
+                    where: {
+                        NoteGuideID: guide.NoteGuideID,
+                    },
+                });
+
+                // Calcular los datos agregados
+                const Resumen = details.reduce(
+                    (acc, item) => {
+                        acc.total += item.Quantity;
+                        acc.totalpicks += item.QuantityPicks || 0; // Asegúrate de que QuantityPicks no sea null
+                        if (item.ExistInGuide) {
+                            acc.missing += item.QuantityPicks < item.Quantity ? item.Quantity - (item.QuantityPicks || 0) : 0;
+                            acc.plus += item.QuantityPicks > item.Quantity ? (item.QuantityPicks || 0) - item.Quantity : 0;
+                        }
+
+                        if (!item.ExistInGuide) {
+                            acc.noList += item.QuantityPicks;
+                        }
+
+                        return acc;
+                    },
+                    {
+                        total: 0,
+                        totalpicks: 0,
+                        missing: 0,
+                        plus: 0,
+                        noList: 0,
+                    }
+                );
+
+                // Devolver la guía con los datos agregados
+                return {
+                    ...guide,
+                    Resumen,
+                };
+            })
+        );
+
         return {
             ok: true,
-            message: 'Guias encontradas',
-            data: result
+            message: 'Guía encontrada',
+            data: guidesWithAggregatedData
         }
-
     } catch (error: any) {
         return {
             ok: false,

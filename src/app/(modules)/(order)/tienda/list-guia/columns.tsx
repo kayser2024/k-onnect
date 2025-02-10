@@ -6,51 +6,75 @@ import { useState } from "react";
 import { TbEyeShare } from "react-icons/tb";
 import { toast } from "sonner";
 import { ModalGuideDetail } from "./ui/modal-guide-detail";
+import { FileDown } from "lucide-react";
+import { downloadExcel } from "@/actions/guia/download-excel";
+
+
+
+// Componente para manejar la celda del producto
+const ProductCell = ({ row }: { row: any }) => {
+    const [guideDetails, setGuideDetails] = useState<any[]>([]);
+    const [openModal, setOpenModal] = useState(false);
+    const [resumen, setResumen] = useState<any>([]);
+    const [loading, setLoading] = useState(false)
+
+    const noteGuideId = row.original.NoteGuideID;
+    const numberDoc = row.original.NumberDoc;
+
+    const handleViewGuideDetail = async () => {
+        setLoading(true);
+        try {
+            const resultNoteGuideDetail = await getNoteGuideDetailByID(noteGuideId);
+
+            if (!resultNoteGuideDetail.ok) {
+                toast.warning(resultNoteGuideDetail.message);
+                return;
+            }
+            setGuideDetails(resultNoteGuideDetail.data);
+            setResumen(resultNoteGuideDetail?.resumen);
+            setOpenModal(true);
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const handleDownloadDetail = async () => {
+        try {
+            await downloadExcel(guideDetails, resumen, numberDoc);
+            toast.success("Archivo descargado correctamente.");
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    };
+
+    return (
+        <div className="text-xs font-semibold min-w-[150px] flex gap-2 justify-center items-center" title={numberDoc}>
+            {numberDoc}
+            <ModalGuideDetail guideDetails={guideDetails} open={openModal} onOpenChange={setOpenModal} onOpen={handleViewGuideDetail} resumen={resumen} loading={loading}>
+                <TbEyeShare
+                    color="blue"
+                    size={20}
+                    className="hover:bg-blue-100 cursor-pointer"
+                />
+            </ModalGuideDetail>
+            <div className="cursor-pointer" title="Descargar Excel" onClick={handleDownloadDetail}>
+
+                <FileDown color="green" size={20} />
+            </div>
+        </div>
+    );
+};
+
 
 
 export const columns: ColumnDef<any, any>[] = [
     {
-        accessorKey: "numberDoc",
-        header: "Nro GUIA",
-        cell: ({ row }) => {
-            const [guideDetails, setGuideDetails] = useState<any[]>([]);
-            const [openModal, setOpenModal] = useState(false); // Estado para controlar el modal
-
-            const noteGuideId = row.original.NoteGuideID;
-            const handleViewGuideDetail = async () => {
-
-                console.log(noteGuideId)
-
-                try {
-                    const resultNoteGuideDetail = await getNoteGuideDetailByID(noteGuideId);
-
-                    if (!resultNoteGuideDetail.ok) {
-                        toast.warning(resultNoteGuideDetail.message)
-                        return;
-                    }
-                    setGuideDetails(resultNoteGuideDetail.data);
-                    setOpenModal(true);
-
-                } catch (error: any) {
-                    toast.error(error.message)
-                }
-
-            }
-
-            return (
-                <div className="text-xs font-semibold min-w-[125px] flex gap-1 justify-center items-center" title={row.original.NumberDoc}>
-                    {row.original.NumberDoc}
-                    <ModalGuideDetail guideDetails={guideDetails} open={openModal} onOpenChange={setOpenModal} onOpen={handleViewGuideDetail}>
-                        <TbEyeShare
-                            color="blue"
-                            size={22}
-                            className="hover:bg-blue-100 cursor-pointer"
-                            
-                        />
-                    </ModalGuideDetail>
-                </div>
-            );
-        }
+        accessorKey: "product",
+        header: "Nro Guía",
+        cell: ProductCell
     },
 
     {
