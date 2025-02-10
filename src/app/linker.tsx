@@ -4,7 +4,6 @@ import React from 'react'
 
 import { Box, } from "lucide-react";
 import Link from "next/link";
-import { Button } from '@/components/ui/button';
 
 interface NavLinks {
     href: string,

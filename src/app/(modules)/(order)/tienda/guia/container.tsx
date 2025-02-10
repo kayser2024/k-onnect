@@ -26,6 +26,7 @@ export const Container = () => {
     const [searchValue, setSearchValue] = useState("")
     const [data, setData] = useState<Detail[]>([])
     const [isGuideOpen, setIsGuideOpen] = useState(false)
+    const [isLoadingInitial, setIsLoadingInitial] = useState(true);
 
     // Primero obtener la guia abierta de la tienda
 
@@ -57,6 +58,7 @@ export const Container = () => {
         },
         // staleTime: 1000 * 60, // 1 minute
         enabled: false,
+        initialData: []
     })
 
     const { data: DataGuideOpen, isLoading: isLoadingData } = useQuery({
@@ -64,7 +66,6 @@ export const Container = () => {
         queryFn: async () => {
 
             const result = await getDataGuideOpen();
-            console.log(result)
             if (result.data && 'NumberDoc' in result.data) {
                 setSearchValue(result.data.NumberDoc || "")
                 setIsGuideOpen(true)
@@ -79,39 +80,56 @@ export const Container = () => {
     })
 
 
+    // useEffect(() => {
+    //     if (DataGuideOpen) {
+    //         refetch()
+    //     }
+    // }, [DataGuideOpen, refetch])
+
     useEffect(() => {
         if (DataGuideOpen) {
-            refetch()
+            refetch().finally(() => setIsLoadingInitial(false));
         }
-    }, [DataGuideOpen, refetch])
+    }, [DataGuideOpen, refetch]);
 
+
+    console.log(isLoading)
     const tableData = useMemo(() => data || [], [data]);
     return (
 
         <div className="flex flex-col gap-2">
             {/* FORMUlARIO PARA BUSCAR GUIAS */}
-            <SearchGuia
-                setData={setData}
-                setLoading={setLoading}
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                refetch={refetch}
-                isGuideOpen={isGuideOpen}
-            />
-
-            {/* tabla */}
             {
-                isLoading
-                    ? <Loader />
-                    : <DataTable
-                        data={tableData}
-                        rowSelection={rowSelection}
-                        setRowSelection={setRowSelection}
-                        refetch={refetch}
-                        guide={searchValue}
-                        setData={setData}
-                        setIsGuideOpen={setIsGuideOpen}
-                    />
+                isLoadingInitial
+                    ? (<Loader />)
+                    : (
+                        <>
+                            <SearchGuia
+                                setData={setData}
+                                setLoading={setLoading}
+                                searchValue={searchValue}
+                                setSearchValue={setSearchValue}
+                                refetch={refetch}
+                                isGuideOpen={isGuideOpen}
+                            />
+
+                            {/* tabla */}
+                            {
+                                isLoading
+                                    ? <Loader />
+                                    : <DataTable
+                                        data={tableData}
+                                        rowSelection={rowSelection}
+                                        setRowSelection={setRowSelection}
+                                        refetch={refetch}
+                                        guide={searchValue}
+                                        setData={setData}
+                                        setIsGuideOpen={setIsGuideOpen}
+                                    />
+                            }
+
+                        </>
+                    )
             }
 
         </div>

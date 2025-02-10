@@ -13,11 +13,8 @@ import {
 import { columns } from "./columns";
 import { fetchingAllData } from "./fetchingData";
 import { format } from "date-fns";
-// import SearchComprobante from "./search";
 import { Button } from "@/components/ui/button";
-// import TableSkeleton from "../pedido/tableSkeleton";
 import { toast } from "sonner";
-import SearchComprobante from "./comprobante/search";
 import TableSkeleton from "./pedido/tableSkeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import SearchFilter from "./search-filter";

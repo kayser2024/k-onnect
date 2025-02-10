@@ -6,7 +6,7 @@ import { AuthProvider } from "@/components";
 import { ThemeProvider } from "@/components/provider/ThemeProvider";
 import { QueryProvider } from "@/components/provider/QueryProvider";
 import NProgress from "@/components/NProgress";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { MyScrollArea } from "@/components/my-scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,8 +30,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} `}>
-        <ScrollArea className="h-lvh w-full">
-
+        <MyScrollArea >
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
               <AuthProvider>
@@ -41,7 +40,7 @@ export default function RootLayout({
               </AuthProvider>
             </ThemeProvider>
           </QueryProvider>
-        </ScrollArea>
+        </MyScrollArea>
       </body>
     </html>
   );

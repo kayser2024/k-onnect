@@ -32,7 +32,6 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
     if (!UserID) {
         throw new Error("Usuario no autenticado")
     }
-    console.log(value)
 
     try {
         const response = await fetch(`${process.env.KAYSER_GUIA_API}?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {

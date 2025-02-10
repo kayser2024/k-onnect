@@ -373,7 +373,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                     <p className='text-xs'>No listados: {totals.noListados}</p>
 
                 </div>
-                <div className="flex mt-4 gap-2">
+                <div className="flex my-4 gap-2">
                     <div className="w-full ">
                         <Label>Observaciones:</Label>
                         <Input placeholder='Ingresar observaciones' value={observations} onChange={(e) => setObservations(e.target.value)}></Input>

@@ -2,7 +2,6 @@ import { auth } from "@/auth.config";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { TopMenu } from "@/components/ui/topMenu";
 import { redirect } from "next/navigation";
-import { Toaster } from "sonner";
 
 
 
@@ -17,15 +16,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <main >
 
             <TopMenu />
-
             <Sidebar />
 
-            <div className="px-5   w-full mx-auto">
+            <div className="px-5 w-full mx-auto">
                 {children}
-
             </div>
-            
-            {/* <Toaster richColors expand={true} /> */}
         </main>
     )
 }
