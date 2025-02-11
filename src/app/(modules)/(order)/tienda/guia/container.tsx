@@ -128,6 +128,7 @@ export const Container = () => {
                                     />
                             }
 
+                            {loading && <Loader />}
                         </>
                     )
             }

@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
         console.log(excelBuffer)
         const guide = tableData.guide
         await sendEmail(to, subject, html, excelBuffer, guide);
-        return NextResponse.json({ message: 'Email sent successfully' });
+        return NextResponse.json({ message: 'E-mail enviado exitosamente' });
     } catch (error) {
-        return NextResponse.json({ error: 'Error sending email' }, { status: 500 });
+        return NextResponse.json({ error: 'Error al enviar E-mail' }, { status: 500 });
     }
 }

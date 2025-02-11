@@ -120,7 +120,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
     } catch (error: any) {
         return {
             ok: false,
-            message: `${error.message}`,
+            message: `ERROR: El número de guía ingresado no se encuentra cargado al sistema`,
             data: []
         }
     }
