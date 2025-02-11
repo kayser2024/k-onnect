@@ -33,6 +33,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
         throw new Error("Usuario no autenticado")
     }
 
+
     try {
         const response = await fetch(`${process.env.KAYSER_GUIA_API}?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {
             method: 'GET',
@@ -51,6 +52,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
 
         let newNoteGuide;
         let dataDetails;
+
         // guardar en la bd
         // verificar si la GUIA existe en la BD
         const existGuide = await prisma.notesGuides.findFirst({

@@ -34,6 +34,11 @@ export const Container = () => {
     const { data: dataGuias, isLoading, refetch, isRefetching, isFetching } = useQuery({
         queryKey: ["AllGuiasBySearchValue", searchValue],
         queryFn: async () => {
+
+            if (searchValue.trim() === '') {
+                setIsGuideOpen(false);
+                return []
+            }
             const responseGuia = await getGuiasByValue(searchValue.trim(), 'ALM157')
             if (!responseGuia.ok) {
                 toast.error(`${responseGuia.message}`)
@@ -73,6 +78,8 @@ export const Container = () => {
             } else {
                 setIsGuideOpen(false)
             }
+            console.log(result.data)
+
             // setData(result.data)
             return result.data
         },
