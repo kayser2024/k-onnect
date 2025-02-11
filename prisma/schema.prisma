@@ -9,10 +9,11 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model OSF_Product {
-  codigoEan String? @db.VarChar(20)
-  codigoSap String? @db.VarChar(30)
-  url_foto  String? @db.VarChar(255)
-  id        Int     @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
+  codigoEan   String? @db.VarChar(20)
+  codigoSap   String? @db.VarChar(30)
+  Description String? @db.VarChar(255)
+  url_foto    String? @db.VarChar(255)
 }
 
 model roles {
@@ -341,4 +342,12 @@ model NoteGuideDetails {
   NotesGuides        NotesGuides @relation(fields: [NoteGuideID], references: [NoteGuideID], onDelete: Cascade, map: "fk_noteguidedetails_noteguide")
 
   @@index([NoteGuideID], map: "fk_noteguidedetails_noteguide")
+}
+
+model tbl_product_master {
+  ProductID   Int    @id @default(autoincrement())
+  CodBar      String @db.VarChar(50)
+  CodProd     String @db.VarChar(50)
+  Description String @db.VarChar(255)
+  ImageUrl    String @db.VarChar(255)
 }

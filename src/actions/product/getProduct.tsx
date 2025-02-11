@@ -3,10 +3,11 @@
 import prisma from "@/lib/prisma"
 
 interface ProductFromAPI {
-    codigoEan: string | null;
-    codigoSap: string | null;
-    url_foto: string | null;
-    id: number;
+    ProductID: number;
+    CodBar: string ;
+    CodProd: string ;
+    Description: string ;
+    ImageUrl: string ;
 }
 
 interface ApiResponse<T> {
@@ -18,9 +19,9 @@ export const getProductBySearchCode = async (searchCode: string): Promise<ApiRes
 
 
     try {
-        const resultProduct = await prisma.oSF_Product.findFirst({
+        const resultProduct = await prisma.tbl_product_master.findFirst({
             where: {
-                codigoEan: searchCode
+                CodBar: searchCode
             }
         })
 

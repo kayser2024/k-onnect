@@ -11,12 +11,19 @@ const transporter = nodemailer.createTransport({
     },
 } as SMTPTransport.Options); // Asegúrate de usar el tipo correcto
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const sendEmail = async (to: string, subject: string, html: string, buffer: Buffer, guide: string) => {
     const mailOptions = {
         from: process.env.SMTP_USERNAME,
         to,
         subject,
         html,
+        attachments: [
+            {
+                filename: `Reporte_${guide}.xlsx`,
+                content: buffer,
+                contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            }
+        ]
     };
 
     try {

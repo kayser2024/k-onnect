@@ -41,6 +41,8 @@ import { Loader } from '@/components/loader'
 import { updateGuideCompleted } from '@/actions/guia/updateGuideComplete'
 import { ModalGuideCompleted } from './ui/modal-guide-complete'
 import { Label } from '@/components/ui/label'
+import { sendEmail } from '@/actions/guia/send-email'
+import { templateHTML } from './email/template-email'
 
 
 interface OrderProps {
@@ -154,11 +156,10 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                 // insertar producto encontrado en la tabla GuideDetails 🚩
                 const productFound = {
                     NoteGuideID: noteGuideID,
-                    Description: "Producto AGREGADO",
-                    BarCode: existProductInBD?.data?.codigoEan || "",
-                    // Description: existProductInBD.data.descripcion,
-                    ProductCode: existProductInBD.data?.codigoSap || "",
-                    ImageURL: existProductInBD.data?.url_foto || "",
+                    Description: existProductInBD.data?.Description,
+                    BarCode: existProductInBD?.data?.CodBar,
+                    ProductCode: existProductInBD.data?.CodProd,
+                    ImageURL: existProductInBD.data?.ImageUrl,
                     Quantity: 0,
                     QuantityPicks: 1,
                     ExistInGuide: false,
@@ -190,79 +191,41 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
     const handleGuideCompleted = async () => {
         setIsSaving(true)
         try {
+            if (totals.faltantes !== 0 || totals.sobrantes !== 0 || totals.noListados != 0) {
+                // enviar correo si tiene sobrante , faltantes o no-list
+                const to = "victor.contreras@kayser.pe"
+                const subject = `GUIA ${guide}`
+
+                const noteGuideID = data[0].NoteGuideID;
+                const html = templateHTML(guide)
+                // enviar correo para almacén
+                const emailSent = await sendEmail(to, subject, html, noteGuideID, guide)
+                if (!emailSent.ok) {
+                    setIsSaving(false);
+                    toast.error("Error al enviar correo")
+                    return;
+                }
+            }
+
             //  Guardar en la BD la finalización
-            // await updateGuideCompleted(data[0].NoteGuideID, observations)
-            // toast.success("Guía completado con Éxito")
+            const resultUpdate = await updateGuideCompleted(data[0].NoteGuideID, observations)
+            if (!resultUpdate.ok) {
+                toast.error("Error al guardar la Guia")
+                return;
+            }
+            toast.success(resultUpdate.message)
 
             // // vaciar la tabla cargada 🚩
-            // setData([])
-            // setIsGuideOpen(false)
-            // setObservations("")
-            // setSearchCode("")
-
-            // enviar correo si tiene sobrante o faltantes
-            const to = "victor.contreras@kayser.pe"
-            const subject = "Email-example"
-            const html = `
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Correo de prueba</title>
-              <style>
-                body {
-                  font-family: Arial, sans-serif;
-                  background-color: #f4f4f4;
-                  color: #333;
-                }
-                .container {
-                  max-width: 600px;
-                  margin: 0 auto;
-                  padding: 20px;
-                  background-color: #fff;
-                  border-radius: 8px;
-                  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
-                h1 {
-                  color: #007BFF;
-                }
-                .button {
-                  display: inline-block;
-                  padding: 10px 20px;
-                  background-color: #007BFF;
-                  color: #fff;
-                  text-decoration: none;
-                  border-radius: 5px;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h1>¡Hola!</h1>
-                <p>Este es un correo de prueba enviado desde <strong>Nodemailer</strong>.</p>
-                <p>Puedes incluir enlaces, imágenes y más:</p>
-                <a href="https://example.com" class="button">Visitar Ejemplo</a>
-              </div>
-            </body>
-            </html>
-          `;
-            const response = await fetch('/api/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ to, subject, html }),
-            });
-
-            const result = await response.json();
-            console.log(result);
+            setData([])
+            setIsGuideOpen(false)
+            setObservations("")
+            setSearchCode("")
+            setIsOpen(false)
 
         } catch (error: any) {
             toast.error(error.message)
         } finally {
             setIsSaving(false)
-            setIsOpen(false)
         }
     }
 
@@ -303,7 +266,7 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
             </form>
             <div className="rounded-md border">
 
-                <ScrollArea className='h-[380px]'>
+                <ScrollArea className='h-[320px]'>
 
                     <Table>
                         <TableHeader className=''>
@@ -368,15 +331,15 @@ export const DataTable = ({ data, rowSelection, setRowSelection, refetch, guide,
                 <div className="flex items-center justify-between text-slate-500">
                     <p className='text-xs'>Total : {totals.total}</p>|
                     <p className={`${totals.faltantes > 0 ? ' text-red-600 font-semibold' : ''} text-xs`}>Faltantes: {totals.faltantes}</p>|
-                    <p className={`${totals.faltantes > 0 ? ' text-orange-300 font-semibold' : ''} text-xs`}>Sobrantes: {totals.sobrantes}</p>|
-                    <p className='text-xs'>Picking: {totals.picking}</p>|
+                    <p className={`${totals.sobrantes > 0 ? ' text-orange-300 font-semibold' : ''} text-xs`}>Sobrantes: {totals.sobrantes}</p>|
+                    <p className={`text-xs`}>Picking: {totals.picking}</p>|
                     <p className='text-xs'>No listados: {totals.noListados}</p>
 
                 </div>
                 <div className="flex my-4 gap-2">
                     <div className="w-full ">
                         <Label>Observaciones:</Label>
-                        <Input placeholder='Ingresar observaciones' value={observations} onChange={(e) => setObservations(e.target.value)}></Input>
+                        <Input className='shadow-md' placeholder='Ingresar observaciones' value={observations} onChange={(e) => setObservations(e.target.value)}></Input>
                     </div>
                     <Button onClick={openModalAccept} className='mt-6'>Guardar</Button>
                 </div>

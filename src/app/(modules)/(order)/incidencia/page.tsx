@@ -1,10 +1,22 @@
 import React from 'react'
 import { DataTable } from './data-table'
 import { getAllIncidence, getOrdersWithIncidence } from '@/actions/order/Incidencia';
+import { auth } from '@/auth.config';
+import { redirect } from 'next/navigation';
+import { Metadata } from 'next'
 
+export const metadata: Metadata = {
+    title: 'Kayser | Incidencia',
+    icons: '/kayser.ico'
+}
 
 const IncidenciaPage = async () => {
+    const session = await auth()
+    const data = session!.user
 
+    if (!session) {
+        redirect('/api/auth/signin')
+    }
     const incidenciaList = await getAllIncidence();
     
     return (

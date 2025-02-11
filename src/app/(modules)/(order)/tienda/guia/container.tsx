@@ -80,12 +80,6 @@ export const Container = () => {
     })
 
 
-    // useEffect(() => {
-    //     if (DataGuideOpen) {
-    //         refetch()
-    //     }
-    // }, [DataGuideOpen, refetch])
-
     useEffect(() => {
         if (DataGuideOpen) {
             refetch().finally(() => setIsLoadingInitial(false));
@@ -93,7 +87,6 @@ export const Container = () => {
     }, [DataGuideOpen, refetch]);
 
 
-    console.log(isLoading)
     const tableData = useMemo(() => data || [], [data]);
     return (
 
