@@ -11,8 +11,7 @@ export async function GET() {
             user: 'promotora',
             port: 3306,
             password: 'T123456TCilesia/*',
-            // database: 'ptspromotora_test',
-            database: 'k-onnect',
+            database: 'ptspromotora_test',
         });
 
         // Realizar la solicitud a la API
