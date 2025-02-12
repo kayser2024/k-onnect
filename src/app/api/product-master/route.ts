@@ -11,21 +11,22 @@ export async function GET() {
             user: 'promotora',
             port: 3306,
             password: 'T123456TCilesia/*',
-            database: 'ptspromotora_test',
+            // database: 'ptspromotora_test',
+            database: 'k-onnect',
         });
 
         // Realizar la solicitud a la API
-        const result = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.STOK_TOKEN_BEARER}`,
-            },
-        });
-        const data = await result.json();
-        const imageNotFound = "https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png"
-        console.log(data.length)
-        // Verificar si la respuesta es un array
+        // const result = await fetch(url, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer ${process.env.STOK_TOKEN_BEARER}`,
+        //     },
+        // });
+        // const data = await result.json();
+        // const imageNotFound = "https://www.smarttools.com.mx/wp-content/uploads/2019/05/imagen-no-disponible.png"
+        // console.log(data.length)
+        // // Verificar si la respuesta es un array
         // if (Array.isArray(data)) {
         //     // Mapeamos los productos para obtener solo el EAN, CodProdu,Description e ImageURL
         //     const products = data.filter((product: any) => product.EAN).map((product: any) => [

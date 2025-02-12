@@ -27,13 +27,13 @@ export const getListEstablecimientos = async () => {
     try {
         // obtenemos todos los establecimientos menos el delivery
         const establecimientos: PickupPoint[] = await prisma.pickupPoints.findMany({
-            where: {
-                NOT: {
-                    Description: {
-                        contains: 'delivery',
-                    },
-                },
-            },
+            // where: {
+            //     NOT: {
+            //         Description: {
+            //             contains: 'delivery',
+            //         },
+            //     },
+            // },
         }
         );
         return establecimientos
