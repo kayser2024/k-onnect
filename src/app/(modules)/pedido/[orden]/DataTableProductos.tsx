@@ -254,7 +254,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
                 }
 
             } else {
-                console.log("ACTUALIZAR EL ESTADO A CANCELADO")
+                // console.log("ACTUALIZAR EL ESTADO A CANCELADO")
                 observacion = "Devolucion Total a pedido del cliente"
                 // actualizar el orderLogs
 

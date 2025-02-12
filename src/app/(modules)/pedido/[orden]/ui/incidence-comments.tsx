@@ -14,7 +14,6 @@ interface Props {
 }
 export const IncidenceComments = ({ order }: Props) => {
 
-    console.log(order)
     const { setRefetch } = useUpdateContext()
 
     const { data, isLoading, refetch } = useQuery({
@@ -22,7 +21,6 @@ export const IncidenceComments = ({ order }: Props) => {
         queryFn: () => getIncidenceByOrder(order)
     })
 
-    console.log(data)
 
     useEffect(() => {
         setRefetch(() => refetch);
