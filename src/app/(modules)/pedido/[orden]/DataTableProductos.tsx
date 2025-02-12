@@ -48,6 +48,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmContinue } from "./ui/confirm-continue"
 import { Textarea } from "@/components/ui/textarea"
 import { getInvoice } from "@/actions/order/getOneOrder"
+import { useUpdateContext } from "./UpdateContext"
 
 interface DataTableProps {
     data: any,
@@ -95,6 +96,8 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
     const [openModal, setOpenModal] = useState(false)
     const [optionSelected, setOptionSelected] = useState(false)
 
+    const { refetchIncidenceComments } = useUpdateContext()
+
 
 
     // obtener incidencias "Devoluciones"
@@ -135,14 +138,13 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
         // Verificar si la Boleta está en estado PAGADO
         const pagado = orden.situacion_pagos[0].estado_pago
-        // if (pagado !== "pagado") {
-        //     toast.error(`El estado de pago: ${pagado}`)
-        //     return
-        // }
+        if (pagado !== "pagado") {
+            toast.error(`El estado de pago: ${pagado}`)
+            return
+        }
 
         // verificar si existe la boleta en la BD antes de realizar la operación🚩
         const ExistInvoice = await getInvoice(docActual)
-        console.log(ExistInvoice)
         if (!ExistInvoice.ok) {
             setLoading(false);
             toast.error(`${ExistInvoice.message}`)
@@ -222,8 +224,8 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
 
         try {
 
-
-
+            // crear 
+            await insertComment(`DEVOLUCION ${tipoExtorno}`, nroOrden)
             // crear incidencia en la BD
             const resultIncidence = await createIncidence(data);
             console.log(resultIncidence)
@@ -254,6 +256,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
             } else {
                 console.log("ACTUALIZAR EL ESTADO A CANCELADO")
                 observacion = "Devolucion Total a pedido del cliente"
+                // actualizar el orderLogs
 
 
                 const resultUpdateStatusCancel = await updateStatusPayment(nroOrden, "cancelado");
@@ -275,6 +278,7 @@ export function DataTableProductos({ data, orden, comprobante, persona, isPermit
             toast.success("Devolucion Copiada al Portapapeles")
 
 
+            refetchIncidenceComments()
             setDropdownOpen(false)
             setStore("")
             setCommentDevol("")

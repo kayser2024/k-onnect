@@ -3,9 +3,12 @@
 import prisma from "@/lib/prisma"
 
 export const getOneOrderLogs = async (order: string) => {
-
+    console.log(order)
     let result;
     try {
+
+    
+
         result = await prisma.orderLogs.findMany({
             where: {
                 OrderNumber: order

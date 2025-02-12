@@ -43,7 +43,6 @@ export const TimeLine = ({ order, created_at }: OrderProps) => {
         queryKey: ['orderLogs'],
         queryFn: async () => {
             const orderLogs = await getOneOrderLogs(order)
-
             // Asegurarse de que las fechas de getOneOrder se mantengan como están
             return orderInit.concat(
                 orderLogs.map((log: any) => ({
@@ -53,8 +52,6 @@ export const TimeLine = ({ order, created_at }: OrderProps) => {
             )
         },
     })
-
-    console.log(data)
 
     return (
 

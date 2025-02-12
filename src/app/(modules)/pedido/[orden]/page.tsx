@@ -20,6 +20,7 @@ import { TimeLineHorizontal } from "./TimeLineHorizontal"
 import { Collapisble } from "./ui/Collapisble"
 import { ModalEditEnvio } from "./ui/modal-edit-envio"
 import { IncidenceComments } from "./ui/incidence-comments"
+import { UpdateProvider } from "./UpdateContext"
 
 setDefaultOptions({ locale: es })
 
@@ -201,7 +202,9 @@ async function HomeOrden({ params }: Props) {
     const situacion_facturacion = ordenes.situacion_facturacion[0]
     const created_at = ordenes.created_at
 
+    const refetchComents = () => {
 
+    }
 
     let direccionMaps = `https://www.google.com.pe/maps/search/${datos_envio.servicio_envio !== "programado" ? 'KAYSER' : ''} ${datos_envio.direccion_envio}+${datos_envio.distrito}+${datos_envio.provincia}+${datos_envio.departamento}+peru`
     // const productos = formatedDetallePedido(detalle_pedido)
@@ -221,193 +224,193 @@ async function HomeOrden({ params }: Props) {
                         <h1 className="font-bold text-xl md:text-2xl">{cabecera_pedido?.numero_orden}</h1>
                         <Badge >{cabecera_pedido?.estado_pedido}</Badge>
                     </div>
-                   
+
                 </div>
                 <span className="text-xs md:text-lg">{new Date(ordenes.created_at).toLocaleString()}</span>
             </section>
+            <UpdateProvider>
+                <section className="flex flex-col lg:grid grid-cols-[70%_30%] gap-2">
+                    {/* COLUMN 1 */}
+                    <div className="flex flex-col gap-2">
 
-            <section className="flex flex-col lg:grid grid-cols-[70%_30%] gap-2">
-                {/* COLUMN 1 */}
-                <div className="flex flex-col gap-2">
+                        {/* Detalle de Productos */}
+                        <Card className="cols">
+                            <CardHeader>
+                                <div className="flex justify-between">
+                                    <CardTitle className="text-xl flex items-center justify-center gap-2">
+                                        Detalle de Productos
 
-                    {/* Detalle de Productos */}
-                    <Card className="cols">
-                        <CardHeader>
-                            <div className="flex justify-between">
-                                <CardTitle className="text-xl flex items-center justify-center gap-2">
-                                    Detalle de Productos
+                                        <span className={`rounded-2xl block p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
+                                    </CardTitle>
+                                    {
+                                        isPermited
+                                        && <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
+                                    }
+                                </div>
+                                <CardDescription>Detalles de la orden</CardDescription>
 
-                                    <span className={`rounded-2xl block p-2 py-1 w-max text-xs ${cupon ? 'bg-green-300' : 'bg-orange-400'} text-white font-bold  transition-all`}>{cupon ? cupon : "Sin Cupon"}</span>
+                            </CardHeader>
+                            <CardContent>
+                                <DataTableProductos persona={user.user?.Name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} isPermited={isPermited} />
+                            </CardContent>
+                        </Card>
+
+                        {/* Resumen Pedido */}
+                        <Card >
+                            <CardHeader>
+                                <CardTitle className="flex items-center justify-between">
+                                    <div className="flex gap-4 items-center">
+                                        <p>Resumen de Pedido</p>
+                                        <span className={`${colorEstado} p-1 px-2 uppercase rounded-2xl text-sm text-white font-normal`}>
+                                            {situacion_pagos.estado_pago}
+                                        </span>
+                                    </div>
+
+                                    {isPermited &&
+                                        <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
+                                    }
                                 </CardTitle>
-                                {
-                                    isPermited
-                                    && <AccionesOrden orden={data} docActual={`${situacion_facturacion ? situacion_facturacion.estado_facturacion : cabecera_pedido?.numero_orden}`} />
-                                }
-                            </div>
-                            <CardDescription>Detalles de la orden</CardDescription>
 
-                        </CardHeader>
-                        <CardContent>
-                            <DataTableProductos persona={user.user?.Name} comprobante={situacion_facturacion} data={data.obj.ordenes[0]} orden={ordenes} isPermited={isPermited} />
-                        </CardContent>
-                    </Card>
+                            </CardHeader>
+                            <CardContent>
 
-                    {/* Resumen Pedido */}
-                    <Card >
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                                <div className="flex gap-4 items-center">
-                                    <p>Resumen de Pedido</p>
-                                    <span className={`${colorEstado} p-1 px-2 uppercase rounded-2xl text-sm text-white font-normal`}>
-                                        {situacion_pagos.estado_pago}
-                                    </span>
+                                <div className="mb-4 ">
+                                    <span className="text-sm text-gray-400">Metodo de Pago</span>
+                                    <br />
+                                    <a className="inline-flex gap-2 items-center text-[#099aea]" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">
+                                        <ExternalLink size={15} /> {situacion_pagos.metodo_pago}
+                                    </a>
                                 </div>
 
-                                {isPermited &&
-                                    <Observacion observaciones={situacion_facturacion.link_doc2} orden={cabecera_pedido?.numero_orden} />
-                                }
-                            </CardTitle>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex justify-between font-bold">
+                                        <span >Subtotal</span>
+                                        <span>S/ {resumen_pedido.subtotal.toFixed(2)}</span>
+                                    </div>
 
-                        </CardHeader>
-                        <CardContent>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Envio</span>
+                                        <span>S/ {resumen_pedido.costo_envio}</span>
+                                    </div>
 
-                            <div className="mb-4 ">
-                                <span className="text-sm text-gray-400">Metodo de Pago</span>
-                                <br />
-                                <a className="inline-flex gap-2 items-center text-[#099aea]" target="_blank" href={`https://www.mercadopago.com.pe/activities/1?q=${cabecera_pedido?.numero_orden}`} title="Ir a Mercado Pago">
-                                    <ExternalLink size={15} /> {situacion_pagos.metodo_pago}
-                                </a>
-                            </div>
 
-                            <div className="flex flex-col gap-2">
-                                <div className="flex justify-between font-bold">
-                                    <span >Subtotal</span>
-                                    <span>S/ {resumen_pedido.subtotal.toFixed(2)}</span>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Desc. Catalogo</span>
+                                        <span>- S/ {resumen_pedido.disccount_catalog?.toFixed(2)}</span>
+                                    </div>
+
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Desc. Cupon</span>
+                                        <span></span>
+                                        <span>{cupon ? `- S/ ${resumen_pedido.disccount_coupon?.toFixed(2)}` : '- S/ 0.00'}</span>
+                                    </div>
+
+                                    <div className="flex justify-between font-bold">
+                                        <span>Desc. Total</span>
+                                        <span className="text-red-400">- S/ {resumen_pedido.disccount?.toFixed(2)}</span>
+                                    </div>
+                                    <Separator />
+                                    <div className="flex justify-between font-bold">
+                                        <span className="text-xl" >Total</span>
+                                        <span className="text-xl" >S/ {resumen_pedido.gran_total?.toFixed(2)}</span>
+                                    </div>
                                 </div>
 
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Envio</span>
-                                    <span>S/ {resumen_pedido.costo_envio}</span>
-                                </div>
+                            </CardContent>
+
+                        </Card>
+
+                        {/* HISTORIAL */}
+                        <Collapisble orden={orden} created_at={created_at} />
 
 
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Desc. Catalogo</span>
-                                    <span>- S/ {resumen_pedido.disccount_catalog?.toFixed(2)}</span>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Desc. Cupon</span>
-                                    <span></span>
-                                    <span>{cupon ? `- S/ ${resumen_pedido.disccount_coupon?.toFixed(2)}` : '- S/ 0.00'}</span>
-                                </div>
-
-                                <div className="flex justify-between font-bold">
-                                    <span>Desc. Total</span>
-                                    <span className="text-red-400">- S/ {resumen_pedido.disccount?.toFixed(2)}</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between font-bold">
-                                    <span className="text-xl" >Total</span>
-                                    <span className="text-xl" >S/ {resumen_pedido.gran_total?.toFixed(2)}</span>
-                                </div>
-                            </div>
-
-                        </CardContent>
-
-                    </Card>
-
-                    {/* HISTORIAL */}
-                    <Collapisble orden={orden} created_at={created_at} />
-
-
-                    {/* Observaciones */}
-                    {/* <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
+                        {/* Observaciones */}
+                        {/* <Suspense key={cabecera_pedido?.numero_orden} fallback={<div>Cargando ... </div>}>
                         {situacion_facturacion.link_doc2 && <CardComentarios comentarios={situacion_facturacion.link_doc2} />}
                     </Suspense> */}
 
-                    {/* Comentarios */}
-                    <IncidenceComments order={orden} />
-                </div>
+                        {/* Comentarios */}
+                        <IncidenceComments order={orden} />
+                    </div>
 
-                {/* COLUMN 2*/}
-                <div className="flex flex-col  gap-2">
+                    {/* COLUMN 2*/}
+                    <div className="flex flex-col  gap-2">
 
-                    <Suspense fallback={<div>Cargando ... </div>}>
-                        {(situacion_facturacion.estado_facturacion !== 'pendiente') ? <CardFacturacion situacion_facturacion={situacion_facturacion} /> : <EmptyCardFacturacion />}
-                    </Suspense>
+                        <Suspense fallback={<div>Cargando ... </div>}>
+                            {(situacion_facturacion.estado_facturacion !== 'pendiente') ? <CardFacturacion situacion_facturacion={situacion_facturacion} /> : <EmptyCardFacturacion />}
+                        </Suspense>
 
-                    {/* SEGUIMIENTO PEDIDO */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Seguimiento de Pedido</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <TimeLineHorizontal situacion_envio={situacion_envio} situacion_pagos={situacion_pagos} pendiente={created_at} />
-                        </CardContent>
-                    </Card>
+                        {/* SEGUIMIENTO PEDIDO */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Seguimiento de Pedido</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <TimeLineHorizontal situacion_envio={situacion_envio} situacion_pagos={situacion_pagos} pendiente={created_at} />
+                            </CardContent>
+                        </Card>
 
 
-                    {/* INFORMACIÓN ENVIO */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <CardTitle>Informacion de Envio </CardTitle>
-                                {isPermited &&
-                                    <ModalEditEnvio datos_envio={datos_envio} orden={cabecera_pedido?.numero_orden} />
-                                }
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div >
-                                <span className="text-xs text-gray-400">Nombre</span>
-                                <p>{datos_envio.nombres_envio}</p>
-                            </div>
-                            <div >
-                                <span className="text-xs text-gray-400">Correo</span>
-                                <p>{cabecera_pedido?.email_pedido}</p>
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Dni</span>
-                                <AccionCopiar texto={datos_envio.dni_envio} />
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Direccion Envio</span>
-                                <p> {datos_envio.direccion_envio}</p>
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Distrito, provincia, departamento</span>
-                                <p> {datos_envio.distrito}, {datos_envio.provincia}, {datos_envio.departamento}.</p>
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Modalidad de Entrega</span>
-                                <p> {datos_envio.servicio_envio}</p>
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Telefono</span>
-                                <div className="flex gap-2 items-center">
-                                    <a href={`https://wa.me/51${datos_envio.telefono_envio}?text=Te Saludo Janella de Kayser Peru`} target="_blank">
-                                        <MessageCircleDashedIcon size={20} />
-                                    </a>
-                                    <p> {datos_envio.telefono_envio} </p>
+                        {/* INFORMACIÓN ENVIO */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle>Informacion de Envio </CardTitle>
+                                    {isPermited &&
+                                        <ModalEditEnvio datos_envio={datos_envio} orden={cabecera_pedido?.numero_orden} />
+                                    }
                                 </div>
-                            </div>
-                            <div>
-                                <span className="text-xs text-gray-400">Ubigeo</span>
-                                <p> {datos_envio.ubigeo}</p>
-                            </div>
-                            <a className="flex my-2 text-blue-600 items-center gap-2" target="_blank" href={direccionMaps}>
-                                <MapPin size={15} />
-                                Ver en Maps
-                            </a>
-                        </CardContent>
-                    </Card>
+                            </CardHeader>
+                            <CardContent>
+                                <div >
+                                    <span className="text-xs text-gray-400">Nombre</span>
+                                    <p>{datos_envio.nombres_envio}</p>
+                                </div>
+                                <div >
+                                    <span className="text-xs text-gray-400">Correo</span>
+                                    <p>{cabecera_pedido?.email_pedido}</p>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Dni</span>
+                                    <AccionCopiar texto={datos_envio.dni_envio} />
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Direccion Envio</span>
+                                    <p> {datos_envio.direccion_envio}</p>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Distrito, provincia, departamento</span>
+                                    <p> {datos_envio.distrito}, {datos_envio.provincia}, {datos_envio.departamento}.</p>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Modalidad de Entrega</span>
+                                    <p> {datos_envio.servicio_envio}</p>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Telefono</span>
+                                    <div className="flex gap-2 items-center">
+                                        <a href={`https://wa.me/51${datos_envio.telefono_envio}?text=Te Saludo Janella de Kayser Peru`} target="_blank">
+                                            <MessageCircleDashedIcon size={20} />
+                                        </a>
+                                        <p> {datos_envio.telefono_envio} </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-400">Ubigeo</span>
+                                    <p> {datos_envio.ubigeo}</p>
+                                </div>
+                                <a className="flex my-2 text-blue-600 items-center gap-2" target="_blank" href={direccionMaps}>
+                                    <MapPin size={15} />
+                                    Ver en Maps
+                                </a>
+                            </CardContent>
+                        </Card>
 
 
-                </div>
+                    </div>
 
-            </section>
-
+                </section>
+            </UpdateProvider>
         </main >
     )
 }
