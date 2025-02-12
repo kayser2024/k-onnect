@@ -46,6 +46,7 @@ export async function GET() {
         // } else {
         //     throw new Error('La respuesta de la API no es un array.');
         // }
+        return NextResponse.json({ message: 'Operación completada, pero no se realizaron cambios.' }, { status: 200 });
 
     } catch (error: any) {
         // En caso de error, devolver el mensaje de error
