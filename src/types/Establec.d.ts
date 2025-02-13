@@ -8,4 +8,9 @@ export interface PickupPoint {
   Place: string | null;
   Address: string | null
   Grouped?: string | null;
+  IsActive: boolean;
+  IsAvailablePickup: boolean;
+  CodWareHouse: string | null;
+  Lat: Decimal | null;
+  Lon: Decimal | null;
 }

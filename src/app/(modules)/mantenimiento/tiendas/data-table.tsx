@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,12 @@ let initialData: PickupPoint = {
     Department: "",
     LocationCode: "",
     Place: "",
-    Address: ""
+    Address: "",
+    CodWareHouse: "",
+    Lat: null,
+    Lon: null,
+    IsActive: false,
+    IsAvailablePickup: false
 }
 
 export const DataTable = () => {
@@ -38,13 +43,14 @@ export const DataTable = () => {
     const [action, setAction] = useState("")
     const [dataUser, setDataUser] = useState(initialData);
     const [isSaving, setIsSaving] = useState(false)
-    const [totalRegistros, setTotalRegistros] = useState(0);
     const [searchStore, setSearchStore] = useState("");
 
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['listEstablec'],
         queryFn: async () => await getListEstablecimientos(),
+        staleTime: 1000,
+
     })
 
 
@@ -78,7 +84,6 @@ export const DataTable = () => {
         if (!id) return;
         try {
             const establec: PickupPoint = await getEstablecById(id);
-            console.log({ establec }, '👀👀')
             setDataUser(establec)
             setIsOpenModal(true);
         } catch (error: any) {
@@ -88,47 +93,40 @@ export const DataTable = () => {
     }
 
 
-    // FUNCION PARA CAMBIAR ESTADO DEL USUARIO
-    const handleDelete = (action: string, id: string, currentStatus: boolean) => {
-        if (!id) return;
-
-        // abrir alert
-        setIsOpenAlert(true);
-        setDataUser(prevState => ({ ...prevState, dni: id, status: currentStatus }));
-        console.log(action, id)
-
-    }
-
-    //  FUNCION PARA RESETEAR LA CONTRASEÑA
-    const handleReset = (id: string) => {
-        if (!id) return;
-        // Abrir alert
-        setIsOpenAlert(true);
-        setDataUser(prevState => ({ ...prevState, dni: id }))
-        console.log("reset password", id)
-    }
-
-
     // FUNCIÓN PARA GUARDAR LOS DATOS DE la TIENDA
-    const handleSave = async (action: string, data: PickupPoint) => {
-        let message;
+    const handleSave = async (action: string, data: PickupPoint, id: number) => {
         let result;
         setIsSaving(true)
+        console.log(data)
         try {
             if (action === 'create') {
                 result = await createEstablec(data);
-                message = result.message;
-                
-                if (!result.ok) return;
+
+                if (!result.ok) {
+                    toast.error(result.message)
+                    return;
+                }
+                toast.success(result.message)
             }
 
 
 
             // llamar action para crear un establecimiento y actualizar establecimiento
-            if (action === 'edit') await updateEstablec(data)
+            if (action === 'edit') {
+                if (!id) {
+                    toast.error("No se obtuvo identificador del estableciemiento");
+                    return;
+                }
+                const result = await updateEstablec(data, id)
+
+                if (!result.ok) {
+                    toast.error(result.message)
+                    return;
+                }
+                toast.success(result.message)
+            }
 
 
-            toast.success(message);
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -137,15 +135,29 @@ export const DataTable = () => {
             setDataUser(initialData)
         }
 
-        refetch();
+        // refetch();
+        handleRefetch()
 
     }
+
+
+    const queryClient = useQueryClient();
+    const handleRefetch = async () => {
+        const previousPageIndex = table.getState().pagination.pageIndex;
+
+        await queryClient.invalidateQueries({ queryKey: ['listEstablec'] });
+
+        // Pequeño delay para asegurarnos de que los datos están listos antes de actualizar la paginación
+        setTimeout(() => {
+            table.setPageIndex(previousPageIndex);
+        }, 50);
+    };
 
 
     // REACT-TABLE
     const table = useReactTable({
         data: data || [],
-        columns: columns(handleOpenModal),
+        columns: columns(handleOpenModal, handleRefetch),
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -157,17 +169,14 @@ export const DataTable = () => {
         initialState: {
             pagination: {
                 pageSize: 10,
+                pageIndex: 0
             },
         },
     })
 
 
+
     // Actualizar el total de registros solo cuando cambie `data`
-    useEffect(() => {
-        if (data) {
-            setTotalRegistros(data.length);
-        }
-    }, [data]);
 
     useEffect(() => {
         const filters = []
@@ -198,8 +207,10 @@ export const DataTable = () => {
                 {isLoading
                     ? <Loader />
                     :
-                    <Table >
-                        <ScrollArea className='min-h-fit '>
+                    // <div className="">
+                    <ScrollArea className='h-[460px] w-full'>
+
+                        <Table >
                             <TableHeader>
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
@@ -231,15 +242,17 @@ export const DataTable = () => {
                                 )}
 
                             </TableBody>
-                            {/* <ScrollBar orientation='horizontal' /> */}
-                        </ScrollArea>
-                    </Table>
+                        </Table>
+                        <ScrollBar orientation='horizontal' />
+                    </ScrollArea>
+                    // </div>
+
                 }
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between space-x-2 py-4">
                     <div className="text-sm text-muted-foreground">
-                        Total de registros: {totalRegistros}
+                        Total de registros: {table.getPrePaginationRowModel().rows.length}
                     </div>
 
                     <div className="space-x-2 flex items-center justify-center">
@@ -274,6 +287,6 @@ export const DataTable = () => {
 
             {/* CONFIRM RESET - DELETE */}
             {/* <AlertConfirm isOpenAlert={isOpenAlert} setIsOpenAlert={setIsOpenAlert} action={action} handleAccept={handleAlertAccept} isSaving={isSaving} /> */}
-        </div>
+        </div >
     )
 }

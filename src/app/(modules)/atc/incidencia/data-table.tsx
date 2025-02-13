@@ -35,7 +35,7 @@ import { columns } from './columns'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { downloadExcelReport, downloadExcelReportDetail } from '@/lib/excel/downloadExcel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Check, MoreVertical } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react'
 import { InputInvoiceModal } from './ui/inputInvoice-modal'
 import Image from 'next/image'
 
@@ -69,6 +69,7 @@ export const DataTable = ({ incidentList }: OrderProps) => {
   const [incidenceId, setIncidenceId] = useState(0);
   const [openInputModal, setOpenInputModal] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [totalRegistros, setTotalRegistros] = useState(0);
 
   const [invoice, setInvoice] = useState("")
   const [nc, setNc] = useState("")
@@ -282,21 +283,6 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
 
-  // useEffect(() => {
-  //   // emit el evento, si es posible enviar alguna información
-  //   // socket.emit('evento1',data);
-
-
-  //   // escuchar el evento 
-  //   // socket.on('enveto2',(mensaje)=>{
-  //   // console.log('evento escuchado',mensaje)
-  //   // });
-
-  //   return () => {
-  //     socket.off("evento2")//desactivar el evento cuando se desmonta el componente
-  //   }
-  // }, [])
-
   return (
     <div className="w-full">
       <div className='flex flex-col md:flex-row gap-2 py-4'>
@@ -477,15 +463,36 @@ export const DataTable = ({ incidentList }: OrderProps) => {
 
 
       {/* PAGINATION */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          Anterior
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          Siguiente
-        </Button>
-      </div>
 
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="text-sm text-muted-foreground">
+          Total de registros: {table.getPrePaginationRowModel().rows.length}
+        </div>
+
+        <div className="space-x-2 flex items-center justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft />
+          </Button>
+
+          <div className="text-sm text-muted-foreground">
+            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      </div>
 
       {/* MODAL INPUT DOCUMENT */}
       <InputInvoiceModal

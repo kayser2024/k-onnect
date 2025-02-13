@@ -18,61 +18,57 @@ import { CascadingSelect } from '@/components/select/CascadingSelect'
 interface ModalProps {
     action: string,
     isOpenModal: boolean,
-    handleSave: (action: string, data: PickupPoint) => void,
+    handleSave: (action: string, data: PickupPoint, id: number) => void,
     setIsOpenModal: (value: boolean) => void,
     data: PickupPoint
     isSaving: boolean
 }
 export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, isSaving }: ModalProps) => {
 
+    console.log(data)
+    // const [dataPickupPoint, setDataPickupPoint] = useState({
+    //     PickupPointID: data.PickupPointID,
+    //     Description: data.Description,
+    //     District: data.District,
+    //     Province: data.Province,
+    //     Department: data.Department,
+    //     LocationCode: data.LocationCode,
+    //     Place: data.Place,
+    //     Address: data.Address,
+    //     CodWareHouse: data.CodWareHouse,
+    //     IsActive: data.IsActive,
+    //     Lat: data.Lat,
+    //     Lon: data.Lon,
+    //     IsAvailablePickup: data.IsAvailablePickup
 
-    console.log(data);
-
-    const initialData = {
-        PickupPointID: 0,
-        Description: '',
-        District: '',
-        Province: '',
-        Department: '',
-        LocationCode: '',
-        Place: '',
-        Address: '',
-
-    }
+    // });
 
     const [dataPickupPoint, setDataPickupPoint] = useState({
-        PickupPointID: data.PickupPointID,
-        Description: data.Description,
-        District: data.District,
-        Province: data.Province,
-        Department: data.Department,
-        LocationCode: data.LocationCode,
-        Place: data.Place,
-        Address: data.Address,
+        ...data,
+        Department: data.Department || '',
+        Province: data.Province || '',
+        District: data.District || '',
+        LocationCode: data.LocationCode || ''
     });
 
+    useEffect(() => {
+        setDataPickupPoint({
+            ...data,
+            Department: data.Department || '',
+            Province: data.Province || '',
+            District: data.District || '',
+            LocationCode: data.LocationCode || ''
+        });
+    }, [data]);
 
     const handleChange = (field: keyof PickupPoint, value: string) => {
-        setDataPickupPoint((prev) => ({ ...prev, [field]: value }));
+        setDataPickupPoint((prev) => ({
+            ...prev,
+            [field]: value || prev[field]
+        }));
     };
 
 
-    useEffect(() => {
-        if (data) {
-            setDataPickupPoint({
-                PickupPointID: data.PickupPointID,
-                Description: data.Description,
-                District: data.District,
-                Province: data.Province,
-                Department: data.Department,
-                LocationCode: data.LocationCode,
-                Place: data.Place,
-                Address: data.Address,
-            });
-        }
-    }, [data]);
-
-    // Escucha para la tecla Escape
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -94,10 +90,11 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
         // TODO:validar data 🚩
 
         // enviar data 
-        handleSave(action, dataPickupPoint)
+        handleSave(action, dataPickupPoint, data.PickupPointID)
     }
 
     console.log({ data, dataPickupPoint }, '🟢🟢')
+    console.log({ province: dataPickupPoint.Province, district: dataPickupPoint.District })
 
     return (
         <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}  >
@@ -124,24 +121,24 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
 
 
                     <CascadingSelect
-                        department={dataPickupPoint.Department || data.Department}
+                        department={dataPickupPoint.Department}
                         setDepartment={(value) => handleChange('Department', value)}
-                        province={dataPickupPoint.Province || data.Province}
+                        province={dataPickupPoint.Province}
                         setProvince={(value) => handleChange('Province', value)}
-                        district={dataPickupPoint.District || data.District}
+                        district={dataPickupPoint.District}
                         setDistrict={(value) => handleChange('District', value)}
-                        locationCode={dataPickupPoint.LocationCode || data.LocationCode}
+                        locationCode={dataPickupPoint.LocationCode}
                         setLocationCode={(value) => handleChange('LocationCode', value)}
                     />
 
                     {/* Ubigeo */}
                     <div className="">
-                        <Label htmlFor="lastName" className="text-right">Ubigeo:</Label>
+                        <Label htmlFor="locationCode" className="text-right">Ubigeo:</Label>
                         <Input
-                            id="lastName"
+                            id="locationCode"
                             className="col-span-3"
-                            value={dataPickupPoint.LocationCode || data.LocationCode || ""}
-                            onChange={e => setDataPickupPoint({ ...dataPickupPoint, LocationCode: e.target.value })}
+                            value={dataPickupPoint.LocationCode || ""}
+                            onChange={e => handleChange('LocationCode', e.target.value)}
                             required
                         />
                     </div>
@@ -153,12 +150,43 @@ export const Modal = ({ isOpenModal, handleSave, setIsOpenModal, action, data, i
                             id="Address"
                             className="col-span-3"
                             value={dataPickupPoint.Address || ""}
-                            onChange={e => setDataPickupPoint({ ...dataPickupPoint, Address: e.target.value })}
-                            required
+                            onChange={e => handleChange('Address', e.target.value)}
                         />
                     </div>
 
+                    {/* Latitud */}
+                    <div className="">
+                        <Label htmlFor="lat" className="text-right">Latitud:</Label>
+                        <Input
+                            id="lat"
+                            className="col-span-3"
+                            value={dataPickupPoint.Lat || ""}
+                            placeholder='-12.3456789'
+                            onChange={e => handleChange('Lat', e.target.value)}
+                        />
+                    </div>
 
+                    {/* Longitud */}
+                    <div className="">
+                        <Label htmlFor="lon" className="text-right">Longitud:</Label>
+                        <Input
+                            id="lon"
+                            className="col-span-3"
+                            value={dataPickupPoint.Lon || ""}
+                            placeholder='-12.3456789'
+                            onChange={e => handleChange('Lon', e.target.value)}
+                        />
+                    </div>
+                    {/* Codigo Almacén */}
+                    <div className="">
+                        <Label htmlFor="codwhouse" className="text-right">Cod. Almacén:</Label>
+                        <Input
+                            id="codwhouse"
+                            className="col-span-3"
+                            value={dataPickupPoint.CodWareHouse || ""}
+                            onChange={e => handleChange('CodWareHouse', e.target.value)}
+                        />
+                    </div>
                 </form>
                 <DialogFooter>
                     <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>

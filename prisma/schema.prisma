@@ -107,9 +107,11 @@ model PickupPoints {
   Place             String?        @db.VarChar(255)
   Address           String?        @db.VarChar(255)
   Grouped           String?        @db.VarChar(20)
-  IsActive          Boolean?       @default(true)
-  IsAvailablePickup Boolean?       @default(true)
+  IsActive          Boolean        @default(true)
+  IsAvailablePickup Boolean        @default(true)
   CodWareHouse      String?        @db.VarChar(10)
+  Lat               Decimal?       @db.Decimal(10, 8)
+  Lon               Decimal?       @db.Decimal(11, 8)
   Incidence         Incidence[]
   InfoShipping      InfoShipping[]
   NotesGuides       NotesGuides[]
@@ -303,9 +305,9 @@ model NotesGuides {
   PickupPointID     Int
   Observation       String?             @db.VarChar(255)
   IsOpen            Boolean             @default(true)
+  IsCompleted       Boolean             @default(false)
   CreatedAt         DateTime            @default(now()) @db.Timestamp(0)
   UpdatedAt         DateTime?           @db.Timestamp(0)
-  IsCompleted       Boolean             @default(false)
   NoteGuideDetails  NoteGuideDetails[]
   PickupPoints      PickupPoints        @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: Cascade, map: "fk_notesguides_pickuppoints")
   Users             Users               @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_notesguides_users")
