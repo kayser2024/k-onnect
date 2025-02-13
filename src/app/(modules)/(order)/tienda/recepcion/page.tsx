@@ -33,14 +33,14 @@ function RecepcionOrder() {
     // Estados para el filtro
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-    const [orderStatusId, setOrderStatusId] = useState<number>(3)
+    const [optionSelect, setOptionSelect] = useState<string>("1")
 
 
     const { data, isError, isLoading: orderLoading, refetch, isRefetching } = useQuery({
         queryKey: ["ordersByPickupPoint", PickupPointID],
         queryFn: async () => {
             if (PickupPointID) {
-                const response = await getOrderByPickupPoint(startDate, endDate, orderStatusId, PickupPointID)
+                const response = await getOrderByPickupPoint(startDate, endDate, optionSelect, PickupPointID)
                 return response.data
             }
         },
@@ -190,7 +190,7 @@ function RecepcionOrder() {
                     {/* Estado //en_ruta,recibido_tienda */}
                     <div className="flex flex-col gap-1">
                         <Label className="font-semibold">Estado:</Label>
-                        <SelectOrderStatus optionSelect={orderStatusId} setOptionSelect={setOrderStatusId} />
+                        <SelectOrderStatus optionSelect={optionSelect} setOptionSelect={setOptionSelect} />
                     </div>
                     {/* Buscar */}
                     <Button className="mt-5" onClick={handleSearchFilter}>Buscar</Button>
@@ -212,12 +212,10 @@ function RecepcionOrder() {
 
                 <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="text-sm font-bold">Lista de ORDENES</label>
-                    {orderStatusId === 3 &&
                         <>
                             <Button onClick={handleDeleteRows} variant='destructive' disabled={Object.keys(rowSelection).length === 0} >Quitar Selección</Button>
                             <Button onClick={handleChangeStatusOrders} disabled={isLoading}>{isLoading ? "Procesando..." : "Recepcionar"}</Button>
                         </>
-                    }
                 </div>
 
                 {/* Table with orders */}

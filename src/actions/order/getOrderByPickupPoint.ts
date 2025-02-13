@@ -2,8 +2,18 @@
 
 import prisma from "@/lib/prisma";
 
-export const getOrderByPickupPoint = async (startDate: Date | undefined, endDate: Date | undefined, orderStatusId: number, pickupPoint: number) => {
+export const getOrderByPickupPoint = async (startDate: Date | undefined, endDate: Date | undefined, optionSelected: string, pickupPoint: number) => {
     let result;
+    let optionFilter = null;
+
+    console.log(optionFilter)
+    console.log(optionSelected)
+    if (optionSelected === "2") {//pendiente
+        optionFilter = true
+    }
+    if (optionSelected === "3") {//recepcionado
+        optionFilter = false
+    }
 
     // Ajustar la fecha de inicio a las 00:00:00
     const startOfDay = new Date(startDate ?? new Date());
@@ -21,7 +31,8 @@ export const getOrderByPickupPoint = async (startDate: Date | undefined, endDate
                     lte: endOfDay
                 },
                 // PickupPointID: pickupPoint,
-                StatusID: orderStatusId, //estaddo 3 => en_ruta, 4 => recibido en tienda
+                // StatusID: orderStatusId, //estaddo 3 => en_ruta, 4 => recibido en tienda
+                SReceivedDate: optionFilter ? null : { not: null },
                 OR: [
                     { PickupPointID: pickupPoint },
                     {

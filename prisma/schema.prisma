@@ -83,6 +83,7 @@ model Orders {
   WHSendDate        DateTime?       @db.Timestamp(0)
   SReceivedDate     DateTime?       @db.Timestamp(0)
   SDispatchedDate   DateTime?       @db.Timestamp(0)
+  StateFacturation  Boolean         @default(true)
   Incidence         Incidence[]
   OrderStatus       OrderStatus     @relation(fields: [StatusID], references: [StatusID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
   Users             Users           @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
