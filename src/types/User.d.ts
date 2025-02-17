@@ -9,7 +9,7 @@ export interface User {
     TypeDocID: number;
     NroDoc: string
     RoleID: number
-    PickupPointID?: number
+    PickupPointID?: number | number[]
 }
 
 export interface Users {

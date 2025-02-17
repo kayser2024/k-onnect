@@ -15,7 +15,7 @@ const ListGuiaPage = async () => {
   const user = await auth()
   const role = user!.user.RoleID;
 
-  const rolePermission = [1, 2, 4]//admin,soporte,atc,tienda
+  const rolePermission = [1, 2, 6, 7]//admin,soporte,tienda,supervisor
 
   const isPermited = rolePermission.includes(role)
   if (!user) redirect('/api/auth/signin')

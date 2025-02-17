@@ -23,19 +23,21 @@ export interface Detail {
 
 
 
-export const getGuiasByValue = async (value: string, codEstablec: string) => {
+export const getGuiasByValue = async (value: string, codWareHouse?: string) => {
 
     const session = await auth()
-    const UserID = session?.user.UserID;
-    // const whCode=session?.user.WareHouseCode🚩
 
-    if (!UserID) {
-        throw new Error("Usuario no autenticado")
-    }
+    if (!session?.user || !session.user.UserID) throw new Error("Usuario no autenticado");
+    if (!codWareHouse) throw new Error("Código de almacén no definido");
+
+    const { UserID } = session.user;
 
 
     try {
-        const response = await fetch(`${process.env.KAYSER_GUIA_API}?GuideNumber=${value}&DestinationWarehouse=${codEstablec}`, {
+
+        console.log(codWareHouse);
+
+        const response = await fetch(`${process.env.KAYSER_GUIA_API}?GuideNumber=${value}&DestinationWarehouse=${codWareHouse}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,10 +51,6 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
 
         const data: ResponseGuia[] = await response.json();
 
-
-        let newNoteGuide;
-        let dataDetails;
-
         // guardar en la bd
         // verificar si la GUIA existe en la BD
         const existGuide = await prisma.notesGuides.findFirst({
@@ -60,24 +58,36 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
                 NumberDoc: value
             }
         })
+        console.log(existGuide)
+
+
+        let newNoteGuide;
+        let dataDetails;
 
         if (!existGuide) {
             // Ajustar la zona horaria
             const createdAt = new Date();
             createdAt.setHours(createdAt.getHours() - 5);
 
+
             // Insertar en la BD NotesGuides
             newNoteGuide = await prisma.notesGuides.create({
                 data: {
                     NumberDoc: value,
                     UserID: UserID,
-                    PickupPointID: 62,
+                    PickupPointID: (await prisma.pickupPoints.findFirst({
+                        where: { CodWareHouse: codWareHouse },
+                    }))?.PickupPointID || 0, // Asignar el PickupPointID del establecimiento
                     Observation: null,
                     CreatedAt: createdAt,
                     IsOpen: true,
                     IsCompleted: false,
                 }
             })
+
+            if (!newNoteGuide) {
+                throw new Error("No se pudo crear la guía en la base de datos");
+            }
 
             // insertar details
             const details = data[0].Details.map(item => ({
@@ -106,6 +116,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
                     NoteGuideID: existGuide!.NoteGuideID
                 }
             })
+            console.log(dataDetails)
 
         }
 
@@ -118,6 +129,7 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
             isCompleted: existGuide?.IsCompleted
         }
     } catch (error: any) {
+        console.log(error.message)
         return {
             ok: false,
             message: `ERROR: El número de guía ingresado no se encuentra cargado al sistema`,
@@ -127,98 +139,101 @@ export const getGuiasByValue = async (value: string, codEstablec: string) => {
 }
 
 // Función para obtener la data si la guía está en estado Completed
-export const getDataGuideOpen = async () => {
-    const session = await auth()
 
-    const PickupPointID = session?.user.PickupPointID
+export const getDataGuideOpen = async (codWareHouse?: string) => {
+    const session = await auth();
 
-    if (!PickupPointID) {
-        throw new Error(`No PickupPointID`);
+    if (!session?.user) {
+        throw new Error("Usuario no autenticado");
     }
 
     try {
+        if (!codWareHouse) {
+            throw new Error("No se ha proporcionado un establecimiento para buscar");
+        }
+
+        // Buscar la guía abierta para el establecimiento
         const dataGuideOpen = await prisma.notesGuides.findFirst({
             where: {
                 IsOpen: true,
-                PickupPointID: PickupPointID
+                PickupPoints: {
+                    CodWareHouse: codWareHouse
+                }
+            },
+            include: {
+                PickupPoints: true, // Incluir información del establecimiento
             }
-        })
+        });
 
+        // if (!dataGuideOpen) {
+        //     throw new Error("No se encontró una guía abierta para este establecimiento");
+        // }
 
-        if (!dataGuideOpen) {
-            throw new Error('Guia no encontrada')
-        }
-
-        // console.log(dataGuideOpen)
         return {
             ok: true,
-            message: 'Guia abierta encontrada',
+            message: "Guía abierta encontrada",
             data: dataGuideOpen,
-        }
-
+        };
     } catch (error: any) {
         return {
             ok: false,
-            message: `${error.message}`,
-            data: []
-        }
+            message: error.message,
+            data: null,
+        };
     }
-}
-
-
-// función para obtener todas las guías del establecimiento
-// export const getAllGuidesByEstablec = async () => {
-
-
-//     const session = await auth()
-//     const PickupPointID = session?.user.PickupPointID
-
-//     if (!PickupPointID) {
-//         throw new Error(`No PickupPointID`);
-//     }
-
-//     try {
-//         const allGuides = await prisma.notesGuides.findMany({
-//             where: {
-//                 PickupPointID: PickupPointID
-//             }
-//         })
-
-
-
-//         return {
-//             ok: true,
-//             message: 'Guias encontradas',
-//             data: allGuides
-//         }
-//     } catch (error: any) {
-
-//         return {
-//             ok: false,
-//             message: `${error.message}`,
-//             data: []
-//         }
-
-//     }
-
-// }
+};
 
 export const getAllGuidesByEstablec = async () => {
     const session = await auth();
+    const userId = session?.user.UserID
     const PickupPointID = session?.user.PickupPointID;
+    const rolId = session?.user.RoleID
+    console.log(PickupPointID)
 
     if (!PickupPointID) {
         throw new Error(`No PickupPointID`);
     }
+
+
+    let whereClause: any = {};
+
+    if (rolId === 1 || rolId === 2) {//si es admin o support
+        // Ver todas las guías del establecimiento
+        whereClause = {};
+    } else if (rolId === 7) {//su es Supervisor, filtrar solo de sus tiendas
+        // Ver solo las guías de las tiendas supervisadas
+        const supervisedPickupPoints = await prisma.usersPickupPoints.findMany({
+            where: {
+                UserID: userId,
+            },
+            select: {
+                PickupPointID: true,
+            },
+        });
+        const supervisedPickupPointIDs = supervisedPickupPoints.map(sp => sp.PickupPointID);
+        whereClause = {
+            PickupPointID: {
+                in: supervisedPickupPointIDs,
+            },
+        };
+    } else {
+        // Ver solo las guías de su establecimiento
+        if (!PickupPointID) {
+            throw new Error("PickupPointID no puede ser nulo o indefinido");
+        }
+        whereClause = {
+            PickupPointID: PickupPointID,
+        };
+    }
+
 
     try {
         // Obtener todas las guías del establecimiento
         const allGuides = await prisma.notesGuides.findMany({
-            where: {
-                PickupPointID: PickupPointID,
-            },
+            where: whereClause
         });
 
+        console.log(allGuides);
         // Obtener los datos agregados para cada guía
         const guidesWithAggregatedData = await Promise.all(
             allGuides.map(async (guide) => {
@@ -342,7 +357,6 @@ export const getNoteGuideDetailByID = async (noteGuideID: number) => {
 };
 
 // función para obtener la guía mediante un texto ingresado por el usuario
-
 export const getNoteGuideByText = async (text: string) => {
     const session = await auth();
     const PickupPointID = session?.user.PickupPointID;

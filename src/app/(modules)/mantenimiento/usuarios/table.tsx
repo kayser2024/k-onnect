@@ -35,6 +35,7 @@ let initialDataUsuer = {
     TypeDocID: 0
 }
 
+
 export const DataTable = () => {
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -123,11 +124,23 @@ export const DataTable = () => {
 
         setIsSaving(true)
         try {
-            if (action === 'create') await createUser(data);
+            if (action === 'create') {
+                try {
+                    const result = await createUser(data)
+                    if (!result.ok) {
+                        throw new Error(result.message)
+                    }
+                    toast.success(result.message)
+                } catch (error: any) {
+                    toast.error(error.message)
+                }
+
+            };
+            
             if (action === 'edit') await updateUser(data);
-            toast.success("Operación exitosa");
         } catch (error: any) {
             toast.error(error.message);
+            return false;
         } finally {
             setIsSaving(false)
             setIsOpenModal(false)
@@ -135,6 +148,7 @@ export const DataTable = () => {
         }
 
         refetch();
+        return true
 
     }
 

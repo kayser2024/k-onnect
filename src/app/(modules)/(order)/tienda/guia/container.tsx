@@ -7,6 +7,7 @@ import { Detail, ResponseGuia } from "@/types/Guia"
 import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { getDataGuideOpen, getGuiasByValue } from "@/actions/guia/getGuia"
+import { useSession } from "next-auth/react"
 
 interface GuideData {
     NoteGuideID: number;
@@ -19,7 +20,15 @@ interface GuideData {
     UpdatedAt: Date | null;
     IsCompleted: boolean;
 }
-export const Container = () => {
+
+interface Props {
+    rolId: number
+}
+export const Container = ({ rolId }: Props) => {
+    const session = useSession()
+    const whCode = session.data?.user.PickupPoints?.CodWareHouse || "";
+
+    console.log(whCode)
 
     const [rowSelection, setRowSelection] = useState<{ [key: number]: boolean }>({});
     const [loading, setLoading] = useState(false)
@@ -28,110 +37,154 @@ export const Container = () => {
     const [isGuideOpen, setIsGuideOpen] = useState(false)
     const [isLoadingInitial, setIsLoadingInitial] = useState(true);
 
+
+    const canSelectStore = [1, 2, 7].includes(rolId)
+    const [selectStore, setSelectStore] = useState(canSelectStore ? "" : whCode);
+    console.log(selectStore)
+
     // Primero obtener la guia abierta de la tienda
+    console.log(rolId)
+    // const canSelectStore = [1, 2, 7].includes(rolId)
 
 
-    const { data: dataGuias, isLoading, refetch, isRefetching, isFetching } = useQuery({
-        queryKey: ["AllGuiasBySearchValue", searchValue],
+    const { data: DataGuideOpen, isLoading: isLoadingData, error: errorDataGuideOpen } = useQuery({
+        queryKey: ["InitData", selectStore],
         queryFn: async () => {
+            if (!selectStore) return null;
 
-            if (searchValue.trim() === '') {
+
+            try {
+                const result = await getDataGuideOpen(selectStore);
+                if (result.data?.NumberDoc && result.data?.IsOpen) {
+                    setSearchValue(result.data.NumberDoc);
+                    setIsGuideOpen(true);
+                    return result.data;
+                }
+                // if (result.data && 'NumberDoc' in result.data) {
+                //     setSearchValue(result.data.NumberDoc || "")
+                //     setIsGuideOpen(true)
+                //     return result.data;
+                // }
+
+                // Si no hay guía abierta, limpiar input y tabla
+                setSearchValue("");
                 setIsGuideOpen(false);
-                return []
+                setData([]);
+
+            } catch (error: any) {
+                console.log(error)
+                toast.error(error.message)
+                return null
             }
-            const responseGuia = await getGuiasByValue(searchValue.trim(), 'ALM157')
-            if (!responseGuia.ok) {
-                toast.error(`${responseGuia.message}`)
-                return []
-            }
-
-            setData(responseGuia.data)
-
-            if (responseGuia.isCompleted) {
-                toast.warning("La Guía ya se ecuentra Completado");
-                setData([])
-                // setIsGuideCompleted(true)
-                setIsGuideOpen(false)
-                return [];
-            } else {
-                // setIsGuideCompleted(false)
-                setIsGuideOpen(true)
-                return responseGuia.data
-            }
-            // console.log(responseGuia.data)
-
-        },
-        // staleTime: 1000 * 60, // 1 minute
-        enabled: false,
-        initialData: []
-    })
-
-    const { data: DataGuideOpen, isLoading: isLoadingData } = useQuery({
-        queryKey: ["InitData"],
-        queryFn: async () => {
-
-            const result = await getDataGuideOpen();
-            if (result.data && 'NumberDoc' in result.data) {
-                setSearchValue(result.data.NumberDoc || "")
-                setIsGuideOpen(true)
-
-            } else {
-                setIsGuideOpen(false)
-            }
-            console.log(result.data)
-
-            // setData(result.data)
-            return result.data
         },
         // enabled: false
+        enabled: !!selectStore, // Solo se ejecuta si selectStore está definido o el rol no es 1, 2 o 7
+    })
+
+
+    console.log(errorDataGuideOpen)
+
+
+    const { data: dataGuias, isLoading, refetch } = useQuery({
+        queryKey: ["AllGuiasBySearchValue", searchValue, selectStore],
+        queryFn: async () => {
+
+            if (!selectStore || !searchValue) {
+                setIsGuideOpen(false);
+                return [];
+            }
+
+            try {
+                const responseGuia = await getGuiasByValue(searchValue.trim(), selectStore);
+                if (!responseGuia.ok) {
+                    toast.error(`${responseGuia.message}`)
+                    return []
+                }
+                setData(responseGuia.data)
+
+                if (responseGuia.isCompleted) {
+                    toast.warning("La Guía ya se ecuentra Completado");
+                    setSearchValue(""); // Limpiar el input
+                    setData([]); // Limpiar la tabla
+                    setIsGuideOpen(false)
+                    return [];
+                } else {
+                    setIsGuideOpen(true)
+                    return responseGuia.data
+                }
+
+            } catch (error: any) {
+                console.log(error)
+                toast.error(error.message)
+                setData([])
+                setIsGuideOpen(false)
+                return []
+            }
+
+        },
+        enabled: !!selectStore && !!searchValue,
     })
 
 
     useEffect(() => {
-        if (DataGuideOpen) {
-            refetch().finally(() => setIsLoadingInitial(false));
+        if (selectStore) refetch();
+    }, [selectStore, refetch]);
+
+    useEffect(() => {
+        if (!isLoading && !isLoadingData) {
+            setIsLoadingInitial(false);
         }
-    }, [DataGuideOpen, refetch]);
+    }, [isLoading, isLoadingData]);
+
+
+
 
 
     const tableData = useMemo(() => data || [], [data]);
+
+
     return (
 
         <div className="flex flex-col gap-2">
+
             {/* FORMUlARIO PARA BUSCAR GUIAS */}
             {
-                isLoadingInitial
-                    ? (<Loader />)
-                    : (
-                        <>
-                            <SearchGuia
-                                setData={setData}
-                                setLoading={setLoading}
-                                searchValue={searchValue}
-                                setSearchValue={setSearchValue}
-                                refetch={refetch}
-                                isGuideOpen={isGuideOpen}
-                            />
 
-                            {/* tabla */}
-                            {
-                                isLoading
-                                    ? <Loader />
-                                    : <DataTable
-                                        data={tableData}
-                                        rowSelection={rowSelection}
-                                        setRowSelection={setRowSelection}
-                                        refetch={refetch}
-                                        guide={searchValue}
-                                        setData={setData}
-                                        setIsGuideOpen={setIsGuideOpen}
-                                    />
-                            }
+                (
+                    <>
+                        <SearchGuia
+                            setData={setData}
+                            setLoading={setLoading}
+                            searchValue={searchValue}
+                            setSearchValue={setSearchValue}
+                            refetch={refetch}
+                            isGuideOpen={isGuideOpen}
+                            canSelectStore={canSelectStore}
+                            setSelectStore={setSelectStore}
+                            selectStore={selectStore}
+                        />
 
-                            {loading && <Loader />}
-                        </>
-                    )
+                        {/* tabla */}
+                        {
+                            (isLoading || isLoadingData || isLoadingInitial)
+                                ? <Loader />
+                                : <DataTable
+                                    data={tableData}
+                                    rowSelection={rowSelection}
+                                    setRowSelection={setRowSelection}
+                                    refetch={refetch}
+                                    guide={searchValue}
+                                    setData={setData}
+                                    setIsGuideOpen={setIsGuideOpen}
+                                />
+                        }
+
+                        {loading && <Loader />}
+                    </>
+                )
             }
+
+
 
         </div>
     )

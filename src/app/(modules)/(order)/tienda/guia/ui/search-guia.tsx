@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Detail, ResponseGuia } from '@/types/Guia'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { SelectStore } from './select-store'
 
 
 interface Props {
@@ -15,8 +16,11 @@ interface Props {
     setLoading: (value: boolean) => void
     refetch: () => Promise<QueryObserverResult<Detail[]>>
     isGuideOpen: boolean
+    canSelectStore: boolean
+    setSelectStore: (value: string) => void
+    selectStore: string
 }
-export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearchValue, isGuideOpen }: Props) => {
+export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearchValue, isGuideOpen, canSelectStore, setSelectStore, selectStore }: Props) => {
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -44,6 +48,13 @@ export const SearchGuia = ({ setData, setLoading, refetch, searchValue, setSearc
     return (
         <div className='shadow-md border p-2 pb-4 rounded-md'>
             <form className="flex gap-2 w-full shadow-sm" onSubmit={(e) => handleSearch(e)}>
+                {
+                    canSelectStore &&
+                    <div className='w-full'>
+                        <Label>Tienda:</Label>
+                        <SelectStore setStore={setSelectStore} />
+                    </div>
+                }
 
                 <div className="w-full">
                     <Label>Buscar GUIA</Label>

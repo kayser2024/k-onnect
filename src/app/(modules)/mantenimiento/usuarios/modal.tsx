@@ -23,12 +23,13 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from 'sonner'
-import { SelectStore } from '@/components/select/select-store'
+import { MultiSelectStore } from './ui/multi-select-store'
+
 
 interface ModalUserProps {
     action: string,
     isOpenModal: boolean,
-    handleSave: (action: string, data: User) => void,
+    handleSave: (action: string, data: User) => Promise<boolean>,
     setIsOpenModal: (value: boolean) => void,
     data: User
     isSaving: boolean
@@ -39,7 +40,17 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [rolId, setRolId] = useState<number>(1);
-    const [pickupPointID, SetPickupPointID] = useState("");
+    const [pickupPointID, SetPickupPointID] = useState<number | number[]>(0);
+
+    // Función para resetear los valores del formulario
+    const resetForm = () => {
+        setName('');
+        setLastName('');
+        setEmail('');
+        setDni('');
+        setRolId(1);
+        SetPickupPointID(0);
+    };
 
     useEffect(() => {
         if (data) {
@@ -71,7 +82,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
     // validar información antes de enviar
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // validar data
         if (name.trim() === '' || email.trim() === '' || lastName.trim() === '' || dni.trim() === '') {
             return toast.error('Todos los campos son obligartorios')
@@ -86,9 +97,16 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
             return toast.error('El número de DNI debe tener al menos 8 dígitos')
         }
 
+        if ((rolId === 6 || rolId === 7) && (Array.isArray(pickupPointID) ? pickupPointID.length === 0 : pickupPointID === 0)) {
+            return toast.error('Debe seleccionar al menos una tienda');
+        }
+
 
         // enviar data 
-        handleSave(action, { Name: name, LastName: lastName, Email: email, RoleID: rolId, NroDoc: dni, TypeDocID: 1, PickupPointID: Number(pickupPointID), UserID: data.UserID })
+        const isSuccess = await handleSave(action, { Name: name, LastName: lastName, Email: email, RoleID: rolId, NroDoc: dni, TypeDocID: 1, PickupPointID: pickupPointID, UserID: data.UserID })
+        if (isSuccess) {
+            resetForm()
+        }
     }
 
     return (
@@ -114,6 +132,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                             required
                         />
                     </div>
+
                     {/* nombre */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">Nombre</Label>
@@ -167,6 +186,7 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
                                     <SelectItem value="4">ATC</SelectItem>
                                     <SelectItem value="5">ALMACEN</SelectItem>
                                     <SelectItem value="6">TIENDA</SelectItem>
+                                    <SelectItem value="7">SUPERVISOR</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -174,20 +194,22 @@ export const ModalUser = ({ isOpenModal, handleSave, setIsOpenModal, action, dat
 
 
                     {/* Tienda SELECT */}
-                    {rolId === 3 &&
+                    {(rolId == 6 || rolId === 7) &&
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="email" className="text-right">Tienda:</Label>
                             <div className="col-span-3">
-                                <SelectStore setStore={SetPickupPointID} />
+                                {/* <SelectStore setStore={SetPickupPointID} rolId={rolId} /> */}
+                                <MultiSelectStore setStore={SetPickupPointID} rolId={rolId} />
                             </div>
 
                         </div>
                     }
 
 
+
                 </form>
                 <DialogFooter className='mt-4'>
-                    <Button onClick={() => setIsOpenModal(false)} variant='outline' disabled={isSaving}>Cerrar</Button>
+                    <Button onClick={() => { setIsOpenModal(false); resetForm() }} variant='outline' disabled={isSaving}>Cerrar</Button>
                     <Button onClick={handleSubmit} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
                 </DialogFooter>
             </DialogContent>

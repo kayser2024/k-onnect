@@ -99,25 +99,26 @@ model Orders {
 }
 
 model PickupPoints {
-  PickupPointID     Int            @id @default(autoincrement())
-  Description       String?        @db.VarChar(100)
-  District          String?        @db.VarChar(100)
-  Province          String?        @db.VarChar(100)
-  Department        String?        @db.VarChar(100)
-  LocationCode      String?        @db.VarChar(10)
-  Place             String?        @db.VarChar(255)
-  Address           String?        @db.VarChar(255)
-  Grouped           String?        @db.VarChar(20)
-  IsActive          Boolean        @default(true)
-  IsAvailablePickup Boolean        @default(true)
-  CodWareHouse      String?        @db.VarChar(10)
-  Lat               Decimal?       @db.Decimal(10, 8)
-  Lon               Decimal?       @db.Decimal(11, 8)
+  PickupPointID     Int                 @id @default(autoincrement())
+  Description       String?             @db.VarChar(100)
+  District          String?             @db.VarChar(100)
+  Province          String?             @db.VarChar(100)
+  Department        String?             @db.VarChar(100)
+  LocationCode      String?             @db.VarChar(10)
+  Place             String?             @db.VarChar(255)
+  Address           String?             @db.VarChar(255)
+  Grouped           String?             @db.VarChar(20)
+  IsActive          Boolean             @default(true)
+  IsAvailablePickup Boolean             @default(true)
+  CodWareHouse      String?             @db.VarChar(10)
+  Lat               Decimal?            @db.Decimal(10, 8)
+  Lon               Decimal?            @db.Decimal(11, 8)
   Incidence         Incidence[]
   InfoShipping      InfoShipping[]
   NotesGuides       NotesGuides[]
   Orders            Orders[]
   Users             Users[]
+  UsersPickupPoints UsersPickupPoints[]
   usuarios          usuarios[]
 }
 
@@ -134,27 +135,28 @@ model TypesDoc {
 }
 
 model Users {
-  UserID                                            Int             @id @default(autoincrement())
-  Email                                             String          @unique(map: "Email") @db.VarChar(255)
-  Password                                          String          @db.VarChar(255)
-  Name                                              String          @db.VarChar(100)
-  Status                                            Boolean         @default(true)
+  UserID                                            Int                 @id @default(autoincrement())
+  Email                                             String              @unique(map: "Email") @db.VarChar(255)
+  Password                                          String              @db.VarChar(255)
+  Name                                              String              @db.VarChar(100)
+  Status                                            Boolean             @default(true)
   TypeDocID                                         Int
-  NroDoc                                            String          @unique(map: "NroDoc") @db.VarChar(16)
+  NroDoc                                            String              @unique(map: "NroDoc") @db.VarChar(16)
   RoleID                                            Int
-  LastName                                          String?         @db.VarChar(255)
+  LastName                                          String?             @db.VarChar(255)
   PickupPointID                                     Int?
-  CreatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
-  UpdatedAt                                         DateTime?       @default(now()) @db.Timestamp(0)
+  CreatedAt                                         DateTime?           @default(now()) @db.Timestamp(0)
+  UpdatedAt                                         DateTime?           @default(now()) @db.Timestamp(0)
   Incidence                                         Incidence[]
   NotesGuides                                       NotesGuides[]
-  Notifications_Notifications_SenderUserIDToUsers   Notifications[] @relation("Notifications_SenderUserIDToUsers")
-  Notifications_Notifications_ReceptorUserIDToUsers Notifications[] @relation("Notifications_ReceptorUserIDToUsers")
+  Notifications_Notifications_SenderUserIDToUsers   Notifications[]     @relation("Notifications_SenderUserIDToUsers")
+  Notifications_Notifications_ReceptorUserIDToUsers Notifications[]     @relation("Notifications_ReceptorUserIDToUsers")
   OrderLogs                                         OrderLogs[]
   Orders                                            Orders[]
-  TypesDoc                                          TypesDoc        @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
-  Roles                                             Roles           @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
-  PickupPoints                                      PickupPoints?   @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_3")
+  TypesDoc                                          TypesDoc            @relation(fields: [TypeDocID], references: [TypeDocID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_1")
+  Roles                                             Roles               @relation(fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_2")
+  PickupPoints                                      PickupPoints?       @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: NoAction, onUpdate: NoAction, map: "Users_ibfk_3")
+  UsersPickupPoints                                 UsersPickupPoints[]
 
   @@index([RoleID], map: "RoleID")
   @@index([TypeDocID], map: "TypeDocID")
@@ -353,4 +355,20 @@ model tbl_product_master {
   CodProd     String @db.VarChar(50)
   Description String @db.VarChar(255)
   ImageUrl    String @db.VarChar(255)
+}
+
+model IncidenceStatus {
+  IncidenceStatusID Int    @id @default(autoincrement())
+  Description       String @db.VarChar(255)
+}
+
+model UsersPickupPoints {
+  UserPickupPointID Int          @id @default(autoincrement())
+  UserID            Int
+  PickupPointID     Int
+  PickupPoints      PickupPoints @relation(fields: [PickupPointID], references: [PickupPointID], onDelete: Cascade, map: "fk_PickupPointID_UserPickupPointID")
+  Users             Users        @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_UserID_UserPickupPointID")
+
+  @@index([PickupPointID], map: "fk_PickupPointID_UserPickupPointID")
+  @@index([UserID], map: "fk_UserID_UserPickupPointID")
 }

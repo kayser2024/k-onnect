@@ -17,6 +17,14 @@ declare module 'next-auth' {
             PickupPointID: number | null,
             CreatedAt: Date | null,
             UpdatedAt: Date | null,
+            PickupPoints: {
+                Description: string,
+                CodWareHouse: string,
+                Lat: Decimal,
+                Lon: Decimal,
+                IsActive: boolean,
+                IsAvailablePickup: boolean
+            }
         } & DefaultSession
     }
 }

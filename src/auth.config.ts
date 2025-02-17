@@ -79,6 +79,18 @@ export const authConfig: NextAuthConfig = {
             Email: email,
             Status: true
           },
+          include: {
+            PickupPoints: {
+              select: {
+                Description: true,
+                CodWareHouse: true,
+                Lat: true,
+                Lon: true,
+                IsActive: true,
+                IsAvailablePickup: true
+              }
+            }
+          }
         })
 
         if (!user) return null;

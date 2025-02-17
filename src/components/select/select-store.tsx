@@ -8,12 +8,13 @@ import { getAllEstablecimientos } from '@/actions/establecimiento/getEstablecimi
 
 interface SelectStoreProps {
     setStore: (value: string) => void;
+    rolId?: number
 }
 interface Option {
     label: string;
     value: string;
 }
-export const SelectStore = ({ setStore }: SelectStoreProps) => {
+export const SelectStore = ({ setStore, rolId }: SelectStoreProps) => {
 
     const promiseOptions = async (search: string): Promise<Option[]> => {
         try {

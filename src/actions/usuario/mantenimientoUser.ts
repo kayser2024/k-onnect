@@ -59,14 +59,18 @@ export const createUser = async (data: User) => {
     const now = new Date();
     now.setHours(now.getHours() - 5); // Ajuste de zona horaria
 
+    const rolId = data.RoleID;
+    const defaultEstablec = Array.isArray(data.PickupPointID) ? data.PickupPointID[0] : data.PickupPointID;//lista de establecimientos seleccionados
 
-    let result;
+
+
+
 
     // encriptar la contraseña
     const passwordHash = await bcryptjs.hash(data.NroDoc, 10);
 
     try {
-        result = await prisma.users.create({
+        const result = await prisma.users.create({
             data: {
                 Email: data.Email,
                 Name: data.Name,
@@ -75,17 +79,42 @@ export const createUser = async (data: User) => {
                 NroDoc: data.NroDoc,
                 RoleID: data.RoleID,
                 Password: passwordHash,
-                PickupPointID: data.PickupPointID === 0 ? null : data.PickupPointID,
+                PickupPointID: data.PickupPointID === 0 ? null : defaultEstablec,
                 CreatedAt: now,
             }
         });
 
+        if (rolId === 7 && Array.isArray(data.PickupPointID)) {
+            await prisma.usersPickupPoints.createMany({
+                data: data.PickupPointID.map((pickupPointID) => ({
+                    UserID: result.UserID,
+                    PickupPointID: pickupPointID,
+                })),
+            });
+        } else if (rolId === 6 && defaultEstablec !== undefined) {
+            await prisma.usersPickupPoints.create({
+                data: {
+                    UserID: result.UserID,
+                    PickupPointID: defaultEstablec,
+                }
+            });
+        }
+
+        return {
+            ok: true,
+            message: 'Usuario creado con exito',
+            data: result
+        }
+
     } catch (error: any) {
         console.log(error)
-        return error.message
+        return {
+            ok: false,
+            message: error.message,
+            data: null
+        }
     }
 
-    return result;
 }
 
 export const updateUser = async (data: User) => {

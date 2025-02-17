@@ -22,7 +22,7 @@ export const Sidebar = () => {
             nombre: 'Inicio',
             icon: <Search />,
             ruta: '/',
-            roles: [1, 2, 3, 4, 5, 6]
+            roles: [1, 2, 3, 4, 5, 6, 7]
         },
         {
             nombre: 'ATC',
@@ -54,7 +54,7 @@ export const Sidebar = () => {
             nombre: 'Tienda',
             icon: <Store />,
             ruta: '/tienda_orden',
-            roles: [1, 2, 6],
+            roles: [1, 2, 6, 7],
             children: [
                 {
                     nombre: "Ordenes",

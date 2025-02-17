@@ -1,5 +1,6 @@
 'use server';
 
+import { auth } from "@/auth.config";
 import prisma from "@/lib/prisma";
 import { PickupPoint } from "@/types/Establec";
 
@@ -10,7 +11,8 @@ export const getAllEstablecimientos = async (search: string) => {
         where: {
             Description: {
                 contains: search,
-            }
+            },
+            IsActive: true
         }
     }
     );
@@ -21,6 +23,29 @@ export const getAllEstablecimientos = async (search: string) => {
     }));
 }
 
+export const loadAllEstablecimientos = async () => {
+
+    try {
+
+        const result = await prisma.pickupPoints.findMany({
+            where: {
+                IsActive: true
+            }
+        })
+
+        return {
+            ok: true,
+            message: "Establecimientos cargados con éxito",
+            data: result
+        }
+    } catch (error: any) {
+        return {
+            ok: false,
+            message: error.message,
+            data: null
+        }
+    }
+};
 
 export const getListEstablecimientos = async () => {
 
@@ -46,6 +71,66 @@ export const getListEstablecimientos = async () => {
 
 }
 
+// Obtener Tiendas asignados a los usuarios
+export const getStoreByUser = async () => {
+
+    const session = await auth();
+    const rolId = session?.user.RoleID;
+    const userId = session?.user.UserID;
+
+    if (!session) {
+        throw new Error('No se pudo obtener la sesión');
+    }
+
+    let whereClause: any = {};
+
+    if (rolId === 1 || rolId === 2) {
+        whereClause = {
+            IsActive: true,
+            Description: {
+                not: {
+                    contains: 'DELIVERY',
+                },
+            }
+        }
+    } else if (rolId === 7) {
+        const supervisedPickupPoints = await prisma.usersPickupPoints.findMany({
+            where: {
+                UserID: userId,
+            },
+            select: {
+                PickupPointID: true,
+            },
+        });
+
+        const supervisedPickupPointIDs = supervisedPickupPoints.map(sp => sp.PickupPointID);
+        whereClause = {
+            PickupPointID: {
+                in: supervisedPickupPointIDs,
+            },
+        };
+    }
+
+    try {
+        const result = await prisma.pickupPoints.findMany({
+            where: whereClause
+        })
+
+        console.log(result)
+        return {
+            ok: true,
+            message: "Establecimientos cargados con éxito",
+            data: result
+        }
+    } catch (error: any) {
+
+        return {
+            ok: false,
+            message: error.message,
+            data: null
+        }
+    }
+}
 
 export const getEstablecById = async (id: number) => {
 

@@ -51,6 +51,7 @@ export const columns = (handleOpenModal: (action: string, userID: number, curren
             if (rol == 4) result = 'ATC';
             if (rol == 5) result = 'ALMACEN';
             if (rol == 6) result = 'TIENDA';
+            if (rol == 7) result = 'SUPERVISOR';
             return <Badge variant='outline'>{result}</Badge>;
         }
     },
